@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#f7f4ea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="2048">
+  <title>2048 — 4×4</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="2048">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+  <style>
+    :root {
+      --bg: #f7f4ea;
+      --text: #776f66;
+      --board: #b9aa9c;
+      --empty: #cec4b9;
+      --button: #9f826d;
+      --gap: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(14px, env(safe-area-inset-left));
+      overscroll-behavior: none;
+    }
+
+    .app {
+      width: min(94vw, 520px);
+      margin: 0 auto;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(68px, 20vw, 104px);
+      line-height: .85;
+      font-weight: 500;
+      letter-spacing: -6px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stat {
+      min-width: 92px;
+      padding: 8px 10px 10px;
+      border-radius: 11px;
+      background: var(--board);
+      color: white;
+      text-align: center;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .value {
+      display: block;
+      margin-top: 5px;
+      font-size: 28px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin: 16px 0 14px;
+    }
+
+    button {
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: var(--button);
+      color: white;
+      font: 600 30px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      box-shadow: 0 2px 0 rgba(0,0,0,.08);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: .42;
+    }
+
+    .board-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .board {
+      width: 100%;
+      height: 100%;
+      padding: var(--gap);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: var(--gap);
+      border-radius: 12px;
+      background: var(--board);
+    }
+
+    .cell {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 8px;
+      background: var(--empty);
+      font-weight: 500;
+      font-size: clamp(30px, 10vw, 58px);
+      line-height: 1;
+      transition: background-color 100ms ease, transform 100ms ease;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cell[data-digits="3"] { font-size: clamp(26px, 8.5vw, 50px); }
+    .cell[data-digits="4"] { font-size: clamp(22px, 7vw, 42px); }
+    .cell[data-digits="5"] { font-size: clamp(18px, 5.8vw, 34px); }
+
+    .cell.pop {
+      animation: pop .16s ease-out;
+    }
+
+    .cell.new {
+      animation: appear .14s ease-out;
+    }
+
+    @keyframes pop {
+      50% { transform: scale(1.11); }
+    }
+
+    @keyframes appear {
+      from { transform: scale(.35); opacity: .25; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      border-radius: 12px;
+      background: rgba(247,244,234,.84);
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .card {
+      width: min(88%, 350px);
+      padding: 24px 20px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.94);
+      text-align: center;
+      box-shadow: 0 16px 42px rgba(70,55,40,.18);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 36px;
+    }
+
+    .card p {
+      margin: 0 0 18px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .card button {
+      width: auto;
+      min-width: 140px;
+      padding: 0 20px;
+      font-size: 19px;
+    }
+
+    .hint {
+      margin: 18px 8px 0;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.35;
+      opacity: .82;
+    }
+
+    .status {
+      margin: 10px 8px 0;
+      min-height: 18px;
+      text-align: center;
+      font-size: 13px;
+      opacity: .55;
+    }
+
+    @media (max-width: 410px) {
+      h1 {
+        font-size: 64px;
+        letter-spacing: -4px;
+      }
+
+      .stat {
+        min-width: 76px;
+        padding-inline: 7px;
+      }
+
+      .label {
+        font-size: 11px;
+      }
+
+      .value {
+        font-size: 23px;
+      }
+
+      .controls {
+        margin-top: 13px;
+      }
+
+      button {
+        width: 48px;
+        height: 48px;
+        font-size: 27px;
+      }
+
+      :root {
+        --gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="top">
+      <h1>2048</h1>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="label">Очки</span>
+          <span id="score" class="value">0</span>
+        </div>
+        <div class="stat">
+          <span class="label">Рекорд</span>
+          <span id="best" class="value">0</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <button id="undo" aria-label="Отменить ход" title="Отменить ход">↶</button>
+      <button id="restart" aria-label="Новая игра" title="Новая игра">↻</button>
+    </section>
+
+    <section id="boardWrap" class="board-wrap">
+      <div id="board" class="board">
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+
+      <div id="overlay" class="overlay">
+        <div class="card">
+          <h2 id="overlayTitle">Игра окончена</h2>
+          <p id="overlayText"></p>
+          <button id="again">Начать заново</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="hint">Свайпай по полю. На компьютере работают стрелки и WASD.</p>
+    <p id="status" class="status"></p>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+
+    const N = 4;
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+    const cells = Array.from(document.querySelectorAll(".cell"));
+    const boardWrap = document.getElementById("boardWrap");
+    const undoBtn = document.getElementById("undo");
+    const restartBtn = document.getElementById("restart");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const againBtn = document.getElementById("again");
+    const statusEl = document.getElementById("status");
+
+    const colors = {
+      0:    ["#cec4b9", "transparent"],
+      2:    ["#eee6dc", "#776e65"],
+      4:    ["#ede0c8", "#776e65"],
+      8:    ["#f2b179", "#ffffff"],
+      16:   ["#f59563", "#ffffff"],
+      32:   ["#f67c5f", "#ffffff"],
+      64:   ["#f65e3b", "#ffffff"],
+      128:  ["#edcf72", "#ffffff"],
+      256:  ["#edcc61", "#ffffff"],
+      512:  ["#edc850", "#ffffff"],
+      1024: ["#edc53f", "#ffffff"],
+      2048: ["#edc22e", "#ffffff"],
+      4096: ["#3f3b36", "#ffffff"],
+      8192: ["#2d2925", "#ffffff"]
+    };
+
+    let grid = emptyGrid();
+    let score = 0;
+    let best = 0;
+    let history = [];
+    let lastNewIndex = -1;
+    let lastMergedIndices = [];
+
+    function safeGet(key) {
+      try {
+        return window.localStorage ? localStorage.getItem(key) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function safeSet(key, value) {
+      try {
+        if (window.localStorage) localStorage.setItem(key, value);
+      } catch (error) {
+        // В локальном предпросмотре iPhone хранилище может быть недоступно.
+      }
+    }
+
+    function emptyGrid() {
+      return Array.from({ length: N }, function () {
+        return Array(N).fill(0);
+      });
+    }
+
+    function copyGrid(source) {
+      return source.map(function (row) {
+        return row.slice();
+      });
+    }
+
+    function flatten(source) {
+      return source.reduce(function (all, row) {
+        return all.concat(row);
+      }, []);
+    }
+
+    function getColor(value) {
+      if (colors[value]) return colors[value];
+      return ["#25221f", "#ffffff"];
+    }
+
+    function render() {
+      const values = flatten(grid);
+
+      values.forEach(function (value, index) {
+        const cell = cells[index];
+        const palette = getColor(value);
+
+        cell.textContent = value === 0 ? "" : String(value);
+        cell.style.backgroundColor = palette[0];
+        cell.style.color = palette[1];
+        cell.dataset.digits = value === 0 ? "0" : String(value).length;
+
+        cell.classList.remove("new", "pop");
+        void cell.offsetWidth;
+
+        if (index === lastNewIndex) cell.classList.add("new");
+        if (lastMergedIndices.indexOf(index) !== -1) cell.classList.add("pop");
+      });
+
+      scoreEl.textContent = String(score);
+      bestEl.textContent = String(best);
+      undoBtn.disabled = history.length === 0;
+
+      lastNewIndex = -1;
+      lastMergedIndices = [];
+    }
+
+    function save() {
+      safeSet("mika2048-grid", JSON.stringify(grid));
+      safeSet("mika2048-score", String(score));
+      safeSet("mika2048-best", String(best));
+    }
+
+    function load() {
+      const savedBest = Number(safeGet("mika2048-best"));
+      if (Number.isFinite(savedBest) && savedBest > 0) best = savedBest;
+
+      const savedGrid = safeGet("mika2048-grid");
+      const savedScore = Number(safeGet("mika2048-score"));
+
+      if (!savedGrid) return false;
+
+      try {
+        const parsed = JSON.parse(savedGrid);
+        const valid =
+          Array.isArray(parsed) &&
+          parsed.length === N &&
+          parsed.every(function (row) {
+            return Array.isArray(row) &&
+              row.length === N &&
+              row.every(function (value) {
+                return Number.isFinite(value) && value >= 0;
+              });
+          });
+
+        if (!valid) return false;
+
+        grid = parsed;
+        score = Number.isFinite(savedScore) ? savedScore : 0;
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function emptyPositions() {
+      const result = [];
+
+      for (let row = 0; row < N; row++) {
+        for (let col = 0; col < N; col++) {
+          if (grid[row][col] === 0) result.push([row, col]);
+        }
+      }
+
+      return result;
+    }
+
+    function addTile() {
+      const positions = emptyPositions();
+      if (!positions.length) return;
+
+      const position = positions[Math.floor(Math.random() * positions.length)];
+      const row = position[0];
+      const col = position[1];
+
+      grid[row][col] = Math.random() < 0.9 ? 2 : 4;
+      lastNewIndex = row * N + col;
+    }
+
+    function newGame(confirmReset) {
+      if (confirmReset && score > 0) {
+        const accepted = window.confirm("Начать новую игру?");
+        if (!accepted) return;
+      }
+
+      grid = emptyGrid();
+      score = 0;
+      history = [];
+      overlay.classList.remove("show");
+
+      addTile();
+      const firstIndex = lastNewIndex;
+      addTile();
+
+      if (lastNewIndex === firstIndex) lastNewIndex = -1;
+
+      save();
+      render();
+      statusEl.textContent = "";
+    }
+
+    function sameGrid(a, b) {
+      for (let row = 0; row < N; row++) {
+        for (let col = 0; col < N; col++) {
+          if (a[row][col] !== b[row][col]) return false;
+        }
+      }
+      return true;
+    }
+
+    function mergeLine(line) {
+      const compact = line.filter(function (value) {
+        return value !== 0;
+      });
+
+      const result = [];
+      const mergedPositions = [];
+      let gained = 0;
+
+      for (let index = 0; index < compact.length; index++) {
+        if (
+          index + 1 < compact.length &&
+          compact[index] === compact[index + 1]
+        ) {
+          const merged = compact[index] * 2;
+          result.push(merged);
+          mergedPositions.push(result.length - 1);
+          gained += merged;
+          index++;
+        } else {
+          result.push(compact[index]);
+        }
+      }
+
+      while (result.length < N) result.push(0);
+
+      return {
+        line: result,
+        gained: gained,
+        mergedPositions: mergedPositions
+      };
+    }
+
+    function move(direction) {
+      if (overlay.classList.contains("show")) return;
+
+      const before = copyGrid(grid);
+      const beforeScore = score;
+      const next = emptyGrid();
+      const mergedCells = [];
+      let gained = 0;
+
+      for (let fixed = 0; fixed < N; fixed++) {
+        const line = [];
+
+        for (let moving = 0; moving < N; moving++) {
+          if (direction === "left") line.push(grid[fixed][moving]);
+          if (direction === "right") line.push(grid[fixed][N - 1 - moving]);
+          if (direction === "up") line.push(grid[moving][fixed]);
+          if (direction === "down") line.push(grid[N - 1 - moving][fixed]);
+        }
+
+        const merged = mergeLine(line);
+        gained += merged.gained;
+
+        for (let moving = 0; moving < N; moving++) {
+          let row;
+          let col;
+
+          if (direction === "left") {
+            row = fixed; col = moving;
+          } else if (direction === "right") {
+            row = fixed; col = N - 1 - moving;
+          } else if (direction === "up") {
+            row = moving; col = fixed;
+          } else {
+            row = N - 1 - moving; col = fixed;
+          }
+
+          next[row][col] = merged.line[moving];
+
+          if (merged.mergedPositions.indexOf(moving) !== -1) {
+            mergedCells.push(row * N + col);
+          }
+        }
+      }
+
+      if (sameGrid(before, next)) return;
+
+      history.push({
+        grid: before,
+        score: beforeScore
+      });
+
+      if (history.length > 20) history.shift();
+
+      grid = next;
+      score += gained;
+      lastMergedIndices = mergedCells;
+
+      if (score > best) best = score;
+
+      addTile();
+      save();
+      render();
+
+      if (navigator.vibrate && gained > 0) {
+        try { navigator.vibrate(15); } catch (error) {}
+      }
+
+      checkGameOver();
+    }
+
+    function canMove() {
+      if (emptyPositions().length > 0) return true;
+
+      for (let row = 0; row < N; row++) {
+        for (let col = 0; col < N; col++) {
+          const value = grid[row][col];
+
+          if (row + 1 < N && grid[row + 1][col] === value) return true;
+          if (col + 1 < N && grid[row][col + 1] === value) return true;
+        }
+      }
+
+      return false;
+    }
+
+    function checkGameOver() {
+      if (canMove()) return;
+
+      overlayTitle.textContent = "Игра окончена";
+      overlayText.textContent = "Результат: " + score + " очков.";
+      overlay.classList.add("show");
+    }
+
+    function undo() {
+      const previous = history.pop();
+      if (!previous) return;
+
+      grid = copyGrid(previous.grid);
+      score = previous.score;
+      overlay.classList.remove("show");
+      save();
+      render();
+    }
+
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    function beginSwipe(x, y) {
+      tracking = true;
+      startX = x;
+      startY = y;
+    }
+
+    function finishSwipe(x, y) {
+      if (!tracking) return;
+      tracking = false;
+
+      const dx = x - startX;
+      const dy = y - startY;
+
+      if (Math.hypot(dx, dy) < 25) return;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        move(dx > 0 ? "right" : "left");
+      } else {
+        move(dy > 0 ? "down" : "up");
+      }
+    }
+
+    boardWrap.addEventListener("touchstart", function (event) {
+      if (!event.touches.length) return;
+      const touch = event.touches[0];
+      beginSwipe(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    boardWrap.addEventListener("touchmove", function (event) {
+      if (tracking) event.preventDefault();
+    }, { passive: false });
+
+    boardWrap.addEventListener("touchend", function (event) {
+      if (!event.changedTouches.length) return;
+      const touch = event.changedTouches[0];
+      finishSwipe(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    boardWrap.addEventListener("mousedown", function (event) {
+      beginSwipe(event.clientX, event.clientY);
+    });
+
+    window.addEventListener("mouseup", function (event) {
+      finishSwipe(event.clientX, event.clientY);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      const map = {
+        ArrowLeft: "left",
+        ArrowRight: "right",
+        ArrowUp: "up",
+        ArrowDown: "down",
+        a: "left",
+        d: "right",
+        w: "up",
+        s: "down",
+        A: "left",
+        D: "right",
+        W: "up",
+        S: "down"
+      };
+
+      const direction = map[event.key];
+      if (!direction) return;
+
+      event.preventDefault();
+      move(direction);
+    }, { passive: false });
+
+    undoBtn.addEventListener("click", undo);
+    restartBtn.addEventListener("click", function () {
+      newGame(true);
+    });
+    againBtn.addEventListener("click", function () {
+      newGame(false);
+    });
+
+    try {
+      const loaded = load();
+
+      if (!loaded) {
+        newGame(false);
+      } else {
+        render();
+        checkGameOver();
+      }
+
+      if (!safeGet("mika2048-grid")) {
+        statusEl.textContent = "Сохранение может быть недоступно в режиме предпросмотра.";
+      }
+    } catch (error) {
+      statusEl.textContent = "Ошибка запуска: " + error.message;
+      newGame(false);
+    }
+  })();
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      });
+    }
+  </script>
+
+</body>
+</html>
