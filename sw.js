@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v1";
+const CACHE_NAME = "mika-2048-v2-no-bounce";
 const APP_FILES = [
   "./",
   "./index.html",

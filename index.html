@@ -31,24 +31,34 @@
 
     html, body {
       margin: 0;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
       background: var(--bg);
       color: var(--text);
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     body {
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       padding:
         max(18px, env(safe-area-inset-top))
         max(14px, env(safe-area-inset-right))
         max(24px, env(safe-area-inset-bottom))
         max(14px, env(safe-area-inset-left));
-      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-overflow-scrolling: auto;
     }
 
     .app {
       width: min(94vw, 520px);
+      height: 100%;
       margin: 0 auto;
+      overflow: hidden;
+      touch-action: none;
     }
 
     .top {
@@ -675,6 +685,15 @@
       }
     }
 
+    // Полностью блокируем прокрутку и «резиновое» качание страницы на iPhone.
+    document.addEventListener("touchmove", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gesturestart", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
     boardWrap.addEventListener("touchstart", function (event) {
       if (!event.touches.length) return;
       const touch = event.touches[0];
@@ -753,7 +772,9 @@
   <script>
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").catch(function () {});
+        navigator.serviceWorker.register("./sw.js").then(function (registration) {
+          registration.update();
+        }).catch(function () {});
       });
     }
   </script>
