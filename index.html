@@ -63,31 +63,38 @@
 
     .top {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.28fr);
+      gap: 10px;
       align-items: end;
+      width: 100%;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(68px, 20vw, 104px);
-      line-height: .85;
+      min-width: 0;
+      font-size: clamp(58px, 17vw, 94px);
+      line-height: .86;
       font-weight: 500;
-      letter-spacing: -6px;
+      letter-spacing: -5px;
+      white-space: nowrap;
     }
 
     .stats {
-      display: flex;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
 
     .stat {
-      min-width: 92px;
-      padding: 8px 10px 10px;
+      min-width: 0;
+      width: 100%;
+      padding: 8px 6px 10px;
       border-radius: 11px;
       background: var(--board);
       color: white;
       text-align: center;
+      overflow: hidden;
     }
 
     .label {
@@ -98,11 +105,19 @@
 
     .value {
       display: block;
+      width: 100%;
       margin-top: 5px;
-      font-size: 28px;
+      font-size: clamp(20px, 6.1vw, 28px);
       line-height: 1;
+      letter-spacing: -1px;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
+
+    .value[data-digits="6"] { font-size: clamp(18px, 5.3vw, 25px); }
+    .value[data-digits="7"] { font-size: clamp(16px, 4.6vw, 22px); }
+    .value[data-digits="8"] { font-size: clamp(14px, 4.0vw, 20px); }
+    .value[data-digits="9"] { font-size: clamp(13px, 3.6vw, 18px); }
 
     .controls {
       display: flex;
@@ -178,6 +193,16 @@
       animation: appear .14s ease-out;
     }
 
+    .board.move-left .cell:not(:empty) { animation: glide-left .14s cubic-bezier(.22,.72,.28,1); }
+    .board.move-right .cell:not(:empty) { animation: glide-right .14s cubic-bezier(.22,.72,.28,1); }
+    .board.move-up .cell:not(:empty) { animation: glide-up .14s cubic-bezier(.22,.72,.28,1); }
+    .board.move-down .cell:not(:empty) { animation: glide-down .14s cubic-bezier(.22,.72,.28,1); }
+
+    @keyframes glide-left { from { transform: translateX(11px); } to { transform: translateX(0); } }
+    @keyframes glide-right { from { transform: translateX(-11px); } to { transform: translateX(0); } }
+    @keyframes glide-up { from { transform: translateY(11px); } to { transform: translateY(0); } }
+    @keyframes glide-down { from { transform: translateY(-11px); } to { transform: translateY(0); } }
+
     @keyframes pop {
       50% { transform: scale(1.11); }
     }
@@ -245,14 +270,19 @@
     }
 
     @media (max-width: 410px) {
+      .top {
+        grid-template-columns: minmax(0, .88fr) minmax(0, 1.32fr);
+        gap: 8px;
+      }
+
       h1 {
-        font-size: 64px;
+        font-size: 58px;
         letter-spacing: -4px;
       }
 
       .stat {
-        min-width: 76px;
-        padding-inline: 7px;
+        min-width: 0;
+        padding-inline: 5px;
       }
 
       .label {
@@ -330,6 +360,7 @@
     const scoreEl = document.getElementById("score");
     const bestEl = document.getElementById("best");
     const cells = Array.from(document.querySelectorAll(".cell"));
+    const board = document.getElementById("board");
     const boardWrap = document.getElementById("boardWrap");
     const undoBtn = document.getElementById("undo");
     const restartBtn = document.getElementById("restart");
@@ -423,6 +454,8 @@
 
       scoreEl.textContent = String(score);
       bestEl.textContent = String(best);
+      scoreEl.dataset.digits = String(score).length;
+      bestEl.dataset.digits = String(best).length;
       undoBtn.disabled = history.length === 0;
 
       lastNewIndex = -1;
@@ -615,6 +648,14 @@
       if (score > best) best = score;
 
       addTile();
+
+      board.classList.remove("move-left", "move-right", "move-up", "move-down");
+      void board.offsetWidth;
+      board.classList.add("move-" + direction);
+      window.setTimeout(function () {
+        board.classList.remove("move-left", "move-right", "move-up", "move-down");
+      }, 170);
+
       save();
       render();
 
@@ -694,23 +735,32 @@
       event.preventDefault();
     }, { passive: false });
 
-    boardWrap.addEventListener("touchstart", function (event) {
-      if (!event.touches.length) return;
+    function isInteractiveTarget(target) {
+      return Boolean(target && target.closest && target.closest("button, a, input, select, textarea"));
+    }
+
+    document.addEventListener("touchstart", function (event) {
+      if (!event.touches.length || isInteractiveTarget(event.target)) return;
       const touch = event.touches[0];
       beginSwipe(touch.clientX, touch.clientY);
     }, { passive: true });
 
-    boardWrap.addEventListener("touchmove", function (event) {
+    document.addEventListener("touchmove", function (event) {
       if (tracking) event.preventDefault();
     }, { passive: false });
 
-    boardWrap.addEventListener("touchend", function (event) {
-      if (!event.changedTouches.length) return;
+    document.addEventListener("touchend", function (event) {
+      if (!tracking || !event.changedTouches.length) return;
       const touch = event.changedTouches[0];
       finishSwipe(touch.clientX, touch.clientY);
     }, { passive: true });
 
-    boardWrap.addEventListener("mousedown", function (event) {
+    document.addEventListener("touchcancel", function () {
+      tracking = false;
+    }, { passive: true });
+
+    document.addEventListener("mousedown", function (event) {
+      if (isInteractiveTarget(event.target)) return;
       beginSwipe(event.clientX, event.clientY);
     });
 
