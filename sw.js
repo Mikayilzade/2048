@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v4-menu-saves";
+const CACHE_NAME = "mika-2048-v5-modes-stats";
 const APP_FILES = [
   "./",
   "./index.html",

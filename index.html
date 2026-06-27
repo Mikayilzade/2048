@@ -480,6 +480,115 @@
         font-size: 27px;
       }
     }
+  
+    .mode-line {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      margin-top: 2px;
+      padding-left: 3px;
+      font-size: 11px;
+      opacity: .68;
+      white-space: nowrap;
+    }
+
+    .icon-button { position: relative; }
+
+    .undo-badge {
+      position: absolute;
+      top: -5px;
+      right: -4px;
+      min-width: 21px;
+      height: 21px;
+      padding: 0 5px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--bg);
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .mode-card,
+    .stats-card {
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .mode-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .mode-card h3,
+    .stats-card h3 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .mode-rule {
+      margin: 4px 0 0;
+      font-size: 13px;
+      line-height: 1.35;
+      opacity: .75;
+    }
+
+    .mode-best {
+      flex: 0 0 auto;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(159,130,109,.17);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .mode-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .small-button {
+      min-height: 43px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--button);
+      color: white;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .small-button.primary { background: var(--accent); }
+    .small-button:disabled { opacity: .35; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .stats-item {
+      padding: 8px 9px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.55);
+      font-size: 12px;
+    }
+
+    .stats-item strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 17px;
+    }
+
   </style>
 </head>
 
@@ -488,7 +597,10 @@
     <section class="top">
       <div class="brand">
         <h1>2048</h1>
-        <button id="gameStateAction" class="game-state-action">Сохранить и выйти в меню</button>
+        <button id="gameStateAction" class="game-state-action">Выйти в меню</button>
+        <div class="mode-line">
+          <span id="modeName">Лёгкий</span><span>·</span><span id="undoStatus">20 откатов</span>
+        </div>
       </div>
 
       <div class="stats">
@@ -504,7 +616,9 @@
     </section>
 
     <section class="controls">
-      <button id="undo" class="icon-button" aria-label="Отменить ход" title="Отменить ход">↶</button>
+      <button id="undo" class="icon-button" aria-label="Отменить ход" title="Отменить ход">
+        ↶<span id="undoBadge" class="undo-badge">20</span>
+      </button>
       <button id="restart" class="icon-button" aria-label="Новая игра" title="Новая игра">↻</button>
     </section>
 
@@ -523,7 +637,7 @@
   <section id="menuScreen" class="screen">
     <div id="mainMenu" class="menu">
       <h2 class="menu-title">2048</h2>
-      <p id="menuRecord" class="menu-record">Рекорд: 0</p>
+      <p id="menuRecord" class="menu-record">Лучший результат: 0</p>
 
       <div class="menu-buttons">
         <button id="continueButton" class="menu-button primary">
@@ -531,21 +645,39 @@
           <small id="continueInfo"></small>
         </button>
 
-        <button id="newGameButton" class="menu-button">Новая игра</button>
+        <button id="modesButton" class="menu-button">Выбрать режим</button>
 
         <button id="loadButton" class="menu-button">
           Загрузить
-          <small id="loadInfo"></small>
+          <small id="loadInfo">Сохранения лёгкого режима</small>
         </button>
+
+        <button id="statsButton" class="menu-button">Статистика</button>
       </div>
+    </div>
+
+    <div id="modesMenu" class="menu" hidden>
+      <div class="load-header">
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
+        <h2 class="load-title">Режимы</h2>
+      </div>
+      <div id="modeList" class="save-list"></div>
     </div>
 
     <div id="loadMenu" class="menu" hidden>
       <div class="load-header">
-        <button id="loadBackButton" class="back-button" aria-label="Назад">‹</button>
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Сохранённые игры</h2>
       </div>
       <div id="saveList" class="save-list"></div>
+    </div>
+
+    <div id="statsMenu" class="menu" hidden>
+      <div class="load-header">
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
+        <h2 class="load-title">Статистика</h2>
+      </div>
+      <div id="statsList" class="save-list"></div>
     </div>
   </section>
 
@@ -560,235 +692,353 @@
   <div id="toast" class="toast"></div>
 
   <script>
+
   (function () {
     "use strict";
 
     const N = 4;
-    const ACTIVE_KEY = "mika2048-active-v4";
-    const SAVES_KEY = "mika2048-checkpoints-v4";
-    const BEST_KEY = "mika2048-best-v4";
+    const ACTIVE_PREFIX = "mika2048-active-v5-";
+    const STATS_KEY = "mika2048-stats-v5";
+    const SAVES_KEY = "mika2048-checkpoints-v5-easy";
+    const LAST_MODE_KEY = "mika2048-last-mode-v5";
     const MAX_CHECKPOINTS = 5;
 
-    const scoreEl = document.getElementById("score");
-    const bestEl = document.getElementById("best");
+    const MODES = {
+      easy: { name: "Лёгкий", undos: 20, saves: true, rule: "20 откатов и контрольные сохранения" },
+      medium: { name: "Средний", undos: 5, saves: false, rule: "5 откатов, только автосохранение" },
+      hard: { name: "Сложный", undos: 1, saves: false, rule: "1 откат на всю партию" },
+      hardcore: { name: "Хардкор", undos: 0, saves: false, rule: "Без откатов и контрольных сохранений" }
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const scoreEl = $("score");
+    const bestEl = $("best");
     const cells = Array.from(document.querySelectorAll(".cell"));
-    const board = document.getElementById("board");
-    const undoBtn = document.getElementById("undo");
-    const restartBtn = document.getElementById("restart");
-    const gameStateAction = document.getElementById("gameStateAction");
-    const menuScreen = document.getElementById("menuScreen");
-    const mainMenu = document.getElementById("mainMenu");
-    const loadMenu = document.getElementById("loadMenu");
-    const continueButton = document.getElementById("continueButton");
-    const continueInfo = document.getElementById("continueInfo");
-    const newGameButton = document.getElementById("newGameButton");
-    const loadButton = document.getElementById("loadButton");
-    const loadInfo = document.getElementById("loadInfo");
-    const loadBackButton = document.getElementById("loadBackButton");
-    const saveList = document.getElementById("saveList");
-    const menuRecord = document.getElementById("menuRecord");
-    const modalLayer = document.getElementById("modalLayer");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalText = document.getElementById("modalText");
-    const modalActions = document.getElementById("modalActions");
-    const toast = document.getElementById("toast");
+    const board = $("board");
+    const undoBtn = $("undo");
+    const undoBadge = $("undoBadge");
+    const restartBtn = $("restart");
+    const gameStateAction = $("gameStateAction");
+    const modeNameEl = $("modeName");
+    const undoStatusEl = $("undoStatus");
+
+    const menuScreen = $("menuScreen");
+    const mainMenu = $("mainMenu");
+    const modesMenu = $("modesMenu");
+    const loadMenu = $("loadMenu");
+    const statsMenu = $("statsMenu");
+    const continueButton = $("continueButton");
+    const continueInfo = $("continueInfo");
+    const modesButton = $("modesButton");
+    const loadButton = $("loadButton");
+    const loadInfo = $("loadInfo");
+    const statsButton = $("statsButton");
+    const menuRecord = $("menuRecord");
+    const modeList = $("modeList");
+    const saveList = $("saveList");
+    const statsList = $("statsList");
+
+    const modalLayer = $("modalLayer");
+    const modalTitle = $("modalTitle");
+    const modalText = $("modalText");
+    const modalActions = $("modalActions");
+    const toast = $("toast");
 
     const colors = {
-      0:    ["#cec4b9", "transparent"],
-      2:    ["#eee6dc", "#776e65"],
-      4:    ["#ede0c8", "#776e65"],
-      8:    ["#f2b179", "#ffffff"],
-      16:   ["#f59563", "#ffffff"],
-      32:   ["#f67c5f", "#ffffff"],
-      64:   ["#f65e3b", "#ffffff"],
-      128:  ["#edcf72", "#ffffff"],
-      256:  ["#edcc61", "#ffffff"],
-      512:  ["#edc850", "#ffffff"],
+      0: ["#cec4b9", "transparent"],
+      2: ["#eee6dc", "#776e65"],
+      4: ["#ede0c8", "#776e65"],
+      8: ["#f2b179", "#ffffff"],
+      16: ["#f59563", "#ffffff"],
+      32: ["#f67c5f", "#ffffff"],
+      64: ["#f65e3b", "#ffffff"],
+      128: ["#edcf72", "#ffffff"],
+      256: ["#edcc61", "#ffffff"],
+      512: ["#edc850", "#ffffff"],
       1024: ["#edc53f", "#ffffff"],
       2048: ["#edc22e", "#ffffff"],
       4096: ["#3f3b36", "#ffffff"],
       8192: ["#2d2925", "#ffffff"]
     };
 
+    let mode = "easy";
     let grid = emptyGrid();
     let score = 0;
-    let best = 0;
     let history = [];
+    let undosLeft = MODES.easy.undos;
     let gameOver = false;
+    let finishedCounted = false;
+    let reached2048Counted = false;
     let hasActiveGame = false;
     let lastNewIndex = -1;
     let lastMergedIndices = [];
+    let stats = loadStats();
     let toastTimer = null;
 
     function safeGet(key) {
-      try {
-        return localStorage.getItem(key);
-      } catch (_) {
-        return null;
-      }
+      try { return localStorage.getItem(key); } catch (_) { return null; }
     }
 
     function safeSet(key, value) {
-      try {
-        localStorage.setItem(key, value);
-        return true;
-      } catch (_) {
-        return false;
-      }
+      try { localStorage.setItem(key, value); return true; } catch (_) { return false; }
     }
 
     function emptyGrid() {
-      return Array.from({ length: N }, function () {
-        return Array(N).fill(0);
-      });
+      return Array.from({ length: N }, () => Array(N).fill(0));
     }
 
     function copyGrid(source) {
-      return source.map(function (row) { return row.slice(); });
+      return source.map((row) => row.slice());
     }
 
     function flatten(source) {
-      return source.reduce(function (all, row) { return all.concat(row); }, []);
+      return source.reduce((all, row) => all.concat(row), []);
     }
 
     function validGrid(candidate) {
       return Array.isArray(candidate) &&
         candidate.length === N &&
-        candidate.every(function (row) {
-          return Array.isArray(row) &&
-            row.length === N &&
-            row.every(function (value) {
-              return Number.isFinite(value) && value >= 0;
-            });
-        });
+        candidate.every((row) =>
+          Array.isArray(row) &&
+          row.length === N &&
+          row.every((value) => Number.isFinite(value) && value >= 0)
+        );
     }
 
-    function getMaxTile(source) {
-      return Math.max.apply(null, flatten(source));
+    function getMaxTile(source = grid) {
+      return Math.max(...flatten(source));
     }
 
     function formatNumber(value) {
-      try {
-        return Number(value).toLocaleString("ru-RU");
-      } catch (_) {
-        return String(value);
-      }
+      try { return Number(value).toLocaleString("ru-RU"); }
+      catch (_) { return String(value); }
     }
 
     function formatDate(timestamp) {
       try {
         return new Date(timestamp).toLocaleString("ru-RU", {
-          day: "2-digit",
-          month: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit"
+          day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
         });
-      } catch (_) {
-        return "";
-      }
+      } catch (_) { return ""; }
     }
 
-    function getColor(value) {
-      if (colors[value]) return colors[value];
-      return ["#25221f", "#ffffff"];
+    function defaultModeStats() {
+      return { bestScore: 0, maxTile: 0, gamesStarted: 0, gamesFinished: 0, reached2048: 0 };
+    }
+
+    function defaultStats() {
+      return {
+        easy: defaultModeStats(),
+        medium: defaultModeStats(),
+        hard: defaultModeStats(),
+        hardcore: defaultModeStats()
+      };
+    }
+
+    function loadStats() {
+      const result = defaultStats();
+      const raw = safeGet(STATS_KEY);
+
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          Object.keys(MODES).forEach((modeId) => {
+            if (!parsed || !parsed[modeId]) return;
+            Object.keys(result[modeId]).forEach((key) => {
+              const value = Number(parsed[modeId][key]);
+              if (Number.isFinite(value) && value >= 0) result[modeId][key] = value;
+            });
+          });
+        } catch (_) {}
+      }
+
+      result.easy.bestScore = Math.max(
+        result.easy.bestScore,
+        Number(safeGet("mika2048-best-v4")) || 0,
+        Number(safeGet("mika2048-best")) || 0
+      );
+      return result;
+    }
+
+    function saveStats() {
+      safeSet(STATS_KEY, JSON.stringify(stats));
+    }
+
+    function bestAcrossModes() {
+      return Math.max(...Object.keys(MODES).map((modeId) => stats[modeId].bestScore));
     }
 
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () {
-        toast.classList.remove("show");
-      }, 1500);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
     }
 
-    function stateSnapshot() {
-      return {
-        version: 4,
-        grid: copyGrid(grid),
-        score: score,
-        best: best,
-        history: history.slice(-20).map(function (item) {
-          return {
-            grid: copyGrid(item.grid),
-            score: item.score
-          };
-        }),
-        gameOver: gameOver,
-        savedAt: Date.now(),
-        maxTile: getMaxTile(grid)
-      };
+    function activeKey(modeId) {
+      return ACTIVE_PREFIX + modeId;
     }
 
-    function normalizeState(candidate) {
+    function normalizeState(candidate, fallbackMode = "easy") {
       if (!candidate || !validGrid(candidate.grid)) return null;
+      const stateMode = MODES[candidate.mode] ? candidate.mode : fallbackMode;
+      if (!MODES[stateMode]) return null;
 
       const safeHistory = Array.isArray(candidate.history)
-        ? candidate.history.filter(function (item) {
-            return item && validGrid(item.grid) && Number.isFinite(item.score);
-          }).slice(-20).map(function (item) {
-            return { grid: copyGrid(item.grid), score: Number(item.score) || 0 };
-          })
+        ? candidate.history
+            .filter((item) => item && validGrid(item.grid) && Number.isFinite(item.score))
+            .slice(-20)
+            .map((item) => ({ grid: copyGrid(item.grid), score: Number(item.score) || 0 }))
         : [];
 
+      const maxUndos = MODES[stateMode].undos;
+      const rawUndos = Number(candidate.undosLeft);
+      const normalizedUndos = Number.isFinite(rawUndos)
+        ? Math.max(0, Math.min(maxUndos, rawUndos))
+        : maxUndos;
+
       return {
-        version: 4,
+        mode: stateMode,
         grid: copyGrid(candidate.grid),
         score: Number(candidate.score) || 0,
-        best: Number(candidate.best) || 0,
         history: safeHistory,
+        undosLeft: normalizedUndos,
         gameOver: Boolean(candidate.gameOver),
+        finishedCounted: Boolean(candidate.finishedCounted),
+        reached2048Counted: Boolean(candidate.reached2048Counted),
         savedAt: Number(candidate.savedAt) || Date.now(),
         maxTile: Number(candidate.maxTile) || getMaxTile(candidate.grid)
       };
     }
 
-    function saveActive() {
-      if (!hasActiveGame) return;
-      best = Math.max(best, score);
-      safeSet(ACTIVE_KEY, JSON.stringify(stateSnapshot()));
-      safeSet(BEST_KEY, String(best));
-
-      // Оставляем старый ключ рекорда для совместимости с предыдущими версиями.
-      safeSet("mika2048-best", String(best));
+    function snapshot() {
+      return {
+        version: 5,
+        mode,
+        grid: copyGrid(grid),
+        score,
+        history: history.slice(-20).map((item) => ({
+          grid: copyGrid(item.grid),
+          score: item.score
+        })),
+        undosLeft,
+        gameOver,
+        finishedCounted,
+        reached2048Counted,
+        savedAt: Date.now(),
+        maxTile: getMaxTile()
+      };
     }
 
-    function loadActive() {
-      best = Math.max(
-        Number(safeGet(BEST_KEY)) || 0,
-        Number(safeGet("mika2048-best")) || 0
-      );
+    function updateCurrentStats() {
+      const current = stats[mode];
+      const maxTile = getMaxTile();
 
-      const raw = safeGet(ACTIVE_KEY);
-      if (raw) {
-        try {
-          const loaded = normalizeState(JSON.parse(raw));
-          if (loaded) {
-            applyState(loaded);
-            hasActiveGame = true;
-            return true;
+      current.bestScore = Math.max(current.bestScore, score);
+      current.maxTile = Math.max(current.maxTile, maxTile);
+
+      if (maxTile >= 2048 && !reached2048Counted) {
+        current.reached2048 += 1;
+        reached2048Counted = true;
+      }
+    }
+
+    function saveActive() {
+      if (!hasActiveGame) return;
+      updateCurrentStats();
+      safeSet(activeKey(mode), JSON.stringify(snapshot()));
+      safeSet(LAST_MODE_KEY, mode);
+      saveStats();
+    }
+
+    function loadModeState(modeId) {
+      const raw = safeGet(activeKey(modeId));
+      if (!raw) return null;
+      try { return normalizeState(JSON.parse(raw), modeId); }
+      catch (_) { return null; }
+    }
+
+    function applyState(state) {
+      const normalized = normalizeState(state, state && state.mode ? state.mode : "easy");
+      if (!normalized) return false;
+
+      mode = normalized.mode;
+      grid = copyGrid(normalized.grid);
+      score = normalized.score;
+      history = normalized.history;
+      undosLeft = normalized.undosLeft;
+      gameOver = normalized.gameOver || !canMove();
+      finishedCounted = normalized.finishedCounted;
+      reached2048Counted = normalized.reached2048Counted;
+      hasActiveGame = true;
+      lastNewIndex = -1;
+      lastMergedIndices = [];
+      safeSet(LAST_MODE_KEY, mode);
+      return true;
+    }
+
+    function migrateOldVersion() {
+      if (!safeGet(activeKey("easy"))) {
+        const v4Raw = safeGet("mika2048-active-v4");
+
+        if (v4Raw) {
+          try {
+            const old = JSON.parse(v4Raw);
+            const migrated = normalizeState({
+              mode: "easy",
+              grid: old.grid,
+              score: old.score,
+              history: old.history || [],
+              undosLeft: 20,
+              gameOver: old.gameOver,
+              savedAt: old.savedAt,
+              maxTile: old.maxTile
+            });
+
+            if (migrated) safeSet(activeKey("easy"), JSON.stringify(migrated));
+          } catch (_) {}
+        } else {
+          const oldGridRaw = safeGet("mika2048-grid");
+          if (oldGridRaw) {
+            try {
+              const migrated = normalizeState({
+                mode: "easy",
+                grid: JSON.parse(oldGridRaw),
+                score: Number(safeGet("mika2048-score")) || 0,
+                history: [],
+                undosLeft: 20,
+                gameOver: false
+              });
+
+              if (migrated) safeSet(activeKey("easy"), JSON.stringify(migrated));
+            } catch (_) {}
           }
-        } catch (_) {}
+        }
       }
 
-      // Миграция партии из старой версии.
-      const oldGridRaw = safeGet("mika2048-grid");
-      if (oldGridRaw) {
-        try {
-          const oldGrid = JSON.parse(oldGridRaw);
-          if (validGrid(oldGrid)) {
-            grid = copyGrid(oldGrid);
-            score = Number(safeGet("mika2048-score")) || 0;
-            history = [];
-            gameOver = !canMove();
-            hasActiveGame = true;
-            saveActive();
-            return true;
-          }
-        } catch (_) {}
-      }
+      if (!safeGet(SAVES_KEY)) {
+        const oldSavesRaw = safeGet("mika2048-checkpoints-v4");
 
-      return false;
+        if (oldSavesRaw) {
+          try {
+            const migrated = JSON.parse(oldSavesRaw)
+              .map((item) => normalizeState({
+                mode: "easy",
+                grid: item.grid,
+                score: item.score,
+                history: item.history || [],
+                undosLeft: 20,
+                gameOver: item.gameOver,
+                savedAt: item.savedAt,
+                maxTile: item.maxTile
+              }))
+              .filter(Boolean)
+              .slice(0, 5);
+
+            safeSet(SAVES_KEY, JSON.stringify(migrated));
+          } catch (_) {}
+        }
+      }
     }
 
     function getCheckpoints() {
@@ -797,58 +1047,42 @@
 
       try {
         const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [];
-        return parsed.map(normalizeState).filter(Boolean);
+        return Array.isArray(parsed)
+          ? parsed.map((item) => normalizeState(item, "easy")).filter(Boolean)
+          : [];
       } catch (_) {
         return [];
       }
     }
 
     function setCheckpoints(items) {
-      safeSet(SAVES_KEY, JSON.stringify(items.slice(0, MAX_CHECKPOINTS)));
+      safeSet(SAVES_KEY, JSON.stringify(items.slice(0, 5)));
     }
 
-    function checkpointSignature(item) {
-      return JSON.stringify(item.grid) + "|" + item.score;
-    }
+    function createCheckpoint(silent = false) {
+      if (!hasActiveGame || mode !== "easy") return;
 
-    function createCheckpoint(silent) {
-      if (!hasActiveGame) return;
-
-      const current = stateSnapshot();
-      const signature = checkpointSignature(current);
-      let saves = getCheckpoints().filter(function (item) {
-        return checkpointSignature(item) !== signature;
-      });
+      const current = snapshot();
+      const signature = JSON.stringify(current.grid) + "|" + current.score + "|" + current.undosLeft;
+      let saves = getCheckpoints().filter((item) =>
+        JSON.stringify(item.grid) + "|" + item.score + "|" + item.undosLeft !== signature
+      );
 
       saves.push(current);
-      saves.sort(function (a, b) {
-        return (b.maxTile - a.maxTile) ||
-          (b.score - a.score) ||
-          (b.savedAt - a.savedAt);
-      });
+      saves.sort((a, b) =>
+        (b.maxTile - a.maxTile) || (b.score - a.score) || (b.savedAt - a.savedAt)
+      );
+      setCheckpoints(saves);
 
-      setCheckpoints(saves.slice(0, MAX_CHECKPOINTS));
       if (!silent) showToast("Игра сохранена");
     }
 
-    function applyState(state) {
-      const normalized = normalizeState(state);
-      if (!normalized) return false;
-
-      grid = copyGrid(normalized.grid);
-      score = normalized.score;
-      best = Math.max(best, normalized.best, score);
-      history = normalized.history;
-      gameOver = normalized.gameOver || !canMove();
-      hasActiveGame = true;
-      lastNewIndex = -1;
-      lastMergedIndices = [];
-      return true;
+    function getColor(value) {
+      return colors[value] || ["#25221f", "#ffffff"];
     }
 
     function render() {
-      flatten(grid).forEach(function (value, index) {
+      flatten(grid).forEach((value, index) => {
         const cell = cells[index];
         const palette = getColor(value);
 
@@ -856,25 +1090,32 @@
         cell.style.backgroundColor = palette[0];
         cell.style.color = palette[1];
         cell.dataset.digits = value === 0 ? "0" : String(value).length;
-
         cell.classList.remove("new", "pop");
         void cell.offsetWidth;
 
         if (index === lastNewIndex) cell.classList.add("new");
-        if (lastMergedIndices.indexOf(index) !== -1) cell.classList.add("pop");
+        if (lastMergedIndices.includes(index)) cell.classList.add("pop");
       });
 
+      const bestScore = stats[mode].bestScore;
       scoreEl.textContent = String(score);
-      bestEl.textContent = String(best);
+      bestEl.textContent = String(bestScore);
       scoreEl.dataset.digits = String(score).length;
-      bestEl.dataset.digits = String(best).length;
-      undoBtn.disabled = history.length === 0;
+      bestEl.dataset.digits = String(bestScore).length;
+
+      modeNameEl.textContent = MODES[mode].name;
+      undoStatusEl.textContent = undosLeft === 1 ? "1 откат" : undosLeft + " откатов";
+      undoBadge.textContent = String(undosLeft);
+      undoBadge.hidden = MODES[mode].undos === 0;
+      undoBtn.disabled = !hasActiveGame || !history.length || undosLeft === 0;
 
       if (gameOver) {
         gameStateAction.textContent = "Игра окончена";
         gameStateAction.classList.add("game-over");
       } else {
-        gameStateAction.textContent = "Сохранить и выйти в меню";
+        gameStateAction.textContent = MODES[mode].saves
+          ? "Сохранить и выйти в меню"
+          : "Выйти в меню";
         gameStateAction.classList.remove("game-over");
       }
 
@@ -896,29 +1137,27 @@
       const positions = emptyPositions();
       if (!positions.length) return;
 
-      const position = positions[Math.floor(Math.random() * positions.length)];
-      const row = position[0];
-      const col = position[1];
-
-      grid[row][col] = Math.random() < 0.9 ? 2 : 4;
+      const [row, col] = positions[Math.floor(Math.random() * positions.length)];
+      grid[row][col] = Math.random() < .9 ? 2 : 4;
       lastNewIndex = row * N + col;
     }
 
-    function startNewGame(preserveCurrent) {
-      if (preserveCurrent && hasActiveGame && score > 0) {
-        createCheckpoint(true);
-      }
-
+    function startNewGame(modeId) {
+      mode = modeId;
       grid = emptyGrid();
       score = 0;
       history = [];
+      undosLeft = MODES[mode].undos;
       gameOver = false;
+      finishedCounted = false;
+      reached2048Counted = false;
       hasActiveGame = true;
 
       addTile();
       addTile();
 
-      best = Math.max(best, Number(safeGet(BEST_KEY)) || 0);
+      stats[mode].gamesStarted += 1;
+      saveStats();
       saveActive();
       hideMenu();
       closeModal();
@@ -926,25 +1165,17 @@
     }
 
     function sameGrid(a, b) {
-      for (let row = 0; row < N; row++) {
-        for (let col = 0; col < N; col++) {
-          if (a[row][col] !== b[row][col]) return false;
-        }
-      }
-      return true;
+      return a.every((row, r) => row.every((value, c) => value === b[r][c]));
     }
 
     function mergeLine(line) {
-      const compact = line.filter(function (value) { return value !== 0; });
+      const compact = line.filter((value) => value !== 0);
       const result = [];
       const mergedPositions = [];
       let gained = 0;
 
       for (let index = 0; index < compact.length; index++) {
-        if (
-          index + 1 < compact.length &&
-          compact[index] === compact[index + 1]
-        ) {
+        if (index + 1 < compact.length && compact[index] === compact[index + 1]) {
           const merged = compact[index] * 2;
           result.push(merged);
           mergedPositions.push(result.length - 1);
@@ -956,12 +1187,7 @@
       }
 
       while (result.length < N) result.push(0);
-
-      return {
-        line: result,
-        gained: gained,
-        mergedPositions: mergedPositions
-      };
+      return { line: result, gained, mergedPositions };
     }
 
     function move(direction) {
@@ -990,21 +1216,13 @@
           let row;
           let col;
 
-          if (direction === "left") {
-            row = fixed; col = moving;
-          } else if (direction === "right") {
-            row = fixed; col = N - 1 - moving;
-          } else if (direction === "up") {
-            row = moving; col = fixed;
-          } else {
-            row = N - 1 - moving; col = fixed;
-          }
+          if (direction === "left") { row = fixed; col = moving; }
+          if (direction === "right") { row = fixed; col = N - 1 - moving; }
+          if (direction === "up") { row = moving; col = fixed; }
+          if (direction === "down") { row = N - 1 - moving; col = fixed; }
 
           next[row][col] = merged.line[moving];
-
-          if (merged.mergedPositions.indexOf(moving) !== -1) {
-            mergedCells.push(row * N + col);
-          }
+          if (merged.mergedPositions.includes(moving)) mergedCells.push(row * N + col);
         }
       }
 
@@ -1015,19 +1233,22 @@
 
       grid = next;
       score += gained;
-      best = Math.max(best, score);
       lastMergedIndices = mergedCells;
-
       addTile();
 
       board.classList.remove("move-left", "move-right", "move-up", "move-down");
       void board.offsetWidth;
       board.classList.add("move-" + direction);
-      setTimeout(function () {
-        board.classList.remove("move-left", "move-right", "move-up", "move-down");
-      }, 170);
+      setTimeout(() => board.classList.remove("move-left", "move-right", "move-up", "move-down"), 170);
 
       gameOver = !canMove();
+      updateCurrentStats();
+
+      if (gameOver && !finishedCounted) {
+        stats[mode].gamesFinished += 1;
+        finishedCounted = true;
+      }
+
       saveActive();
       render();
 
@@ -1037,7 +1258,7 @@
     }
 
     function canMove() {
-      if (emptyPositions().length > 0) return true;
+      if (emptyPositions().length) return true;
 
       for (let row = 0; row < N; row++) {
         for (let col = 0; col < N; col++) {
@@ -1046,26 +1267,54 @@
           if (col + 1 < N && grid[row][col + 1] === value) return true;
         }
       }
-
       return false;
     }
 
     function undo() {
-      const previous = history.pop();
-      if (!previous) return;
+      if (!history.length || undosLeft <= 0) return;
 
+      const previous = history.pop();
       grid = copyGrid(previous.grid);
       score = previous.score;
+      undosLeft -= 1;
       gameOver = false;
       saveActive();
       render();
     }
 
+    function showOnly(section) {
+      [mainMenu, modesMenu, loadMenu, statsMenu].forEach((item) => {
+        item.hidden = item !== section;
+      });
+    }
+
+    function lastPlayableMode() {
+      const saved = safeGet(LAST_MODE_KEY);
+      if (saved && loadModeState(saved)) return saved;
+      return Object.keys(MODES).find((modeId) => loadModeState(modeId)) || null;
+    }
+
+    function updateMainMenu() {
+      const lastMode = lastPlayableMode();
+      const state = lastMode ? loadModeState(lastMode) : null;
+      const saves = getCheckpoints();
+
+      menuRecord.textContent = "Лучший результат: " + formatNumber(bestAcrossModes());
+      continueButton.disabled = !state;
+      continueInfo.textContent = state
+        ? MODES[lastMode].name + " · " + formatNumber(state.score) + " очков · плитка " + state.maxTile
+        : "Нет текущей партии";
+
+      loadButton.disabled = saves.length === 0;
+      loadInfo.textContent = saves.length
+        ? saves.length + " сохранён" + (saves.length === 1 ? "ная игра" : "ные игры")
+        : "Сохранений лёгкого режима пока нет";
+    }
+
     function showMenu() {
       saveActive();
-      mainMenu.hidden = false;
-      loadMenu.hidden = true;
-      updateMenu();
+      updateMainMenu();
+      showOnly(mainMenu);
       menuScreen.classList.add("show");
     }
 
@@ -1073,62 +1322,92 @@
       menuScreen.classList.remove("show");
     }
 
-    function updateMenu() {
-      const saves = getCheckpoints();
-      menuRecord.textContent = "Рекорд: " + formatNumber(best);
-
-      continueButton.disabled = !hasActiveGame;
-      continueInfo.textContent = hasActiveGame
-        ? formatNumber(score) + " очков · максимальная плитка " + getMaxTile(grid)
-        : "Нет текущей партии";
-
-      loadButton.disabled = saves.length === 0;
-      loadInfo.textContent = saves.length
-        ? saves.length + " сохранён" + (saves.length === 1 ? "ная игра" : "ные игры")
-        : "Сохранений пока нет";
+    function continueMode(modeId) {
+      const state = loadModeState(modeId);
+      if (!state || !applyState(state)) return;
+      hideMenu();
+      render();
     }
 
-    function openLoadMenu() {
-      renderSaveList();
-      mainMenu.hidden = true;
-      loadMenu.hidden = false;
+    function renderModes() {
+      modeList.innerHTML = "";
+
+      Object.keys(MODES).forEach((modeId) => {
+        const config = MODES[modeId];
+        const active = loadModeState(modeId);
+        const modeStats = stats[modeId];
+        const card = document.createElement("div");
+        card.className = "mode-card";
+
+        card.innerHTML =
+          '<div class="mode-card-head">' +
+            '<div><h3>' + config.name + '</h3><p class="mode-rule">' + config.rule + '</p></div>' +
+            '<div class="mode-best">Рекорд<br><strong>' + formatNumber(modeStats.bestScore) + '</strong></div>' +
+          '</div>' +
+          '<div class="mode-actions"></div>';
+
+        const actions = card.querySelector(".mode-actions");
+        const continueBtn = document.createElement("button");
+        continueBtn.className = "small-button";
+        continueBtn.textContent = active ? "Продолжить" : "Нет партии";
+        continueBtn.disabled = !active;
+        continueBtn.addEventListener("click", () => continueMode(modeId));
+
+        const newBtn = document.createElement("button");
+        newBtn.className = "small-button primary";
+        newBtn.textContent = "Новая игра";
+        newBtn.addEventListener("click", () => requestNewModeGame(modeId));
+
+        actions.append(continueBtn, newBtn);
+        modeList.appendChild(card);
+      });
     }
 
-    function renderSaveList() {
+    function renderSaves() {
       const saves = getCheckpoints();
       saveList.innerHTML = "";
 
       if (!saves.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty-saves";
-        empty.textContent = "Сохранённых партий пока нет.";
-        saveList.appendChild(empty);
+        saveList.innerHTML = '<div class="empty-saves">Сохранённых партий лёгкого режима пока нет.</div>';
         return;
       }
 
-      saves.forEach(function (item, index) {
+      saves.forEach((item) => {
         const button = document.createElement("button");
         button.className = "save-card";
         button.innerHTML =
           "<strong>" + item.maxTile + " · " + formatNumber(item.score) + " очков</strong>" +
-          "<span>" + formatDate(item.savedAt) + " · отмен доступно: " + item.history.length + "</span>";
+          "<span>" + formatDate(item.savedAt) + " · откатов осталось: " + item.undosLeft + "</span>";
 
-        button.addEventListener("click", function () {
-          if (applyState(item)) {
-            saveActive();
-            hideMenu();
-            render();
-            showToast("Сохранение загружено");
-          }
+        button.addEventListener("click", () => {
+          if (!applyState(item)) return;
+          saveActive();
+          hideMenu();
+          render();
+          showToast("Сохранение загружено");
         });
 
         saveList.appendChild(button);
       });
     }
 
-    function closeModal() {
-      modalLayer.classList.remove("show");
-      modalActions.innerHTML = "";
+    function renderStats() {
+      statsList.innerHTML = "";
+
+      Object.keys(MODES).forEach((modeId) => {
+        const current = stats[modeId];
+        const card = document.createElement("div");
+        card.className = "stats-card";
+        card.innerHTML =
+          "<h3>" + MODES[modeId].name + "</h3>" +
+          '<div class="stats-grid">' +
+            '<div class="stats-item">Рекорд<strong>' + formatNumber(current.bestScore) + '</strong></div>' +
+            '<div class="stats-item">Макс. плитка<strong>' + current.maxTile + '</strong></div>' +
+            '<div class="stats-item">Начато партий<strong>' + current.gamesStarted + '</strong></div>' +
+            '<div class="stats-item">Получено 2048<strong>' + current.reached2048 + '</strong></div>' +
+          '</div>';
+        statsList.appendChild(card);
+      });
     }
 
     function openModal(title, text, buttons) {
@@ -1136,7 +1415,7 @@
       modalText.textContent = text;
       modalActions.innerHTML = "";
 
-      buttons.forEach(function (config) {
+      buttons.forEach((config) => {
         const button = document.createElement("button");
         button.className = "modal-button " + (config.kind || "");
         button.textContent = config.label;
@@ -1147,10 +1426,52 @@
       modalLayer.classList.add("show");
     }
 
-    function askForNewGame() {
-      const reminder = history.length
-        ? "Можно отменить до " + history.length + " последних ходов и попробовать продолжить 😊"
-        : "Текущая партия будет сохранена в списке перед началом новой.";
+    function closeModal() {
+      modalLayer.classList.remove("show");
+      modalActions.innerHTML = "";
+    }
+
+    function requestNewModeGame(modeId) {
+      const oldState = loadModeState(modeId);
+
+      if (!oldState) {
+        startNewGame(modeId);
+        return;
+      }
+
+      openModal(
+        "Начать новую игру?",
+        MODES[modeId].name + ". " + (
+          modeId === "easy"
+            ? "Текущая партия попадёт в список сохранений."
+            : "Текущая партия этого режима будет заменена."
+        ),
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Начать",
+            kind: "primary",
+            action: () => {
+              if (modeId === "easy") {
+                const currentState = hasActiveGame ? snapshot() : null;
+                applyState(oldState);
+                createCheckpoint(true);
+                if (currentState) applyState(currentState);
+              }
+              startNewGame(modeId);
+            }
+          }
+        ]
+      );
+    }
+
+    function requestRestart() {
+      if (!hasActiveGame) return;
+
+      const possibleUndos = Math.min(history.length, undosLeft);
+      const reminder = possibleUndos > 0
+        ? "Можно откатить ещё " + possibleUndos + " ход" + (possibleUndos === 1 ? "" : "ов") + " и попробовать продолжить 😊"
+        : "Доступных откатов больше нет.";
 
       openModal(
         gameOver ? "Точно начать заново?" : "Начать новую игру?",
@@ -1159,8 +1480,8 @@
           { label: "Отмена", kind: "ghost", action: closeModal },
           {
             label: "В меню",
-            action: function () {
-              createCheckpoint(true);
+            action: () => {
+              if (mode === "easy") createCheckpoint(true);
               closeModal();
               showMenu();
             }
@@ -1168,61 +1489,53 @@
           {
             label: "Начать заново",
             kind: "primary",
-            action: function () {
-              startNewGame(true);
+            action: () => {
+              if (mode === "easy") createCheckpoint(true);
+              startNewGame(mode);
             }
           }
         ]
       );
     }
 
-    gameStateAction.addEventListener("click", function () {
+    gameStateAction.addEventListener("click", () => {
       if (gameOver) {
-        askForNewGame();
+        requestRestart();
         return;
       }
 
-      createCheckpoint(false);
+      if (mode === "easy") createCheckpoint(false);
       showMenu();
     });
 
     undoBtn.addEventListener("click", undo);
-    restartBtn.addEventListener("click", askForNewGame);
+    restartBtn.addEventListener("click", requestRestart);
 
-    continueButton.addEventListener("click", function () {
-      if (!hasActiveGame) return;
-      hideMenu();
-      render();
+    continueButton.addEventListener("click", () => {
+      const lastMode = lastPlayableMode();
+      if (lastMode) continueMode(lastMode);
     });
 
-    newGameButton.addEventListener("click", function () {
-      if (!hasActiveGame || score === 0) {
-        startNewGame(false);
-        return;
-      }
-
-      openModal(
-        "Начать новую игру?",
-        "Текущая партия автоматически попадёт в список сохранений.",
-        [
-          { label: "Отмена", kind: "ghost", action: closeModal },
-          {
-            label: "Начать",
-            kind: "primary",
-            action: function () {
-              startNewGame(true);
-            }
-          }
-        ]
-      );
+    modesButton.addEventListener("click", () => {
+      renderModes();
+      showOnly(modesMenu);
     });
 
-    loadButton.addEventListener("click", openLoadMenu);
+    loadButton.addEventListener("click", () => {
+      renderSaves();
+      showOnly(loadMenu);
+    });
 
-    loadBackButton.addEventListener("click", function () {
-      loadMenu.hidden = true;
-      mainMenu.hidden = false;
-      updateMenu();
+    statsButton.addEventListener("click", () => {
+      renderStats();
+      showOnly(statsMenu);
+    });
+
+    document.querySelectorAll("[data-back-main]").forEach((button) => {
+      button.addEventListener("click", () => {
+        updateMainMenu();
+        showOnly(mainMenu);
+      });
     });
 
     let startX = 0;
@@ -1241,76 +1554,65 @@
 
       const dx = x - startX;
       const dy = y - startY;
-
       if (Math.hypot(dx, dy) < 25) return;
 
-      if (Math.abs(dx) > Math.abs(dy)) {
-        move(dx > 0 ? "right" : "left");
-      } else {
-        move(dy > 0 ? "down" : "up");
-      }
+      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
+      else move(dy > 0 ? "down" : "up");
     }
 
     function isInteractiveTarget(target) {
       return Boolean(target && target.closest && target.closest("button, a, input, select, textarea"));
     }
 
-    document.addEventListener("touchstart", function (event) {
+    document.addEventListener("touchstart", (event) => {
       if (!event.touches.length || isInteractiveTarget(event.target)) return;
       const touch = event.touches[0];
       beginSwipe(touch.clientX, touch.clientY);
     }, { passive: true });
 
-    document.addEventListener("touchmove", function (event) {
-      event.preventDefault();
-    }, { passive: false });
+    document.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
 
-    document.addEventListener("touchend", function (event) {
+    document.addEventListener("touchend", (event) => {
       if (!tracking || !event.changedTouches.length) return;
       const touch = event.changedTouches[0];
       finishSwipe(touch.clientX, touch.clientY);
     }, { passive: true });
 
-    document.addEventListener("touchcancel", function () {
-      tracking = false;
-    }, { passive: true });
+    document.addEventListener("touchcancel", () => { tracking = false; }, { passive: true });
+    document.addEventListener("gesturestart", (event) => event.preventDefault(), { passive: false });
 
-    document.addEventListener("gesturestart", function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
-    document.addEventListener("mousedown", function (event) {
-      if (isInteractiveTarget(event.target)) return;
-      beginSwipe(event.clientX, event.clientY);
+    document.addEventListener("mousedown", (event) => {
+      if (!isInteractiveTarget(event.target)) beginSwipe(event.clientX, event.clientY);
     });
 
-    window.addEventListener("mouseup", function (event) {
-      finishSwipe(event.clientX, event.clientY);
-    });
+    window.addEventListener("mouseup", (event) => finishSwipe(event.clientX, event.clientY));
 
-    document.addEventListener("keydown", function (event) {
+    document.addEventListener("keydown", (event) => {
       const map = {
-        ArrowLeft: "left", ArrowRight: "right",
-        ArrowUp: "up", ArrowDown: "down",
+        ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down",
         a: "left", d: "right", w: "up", s: "down",
         A: "left", D: "right", W: "up", S: "down"
       };
 
-      const direction = map[event.key];
-      if (!direction) return;
-
+      if (!map[event.key]) return;
       event.preventDefault();
-      move(direction);
+      move(map[event.key]);
     }, { passive: false });
 
-    document.addEventListener("visibilitychange", function () {
+    document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") saveActive();
     });
-
     window.addEventListener("pagehide", saveActive);
     window.addEventListener("beforeunload", saveActive);
 
-    loadActive();
+    migrateOldVersion();
+
+    const initialMode = lastPlayableMode();
+    if (initialMode) {
+      const initialState = loadModeState(initialMode);
+      if (initialState) applyState(initialState);
+    }
+
     render();
     showMenu();
   })();
