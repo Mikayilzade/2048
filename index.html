@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="theme-color" content="#f7f4ea">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="2048">
-  <title>2048 — 4×4</title>
-
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>2048 — 4×4</title>
 
   <style>
     :root {
@@ -21,6 +18,7 @@
       --board: #b9aa9c;
       --empty: #cec4b9;
       --button: #9f826d;
+      --accent: #f77d5c;
       --gap: 10px;
     }
 
@@ -33,24 +31,29 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      background: var(--bg);
-      color: var(--text);
       overflow: hidden;
       overscroll-behavior: none;
+      background: var(--bg);
+      color: var(--text);
     }
 
     body {
       position: fixed;
       inset: 0;
       height: 100dvh;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       padding:
         max(18px, env(safe-area-inset-top))
         max(14px, env(safe-area-inset-right))
         max(24px, env(safe-area-inset-bottom))
         max(14px, env(safe-area-inset-left));
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       touch-action: none;
-      -webkit-overflow-scrolling: auto;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
     }
 
     .app {
@@ -69,6 +72,10 @@
       width: 100%;
     }
 
+    .brand {
+      min-width: 0;
+    }
+
     h1 {
       margin: 0;
       min-width: 0;
@@ -77,6 +84,29 @@
       font-weight: 500;
       letter-spacing: -5px;
       white-space: nowrap;
+    }
+
+    .game-state-action {
+      display: block;
+      width: 100%;
+      margin: 10px 0 0;
+      padding: 5px 3px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--button);
+      font-size: clamp(12px, 3.4vw, 15px);
+      line-height: 1.15;
+      text-align: left;
+    }
+
+    .game-state-action:active {
+      background: rgba(159, 130, 109, .10);
+    }
+
+    .game-state-action.game-over {
+      color: #b14d3e;
+      font-weight: 700;
+      font-size: clamp(14px, 4vw, 18px);
     }
 
     .stats {
@@ -123,26 +153,27 @@
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin: 16px 0 14px;
+      margin: 12px 0 14px;
     }
 
-    button {
+    .icon-button {
       width: 52px;
       height: 52px;
       padding: 0;
-      border: 0;
       border-radius: 11px;
       background: var(--button);
       color: white;
-      font: 600 30px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1;
       box-shadow: 0 2px 0 rgba(0,0,0,.08);
     }
 
-    button:active {
+    .icon-button:active {
       transform: translateY(1px);
     }
 
-    button:disabled {
+    .icon-button:disabled {
       opacity: .42;
     }
 
@@ -185,13 +216,8 @@
     .cell[data-digits="4"] { font-size: clamp(22px, 7vw, 42px); }
     .cell[data-digits="5"] { font-size: clamp(18px, 5.8vw, 34px); }
 
-    .cell.pop {
-      animation: pop .16s ease-out;
-    }
-
-    .cell.new {
-      animation: appear .14s ease-out;
-    }
+    .cell.pop { animation: pop .16s ease-out; }
+    .cell.new { animation: appear .14s ease-out; }
 
     .board.move-left .cell:not(:empty) { animation: glide-left .14s cubic-bezier(.22,.72,.28,1); }
     .board.move-right .cell:not(:empty) { animation: glide-right .14s cubic-bezier(.22,.72,.28,1); }
@@ -202,55 +228,10 @@
     @keyframes glide-right { from { transform: translateX(-11px); } to { transform: translateX(0); } }
     @keyframes glide-up { from { transform: translateY(11px); } to { transform: translateY(0); } }
     @keyframes glide-down { from { transform: translateY(-11px); } to { transform: translateY(0); } }
-
-    @keyframes pop {
-      50% { transform: scale(1.11); }
-    }
-
+    @keyframes pop { 50% { transform: scale(1.11); } }
     @keyframes appear {
       from { transform: scale(.35); opacity: .25; }
       to { transform: scale(1); opacity: 1; }
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      display: none;
-      place-items: center;
-      padding: 24px;
-      border-radius: 12px;
-      background: rgba(247,244,234,.84);
-    }
-
-    .overlay.show {
-      display: grid;
-    }
-
-    .card {
-      width: min(88%, 350px);
-      padding: 24px 20px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.94);
-      text-align: center;
-      box-shadow: 0 16px 42px rgba(70,55,40,.18);
-    }
-
-    .card h2 {
-      margin: 0 0 10px;
-      font-size: 36px;
-    }
-
-    .card p {
-      margin: 0 0 18px;
-      font-size: 18px;
-      line-height: 1.35;
-    }
-
-    .card button {
-      width: auto;
-      min-width: 140px;
-      padding: 0 20px;
-      font-size: 19px;
     }
 
     .hint {
@@ -261,15 +242,219 @@
       opacity: .82;
     }
 
-    .status {
-      margin: 10px 8px 0;
-      min-height: 18px;
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(28px, env(safe-area-inset-bottom));
+      z-index: 60;
+      max-width: min(88vw, 420px);
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(80, 69, 60, .92);
+      color: white;
+      font-size: 14px;
       text-align: center;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        max(20px, env(safe-area-inset-right))
+        max(30px, env(safe-area-inset-bottom))
+        max(20px, env(safe-area-inset-left));
+      overflow-y: auto;
+      background: var(--bg);
+      touch-action: none;
+    }
+
+    .screen.show {
+      display: flex;
+    }
+
+    .menu {
+      width: min(100%, 420px);
+      text-align: center;
+    }
+
+    .menu-title {
+      margin: 0 0 8px;
+      font-size: clamp(76px, 23vw, 116px);
+      line-height: .9;
+      font-weight: 500;
+      letter-spacing: -7px;
+    }
+
+    .menu-record {
+      margin: 0 0 28px;
+      font-size: 16px;
+      opacity: .76;
+    }
+
+    .menu-buttons {
+      display: grid;
+      gap: 12px;
+    }
+
+    .menu-button {
+      width: 100%;
+      min-height: 62px;
+      padding: 10px 18px;
+      border-radius: 13px;
+      background: var(--button);
+      color: white;
+      font-size: 22px;
+      font-weight: 600;
+      box-shadow: 0 2px 0 rgba(0,0,0,.08);
+    }
+
+    .menu-button.primary {
+      background: var(--accent);
+    }
+
+    .menu-button:disabled {
+      opacity: .42;
+    }
+
+    .menu-button small {
+      display: block;
+      margin-top: 4px;
       font-size: 13px;
-      opacity: .55;
+      font-weight: 400;
+      opacity: .86;
+    }
+
+    .load-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .back-button {
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      background: var(--button);
+      color: white;
+      font-size: 26px;
+    }
+
+    .load-title {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .save-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .save-card {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: var(--board);
+      color: white;
+      text-align: left;
+    }
+
+    .save-card strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .save-card span {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: .88;
+    }
+
+    .empty-saves {
+      padding: 24px 16px;
+      border-radius: 12px;
+      background: rgba(185,170,156,.25);
+      font-size: 17px;
+      line-height: 1.4;
+    }
+
+    .modal-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(247,244,234,.82);
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-layer.show {
+      display: grid;
+    }
+
+    .modal-card {
+      width: min(92vw, 390px);
+      padding: 24px 20px 20px;
+      border-radius: 17px;
+      background: rgba(255,255,255,.97);
+      text-align: center;
+      box-shadow: 0 16px 45px rgba(70,55,40,.20);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 11px;
+      font-size: 31px;
+      line-height: 1.1;
+    }
+
+    .modal-card p {
+      margin: 0 0 20px;
+      font-size: 17px;
+      line-height: 1.4;
+    }
+
+    .modal-actions {
+      display: grid;
+      gap: 9px;
+    }
+
+    .modal-button {
+      min-height: 50px;
+      padding: 8px 14px;
+      border-radius: 11px;
+      background: var(--button);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-button.primary { background: var(--accent); }
+    .modal-button.ghost {
+      background: rgba(159,130,109,.16);
+      color: var(--text);
     }
 
     @media (max-width: 410px) {
+      :root { --gap: 8px; }
+
       .top {
         grid-template-columns: minmax(0, .88fr) minmax(0, 1.32fr);
         gap: 8px;
@@ -281,38 +466,30 @@
       }
 
       .stat {
-        min-width: 0;
         padding-inline: 5px;
       }
 
-      .label {
-        font-size: 11px;
-      }
+      .label { font-size: 11px; }
+      .value { font-size: 23px; }
 
-      .value {
-        font-size: 23px;
-      }
+      .controls { margin-top: 10px; }
 
-      .controls {
-        margin-top: 13px;
-      }
-
-      button {
+      .icon-button {
         width: 48px;
         height: 48px;
         font-size: 27px;
       }
-
-      :root {
-        --gap: 8px;
-      }
     }
   </style>
 </head>
+
 <body>
-  <main class="app">
+  <main class="app" id="gameApp">
     <section class="top">
-      <h1>2048</h1>
+      <div class="brand">
+        <h1>2048</h1>
+        <button id="gameStateAction" class="game-state-action">Сохранить и выйти в меню</button>
+      </div>
 
       <div class="stats">
         <div class="stat">
@@ -327,48 +504,94 @@
     </section>
 
     <section class="controls">
-      <button id="undo" aria-label="Отменить ход" title="Отменить ход">↶</button>
-      <button id="restart" aria-label="Новая игра" title="Новая игра">↻</button>
+      <button id="undo" class="icon-button" aria-label="Отменить ход" title="Отменить ход">↶</button>
+      <button id="restart" class="icon-button" aria-label="Новая игра" title="Новая игра">↻</button>
     </section>
 
-    <section id="boardWrap" class="board-wrap">
+    <section id="boardWrap" class="board-wrap" aria-label="Игровое поле">
       <div id="board" class="board">
         <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
         <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
         <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
         <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
       </div>
-
-      <div id="overlay" class="overlay">
-        <div class="card">
-          <h2 id="overlayTitle">Игра окончена</h2>
-          <p id="overlayText"></p>
-          <button id="again">Начать заново</button>
-        </div>
-      </div>
     </section>
 
-    <p class="hint">Свайпай по полю. На компьютере работают стрелки и WASD.</p>
-    <p id="status" class="status"></p>
+    <p class="hint">Свайпай в любом свободном месте экрана. На компьютере работают стрелки и WASD.</p>
   </main>
+
+  <section id="menuScreen" class="screen">
+    <div id="mainMenu" class="menu">
+      <h2 class="menu-title">2048</h2>
+      <p id="menuRecord" class="menu-record">Рекорд: 0</p>
+
+      <div class="menu-buttons">
+        <button id="continueButton" class="menu-button primary">
+          Продолжить
+          <small id="continueInfo"></small>
+        </button>
+
+        <button id="newGameButton" class="menu-button">Новая игра</button>
+
+        <button id="loadButton" class="menu-button">
+          Загрузить
+          <small id="loadInfo"></small>
+        </button>
+      </div>
+    </div>
+
+    <div id="loadMenu" class="menu" hidden>
+      <div class="load-header">
+        <button id="loadBackButton" class="back-button" aria-label="Назад">‹</button>
+        <h2 class="load-title">Сохранённые игры</h2>
+      </div>
+      <div id="saveList" class="save-list"></div>
+    </div>
+  </section>
+
+  <section id="modalLayer" class="modal-layer" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div id="modalActions" class="modal-actions"></div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast"></div>
 
   <script>
   (function () {
     "use strict";
 
     const N = 4;
+    const ACTIVE_KEY = "mika2048-active-v4";
+    const SAVES_KEY = "mika2048-checkpoints-v4";
+    const BEST_KEY = "mika2048-best-v4";
+    const MAX_CHECKPOINTS = 5;
+
     const scoreEl = document.getElementById("score");
     const bestEl = document.getElementById("best");
     const cells = Array.from(document.querySelectorAll(".cell"));
     const board = document.getElementById("board");
-    const boardWrap = document.getElementById("boardWrap");
     const undoBtn = document.getElementById("undo");
     const restartBtn = document.getElementById("restart");
-    const overlay = document.getElementById("overlay");
-    const overlayTitle = document.getElementById("overlayTitle");
-    const overlayText = document.getElementById("overlayText");
-    const againBtn = document.getElementById("again");
-    const statusEl = document.getElementById("status");
+    const gameStateAction = document.getElementById("gameStateAction");
+    const menuScreen = document.getElementById("menuScreen");
+    const mainMenu = document.getElementById("mainMenu");
+    const loadMenu = document.getElementById("loadMenu");
+    const continueButton = document.getElementById("continueButton");
+    const continueInfo = document.getElementById("continueInfo");
+    const newGameButton = document.getElementById("newGameButton");
+    const loadButton = document.getElementById("loadButton");
+    const loadInfo = document.getElementById("loadInfo");
+    const loadBackButton = document.getElementById("loadBackButton");
+    const saveList = document.getElementById("saveList");
+    const menuRecord = document.getElementById("menuRecord");
+    const modalLayer = document.getElementById("modalLayer");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const modalActions = document.getElementById("modalActions");
+    const toast = document.getElementById("toast");
 
     const colors = {
       0:    ["#cec4b9", "transparent"],
@@ -391,22 +614,26 @@
     let score = 0;
     let best = 0;
     let history = [];
+    let gameOver = false;
+    let hasActiveGame = false;
     let lastNewIndex = -1;
     let lastMergedIndices = [];
+    let toastTimer = null;
 
     function safeGet(key) {
       try {
-        return window.localStorage ? localStorage.getItem(key) : null;
-      } catch (error) {
+        return localStorage.getItem(key);
+      } catch (_) {
         return null;
       }
     }
 
     function safeSet(key, value) {
       try {
-        if (window.localStorage) localStorage.setItem(key, value);
-      } catch (error) {
-        // В локальном предпросмотре iPhone хранилище может быть недоступно.
+        localStorage.setItem(key, value);
+        return true;
+      } catch (_) {
+        return false;
       }
     }
 
@@ -417,15 +644,48 @@
     }
 
     function copyGrid(source) {
-      return source.map(function (row) {
-        return row.slice();
-      });
+      return source.map(function (row) { return row.slice(); });
     }
 
     function flatten(source) {
-      return source.reduce(function (all, row) {
-        return all.concat(row);
-      }, []);
+      return source.reduce(function (all, row) { return all.concat(row); }, []);
+    }
+
+    function validGrid(candidate) {
+      return Array.isArray(candidate) &&
+        candidate.length === N &&
+        candidate.every(function (row) {
+          return Array.isArray(row) &&
+            row.length === N &&
+            row.every(function (value) {
+              return Number.isFinite(value) && value >= 0;
+            });
+        });
+    }
+
+    function getMaxTile(source) {
+      return Math.max.apply(null, flatten(source));
+    }
+
+    function formatNumber(value) {
+      try {
+        return Number(value).toLocaleString("ru-RU");
+      } catch (_) {
+        return String(value);
+      }
+    }
+
+    function formatDate(timestamp) {
+      try {
+        return new Date(timestamp).toLocaleString("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      } catch (_) {
+        return "";
+      }
     }
 
     function getColor(value) {
@@ -433,10 +693,162 @@
       return ["#25221f", "#ffffff"];
     }
 
-    function render() {
-      const values = flatten(grid);
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1500);
+    }
 
-      values.forEach(function (value, index) {
+    function stateSnapshot() {
+      return {
+        version: 4,
+        grid: copyGrid(grid),
+        score: score,
+        best: best,
+        history: history.slice(-20).map(function (item) {
+          return {
+            grid: copyGrid(item.grid),
+            score: item.score
+          };
+        }),
+        gameOver: gameOver,
+        savedAt: Date.now(),
+        maxTile: getMaxTile(grid)
+      };
+    }
+
+    function normalizeState(candidate) {
+      if (!candidate || !validGrid(candidate.grid)) return null;
+
+      const safeHistory = Array.isArray(candidate.history)
+        ? candidate.history.filter(function (item) {
+            return item && validGrid(item.grid) && Number.isFinite(item.score);
+          }).slice(-20).map(function (item) {
+            return { grid: copyGrid(item.grid), score: Number(item.score) || 0 };
+          })
+        : [];
+
+      return {
+        version: 4,
+        grid: copyGrid(candidate.grid),
+        score: Number(candidate.score) || 0,
+        best: Number(candidate.best) || 0,
+        history: safeHistory,
+        gameOver: Boolean(candidate.gameOver),
+        savedAt: Number(candidate.savedAt) || Date.now(),
+        maxTile: Number(candidate.maxTile) || getMaxTile(candidate.grid)
+      };
+    }
+
+    function saveActive() {
+      if (!hasActiveGame) return;
+      best = Math.max(best, score);
+      safeSet(ACTIVE_KEY, JSON.stringify(stateSnapshot()));
+      safeSet(BEST_KEY, String(best));
+
+      // Оставляем старый ключ рекорда для совместимости с предыдущими версиями.
+      safeSet("mika2048-best", String(best));
+    }
+
+    function loadActive() {
+      best = Math.max(
+        Number(safeGet(BEST_KEY)) || 0,
+        Number(safeGet("mika2048-best")) || 0
+      );
+
+      const raw = safeGet(ACTIVE_KEY);
+      if (raw) {
+        try {
+          const loaded = normalizeState(JSON.parse(raw));
+          if (loaded) {
+            applyState(loaded);
+            hasActiveGame = true;
+            return true;
+          }
+        } catch (_) {}
+      }
+
+      // Миграция партии из старой версии.
+      const oldGridRaw = safeGet("mika2048-grid");
+      if (oldGridRaw) {
+        try {
+          const oldGrid = JSON.parse(oldGridRaw);
+          if (validGrid(oldGrid)) {
+            grid = copyGrid(oldGrid);
+            score = Number(safeGet("mika2048-score")) || 0;
+            history = [];
+            gameOver = !canMove();
+            hasActiveGame = true;
+            saveActive();
+            return true;
+          }
+        } catch (_) {}
+      }
+
+      return false;
+    }
+
+    function getCheckpoints() {
+      const raw = safeGet(SAVES_KEY);
+      if (!raw) return [];
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(normalizeState).filter(Boolean);
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function setCheckpoints(items) {
+      safeSet(SAVES_KEY, JSON.stringify(items.slice(0, MAX_CHECKPOINTS)));
+    }
+
+    function checkpointSignature(item) {
+      return JSON.stringify(item.grid) + "|" + item.score;
+    }
+
+    function createCheckpoint(silent) {
+      if (!hasActiveGame) return;
+
+      const current = stateSnapshot();
+      const signature = checkpointSignature(current);
+      let saves = getCheckpoints().filter(function (item) {
+        return checkpointSignature(item) !== signature;
+      });
+
+      saves.push(current);
+      saves.sort(function (a, b) {
+        return (b.maxTile - a.maxTile) ||
+          (b.score - a.score) ||
+          (b.savedAt - a.savedAt);
+      });
+
+      setCheckpoints(saves.slice(0, MAX_CHECKPOINTS));
+      if (!silent) showToast("Игра сохранена");
+    }
+
+    function applyState(state) {
+      const normalized = normalizeState(state);
+      if (!normalized) return false;
+
+      grid = copyGrid(normalized.grid);
+      score = normalized.score;
+      best = Math.max(best, normalized.best, score);
+      history = normalized.history;
+      gameOver = normalized.gameOver || !canMove();
+      hasActiveGame = true;
+      lastNewIndex = -1;
+      lastMergedIndices = [];
+      return true;
+    }
+
+    function render() {
+      flatten(grid).forEach(function (value, index) {
         const cell = cells[index];
         const palette = getColor(value);
 
@@ -458,57 +870,25 @@
       bestEl.dataset.digits = String(best).length;
       undoBtn.disabled = history.length === 0;
 
+      if (gameOver) {
+        gameStateAction.textContent = "Игра окончена";
+        gameStateAction.classList.add("game-over");
+      } else {
+        gameStateAction.textContent = "Сохранить и выйти в меню";
+        gameStateAction.classList.remove("game-over");
+      }
+
       lastNewIndex = -1;
       lastMergedIndices = [];
     }
 
-    function save() {
-      safeSet("mika2048-grid", JSON.stringify(grid));
-      safeSet("mika2048-score", String(score));
-      safeSet("mika2048-best", String(best));
-    }
-
-    function load() {
-      const savedBest = Number(safeGet("mika2048-best"));
-      if (Number.isFinite(savedBest) && savedBest > 0) best = savedBest;
-
-      const savedGrid = safeGet("mika2048-grid");
-      const savedScore = Number(safeGet("mika2048-score"));
-
-      if (!savedGrid) return false;
-
-      try {
-        const parsed = JSON.parse(savedGrid);
-        const valid =
-          Array.isArray(parsed) &&
-          parsed.length === N &&
-          parsed.every(function (row) {
-            return Array.isArray(row) &&
-              row.length === N &&
-              row.every(function (value) {
-                return Number.isFinite(value) && value >= 0;
-              });
-          });
-
-        if (!valid) return false;
-
-        grid = parsed;
-        score = Number.isFinite(savedScore) ? savedScore : 0;
-        return true;
-      } catch (error) {
-        return false;
-      }
-    }
-
     function emptyPositions() {
       const result = [];
-
       for (let row = 0; row < N; row++) {
         for (let col = 0; col < N; col++) {
           if (grid[row][col] === 0) result.push([row, col]);
         }
       }
-
       return result;
     }
 
@@ -524,26 +904,25 @@
       lastNewIndex = row * N + col;
     }
 
-    function newGame(confirmReset) {
-      if (confirmReset && score > 0) {
-        const accepted = window.confirm("Начать новую игру?");
-        if (!accepted) return;
+    function startNewGame(preserveCurrent) {
+      if (preserveCurrent && hasActiveGame && score > 0) {
+        createCheckpoint(true);
       }
 
       grid = emptyGrid();
       score = 0;
       history = [];
-      overlay.classList.remove("show");
+      gameOver = false;
+      hasActiveGame = true;
 
       addTile();
-      const firstIndex = lastNewIndex;
       addTile();
 
-      if (lastNewIndex === firstIndex) lastNewIndex = -1;
-
-      save();
+      best = Math.max(best, Number(safeGet(BEST_KEY)) || 0);
+      saveActive();
+      hideMenu();
+      closeModal();
       render();
-      statusEl.textContent = "";
     }
 
     function sameGrid(a, b) {
@@ -556,10 +935,7 @@
     }
 
     function mergeLine(line) {
-      const compact = line.filter(function (value) {
-        return value !== 0;
-      });
-
+      const compact = line.filter(function (value) { return value !== 0; });
       const result = [];
       const mergedPositions = [];
       let gained = 0;
@@ -589,7 +965,7 @@
     }
 
     function move(direction) {
-      if (overlay.classList.contains("show")) return;
+      if (!hasActiveGame || gameOver || menuScreen.classList.contains("show") || modalLayer.classList.contains("show")) return;
 
       const before = copyGrid(grid);
       const beforeScore = score;
@@ -634,36 +1010,30 @@
 
       if (sameGrid(before, next)) return;
 
-      history.push({
-        grid: before,
-        score: beforeScore
-      });
-
+      history.push({ grid: before, score: beforeScore });
       if (history.length > 20) history.shift();
 
       grid = next;
       score += gained;
+      best = Math.max(best, score);
       lastMergedIndices = mergedCells;
-
-      if (score > best) best = score;
 
       addTile();
 
       board.classList.remove("move-left", "move-right", "move-up", "move-down");
       void board.offsetWidth;
       board.classList.add("move-" + direction);
-      window.setTimeout(function () {
+      setTimeout(function () {
         board.classList.remove("move-left", "move-right", "move-up", "move-down");
       }, 170);
 
-      save();
+      gameOver = !canMove();
+      saveActive();
       render();
 
       if (navigator.vibrate && gained > 0) {
-        try { navigator.vibrate(15); } catch (error) {}
+        try { navigator.vibrate(15); } catch (_) {}
       }
-
-      checkGameOver();
     }
 
     function canMove() {
@@ -672,7 +1042,6 @@
       for (let row = 0; row < N; row++) {
         for (let col = 0; col < N; col++) {
           const value = grid[row][col];
-
           if (row + 1 < N && grid[row + 1][col] === value) return true;
           if (col + 1 < N && grid[row][col + 1] === value) return true;
         }
@@ -681,24 +1050,180 @@
       return false;
     }
 
-    function checkGameOver() {
-      if (canMove()) return;
-
-      overlayTitle.textContent = "Игра окончена";
-      overlayText.textContent = "Результат: " + score + " очков.";
-      overlay.classList.add("show");
-    }
-
     function undo() {
       const previous = history.pop();
       if (!previous) return;
 
       grid = copyGrid(previous.grid);
       score = previous.score;
-      overlay.classList.remove("show");
-      save();
+      gameOver = false;
+      saveActive();
       render();
     }
+
+    function showMenu() {
+      saveActive();
+      mainMenu.hidden = false;
+      loadMenu.hidden = true;
+      updateMenu();
+      menuScreen.classList.add("show");
+    }
+
+    function hideMenu() {
+      menuScreen.classList.remove("show");
+    }
+
+    function updateMenu() {
+      const saves = getCheckpoints();
+      menuRecord.textContent = "Рекорд: " + formatNumber(best);
+
+      continueButton.disabled = !hasActiveGame;
+      continueInfo.textContent = hasActiveGame
+        ? formatNumber(score) + " очков · максимальная плитка " + getMaxTile(grid)
+        : "Нет текущей партии";
+
+      loadButton.disabled = saves.length === 0;
+      loadInfo.textContent = saves.length
+        ? saves.length + " сохранён" + (saves.length === 1 ? "ная игра" : "ные игры")
+        : "Сохранений пока нет";
+    }
+
+    function openLoadMenu() {
+      renderSaveList();
+      mainMenu.hidden = true;
+      loadMenu.hidden = false;
+    }
+
+    function renderSaveList() {
+      const saves = getCheckpoints();
+      saveList.innerHTML = "";
+
+      if (!saves.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-saves";
+        empty.textContent = "Сохранённых партий пока нет.";
+        saveList.appendChild(empty);
+        return;
+      }
+
+      saves.forEach(function (item, index) {
+        const button = document.createElement("button");
+        button.className = "save-card";
+        button.innerHTML =
+          "<strong>" + item.maxTile + " · " + formatNumber(item.score) + " очков</strong>" +
+          "<span>" + formatDate(item.savedAt) + " · отмен доступно: " + item.history.length + "</span>";
+
+        button.addEventListener("click", function () {
+          if (applyState(item)) {
+            saveActive();
+            hideMenu();
+            render();
+            showToast("Сохранение загружено");
+          }
+        });
+
+        saveList.appendChild(button);
+      });
+    }
+
+    function closeModal() {
+      modalLayer.classList.remove("show");
+      modalActions.innerHTML = "";
+    }
+
+    function openModal(title, text, buttons) {
+      modalTitle.textContent = title;
+      modalText.textContent = text;
+      modalActions.innerHTML = "";
+
+      buttons.forEach(function (config) {
+        const button = document.createElement("button");
+        button.className = "modal-button " + (config.kind || "");
+        button.textContent = config.label;
+        button.addEventListener("click", config.action);
+        modalActions.appendChild(button);
+      });
+
+      modalLayer.classList.add("show");
+    }
+
+    function askForNewGame() {
+      const reminder = history.length
+        ? "Можно отменить до " + history.length + " последних ходов и попробовать продолжить 😊"
+        : "Текущая партия будет сохранена в списке перед началом новой.";
+
+      openModal(
+        gameOver ? "Точно начать заново?" : "Начать новую игру?",
+        reminder,
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "В меню",
+            action: function () {
+              createCheckpoint(true);
+              closeModal();
+              showMenu();
+            }
+          },
+          {
+            label: "Начать заново",
+            kind: "primary",
+            action: function () {
+              startNewGame(true);
+            }
+          }
+        ]
+      );
+    }
+
+    gameStateAction.addEventListener("click", function () {
+      if (gameOver) {
+        askForNewGame();
+        return;
+      }
+
+      createCheckpoint(false);
+      showMenu();
+    });
+
+    undoBtn.addEventListener("click", undo);
+    restartBtn.addEventListener("click", askForNewGame);
+
+    continueButton.addEventListener("click", function () {
+      if (!hasActiveGame) return;
+      hideMenu();
+      render();
+    });
+
+    newGameButton.addEventListener("click", function () {
+      if (!hasActiveGame || score === 0) {
+        startNewGame(false);
+        return;
+      }
+
+      openModal(
+        "Начать новую игру?",
+        "Текущая партия автоматически попадёт в список сохранений.",
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Начать",
+            kind: "primary",
+            action: function () {
+              startNewGame(true);
+            }
+          }
+        ]
+      );
+    });
+
+    loadButton.addEventListener("click", openLoadMenu);
+
+    loadBackButton.addEventListener("click", function () {
+      loadMenu.hidden = true;
+      mainMenu.hidden = false;
+      updateMenu();
+    });
 
     let startX = 0;
     let startY = 0;
@@ -726,15 +1251,6 @@
       }
     }
 
-    // Полностью блокируем прокрутку и «резиновое» качание страницы на iPhone.
-    document.addEventListener("touchmove", function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
-    document.addEventListener("gesturestart", function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
     function isInteractiveTarget(target) {
       return Boolean(target && target.closest && target.closest("button, a, input, select, textarea"));
     }
@@ -746,7 +1262,7 @@
     }, { passive: true });
 
     document.addEventListener("touchmove", function (event) {
-      if (tracking) event.preventDefault();
+      event.preventDefault();
     }, { passive: false });
 
     document.addEventListener("touchend", function (event) {
@@ -759,6 +1275,10 @@
       tracking = false;
     }, { passive: true });
 
+    document.addEventListener("gesturestart", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
     document.addEventListener("mousedown", function (event) {
       if (isInteractiveTarget(event.target)) return;
       beginSwipe(event.clientX, event.clientY);
@@ -770,18 +1290,10 @@
 
     document.addEventListener("keydown", function (event) {
       const map = {
-        ArrowLeft: "left",
-        ArrowRight: "right",
-        ArrowUp: "up",
-        ArrowDown: "down",
-        a: "left",
-        d: "right",
-        w: "up",
-        s: "down",
-        A: "left",
-        D: "right",
-        W: "up",
-        S: "down"
+        ArrowLeft: "left", ArrowRight: "right",
+        ArrowUp: "up", ArrowDown: "down",
+        a: "left", d: "right", w: "up", s: "down",
+        A: "left", D: "right", W: "up", S: "down"
       };
 
       const direction = map[event.key];
@@ -791,36 +1303,29 @@
       move(direction);
     }, { passive: false });
 
-    undoBtn.addEventListener("click", undo);
-    restartBtn.addEventListener("click", function () {
-      newGame(true);
-    });
-    againBtn.addEventListener("click", function () {
-      newGame(false);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") saveActive();
     });
 
-    try {
-      const loaded = load();
+    window.addEventListener("pagehide", saveActive);
+    window.addEventListener("beforeunload", saveActive);
 
-      if (!loaded) {
-        newGame(false);
-      } else {
-        render();
-        checkGameOver();
-      }
-
-      if (!safeGet("mika2048-grid")) {
-        statusEl.textContent = "Сохранение может быть недоступно в режиме предпросмотра.";
-      }
-    } catch (error) {
-      statusEl.textContent = "Ошибка запуска: " + error.message;
-      newGame(false);
-    }
+    loadActive();
+    render();
+    showMenu();
   })();
   </script>
 
   <script>
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      let refreshing = false;
+
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (refreshing) return;
+        refreshing = true;
+        location.reload();
+      });
+
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("./sw.js").then(function (registration) {
           registration.update();
@@ -828,6 +1333,5 @@
       });
     }
   </script>
-
 </body>
 </html>
