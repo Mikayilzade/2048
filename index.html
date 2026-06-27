@@ -569,6 +569,105 @@
     .small-button.primary { background: var(--accent); }
     .small-button:disabled { opacity: .35; }
 
+
+    .checkpoint-action {
+      margin-top: 0;
+      padding-top: 2px;
+      padding-bottom: 3px;
+      font-size: clamp(11px, 3.1vw, 14px);
+      opacity: .82;
+    }
+
+    .checkpoint-action[hidden] {
+      display: none;
+    }
+
+    .checkpoint-panel {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(119,111,102,.16);
+    }
+
+    .checkpoint-toggle {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-radius: 10px;
+      background: rgba(159,130,109,.16);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 650;
+      text-align: left;
+    }
+
+    .checkpoint-toggle span:last-child {
+      flex: 0 0 auto;
+      opacity: .72;
+    }
+
+    .checkpoint-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .checkpoint-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      gap: 7px;
+    }
+
+    .checkpoint-load {
+      min-width: 0;
+      padding: 10px 11px;
+      border-radius: 10px;
+      background: var(--board);
+      color: white;
+      text-align: left;
+    }
+
+    .checkpoint-load strong {
+      display: block;
+      overflow: hidden;
+      font-size: 16px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .checkpoint-load span {
+      display: block;
+      margin-top: 4px;
+      overflow: hidden;
+      font-size: 11px;
+      opacity: .86;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .checkpoint-delete {
+      width: 44px;
+      min-height: 52px;
+      border-radius: 10px;
+      background: rgba(177,77,62,.13);
+      color: #a34b3f;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .checkpoint-empty {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.46);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+      opacity: .78;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -598,6 +697,7 @@
       <div class="brand">
         <h1>2048</h1>
         <button id="gameStateAction" class="game-state-action">Выйти в меню</button>
+        <button id="checkpointAction" class="game-state-action checkpoint-action" hidden>Создать контрольную точку</button>
         <div class="mode-line">
           <span id="modeName">Лёгкий</span><span>·</span><span id="undoStatus">доступно: 0 из 20</span>
         </div>
@@ -647,11 +747,6 @@
 
         <button id="modesButton" class="menu-button">Выбрать режим</button>
 
-        <button id="loadButton" class="menu-button">
-          Загрузить
-          <small id="loadInfo">Сохранения лёгкого режима</small>
-        </button>
-
         <button id="statsButton" class="menu-button">Статистика</button>
       </div>
     </div>
@@ -662,14 +757,6 @@
         <h2 class="load-title">Режимы</h2>
       </div>
       <div id="modeList" class="save-list"></div>
-    </div>
-
-    <div id="loadMenu" class="menu" hidden>
-      <div class="load-header">
-        <button class="back-button" data-back-main aria-label="Назад">‹</button>
-        <h2 class="load-title">Сохранённые игры</h2>
-      </div>
-      <div id="saveList" class="save-list"></div>
     </div>
 
     <div id="statsMenu" class="menu" hidden>
@@ -701,7 +788,7 @@
     const STATS_KEY = "mika2048-stats-v5";
     const SAVES_KEY = "mika2048-checkpoints-v5-easy";
     const LAST_MODE_KEY = "mika2048-last-mode-v5";
-    const MAX_CHECKPOINTS = 5;
+    const MAX_CHECKPOINTS = 3;
 
     const MODES = {
       easy: { name: "Лёгкий", historyLimit: 20, saves: true, rule: "Память последних 20 ходов и контрольные сохранения" },
@@ -719,23 +806,20 @@
     const undoBadge = $("undoBadge");
     const restartBtn = $("restart");
     const gameStateAction = $("gameStateAction");
+    const checkpointAction = $("checkpointAction");
     const modeNameEl = $("modeName");
     const undoStatusEl = $("undoStatus");
 
     const menuScreen = $("menuScreen");
     const mainMenu = $("mainMenu");
     const modesMenu = $("modesMenu");
-    const loadMenu = $("loadMenu");
     const statsMenu = $("statsMenu");
     const continueButton = $("continueButton");
     const continueInfo = $("continueInfo");
     const modesButton = $("modesButton");
-    const loadButton = $("loadButton");
-    const loadInfo = $("loadInfo");
     const statsButton = $("statsButton");
     const menuRecord = $("menuRecord");
     const modeList = $("modeList");
-    const saveList = $("saveList");
     const statsList = $("statsList");
 
     const modalLayer = $("modalLayer");
@@ -908,7 +992,7 @@
 
     function snapshot() {
       return {
-        version: 6,
+        version: 7,
         mode,
         grid: copyGrid(grid),
         score,
@@ -1023,7 +1107,7 @@
                 maxTile: item.maxTile
               }))
               .filter(Boolean)
-              .slice(0, 5);
+              .slice(0, MAX_CHECKPOINTS);
 
             safeSet(SAVES_KEY, JSON.stringify(migrated));
           } catch (_) {}
@@ -1046,25 +1130,63 @@
     }
 
     function setCheckpoints(items) {
-      safeSet(SAVES_KEY, JSON.stringify(items.slice(0, 5)));
+      safeSet(SAVES_KEY, JSON.stringify(items.slice(0, MAX_CHECKPOINTS)));
+    }
+
+    function checkpointSignature(item) {
+      return JSON.stringify(item.grid) + "|" + item.score;
+    }
+
+    function addCheckpoint(state, silent = false) {
+      const current = normalizeState(state, "easy");
+      if (!current || current.mode !== "easy") return "invalid";
+
+      current.savedAt = Date.now();
+      current.maxTile = getMaxTile(current.grid);
+
+      const saves = getCheckpoints();
+      const signature = checkpointSignature(current);
+
+      if (saves.some((item) => checkpointSignature(item) === signature)) {
+        if (!silent) showToast("Такая контрольная точка уже сохранена");
+        return "exists";
+      }
+
+      if (saves.length >= MAX_CHECKPOINTS) {
+        if (!silent) showToast("Максимум 3 точки. Удали ненужную в меню режимов");
+        return "full";
+      }
+
+      saves.unshift(current);
+      setCheckpoints(saves);
+
+      if (!silent) showToast("Контрольная точка создана");
+      return "created";
     }
 
     function createCheckpoint(silent = false) {
-      if (!hasActiveGame || mode !== "easy") return;
+      if (!hasActiveGame || mode !== "easy") return "invalid";
+      return addCheckpoint(snapshot(), silent);
+    }
 
-      const current = snapshot();
-      const signature = JSON.stringify(current.grid) + "|" + current.score;
-      let saves = getCheckpoints().filter((item) =>
-        JSON.stringify(item.grid) + "|" + item.score !== signature
-      );
+    function trimLegacyCheckpoints() {
+      const unique = [];
+      const signatures = new Set();
 
-      saves.push(current);
-      saves.sort((a, b) =>
-        (b.maxTile - a.maxTile) || (b.score - a.score) || (b.savedAt - a.savedAt)
-      );
-      setCheckpoints(saves);
+      getCheckpoints()
+        .sort((a, b) =>
+          (b.maxTile - a.maxTile) ||
+          (b.score - a.score) ||
+          (b.savedAt - a.savedAt)
+        )
+        .forEach((item) => {
+          const signature = checkpointSignature(item);
+          if (signatures.has(signature)) return;
+          signatures.add(signature);
+          unique.push(item);
+        });
 
-      if (!silent) showToast("Игра сохранена");
+      setCheckpoints(unique.slice(0, MAX_CHECKPOINTS));
     }
 
     function getColor(value) {
@@ -1106,11 +1228,11 @@
         gameStateAction.textContent = "Игра окончена";
         gameStateAction.classList.add("game-over");
       } else {
-        gameStateAction.textContent = MODES[mode].saves
-          ? "Сохранить и выйти в меню"
-          : "Выйти в меню";
+        gameStateAction.textContent = "Выйти в меню";
         gameStateAction.classList.remove("game-over");
       }
+
+      checkpointAction.hidden = !hasActiveGame || mode !== "easy" || gameOver;
 
       lastNewIndex = -1;
       lastMergedIndices = [];
@@ -1277,7 +1399,7 @@
     }
 
     function showOnly(section) {
-      [mainMenu, modesMenu, loadMenu, statsMenu].forEach((item) => {
+      [mainMenu, modesMenu, statsMenu].forEach((item) => {
         item.hidden = item !== section;
       });
     }
@@ -1291,18 +1413,12 @@
     function updateMainMenu() {
       const lastMode = lastPlayableMode();
       const state = lastMode ? loadModeState(lastMode) : null;
-      const saves = getCheckpoints();
 
       menuRecord.textContent = "Лучший результат: " + formatNumber(bestAcrossModes());
       continueButton.disabled = !state;
       continueInfo.textContent = state
         ? MODES[lastMode].name + " · " + formatNumber(state.score) + " очков · плитка " + state.maxTile
         : "Нет текущей партии";
-
-      loadButton.disabled = saves.length === 0;
-      loadInfo.textContent = saves.length
-        ? saves.length + " сохранён" + (saves.length === 1 ? "ная игра" : "ные игры")
-        : "Сохранений лёгкого режима пока нет";
     }
 
     function showMenu() {
@@ -1323,7 +1439,7 @@
       render();
     }
 
-    function renderModes() {
+    function renderModes(openEasyPoints = false) {
       modeList.innerHTML = "";
 
       Object.keys(MODES).forEach((modeId) => {
@@ -1353,36 +1469,113 @@
         newBtn.addEventListener("click", () => requestNewModeGame(modeId));
 
         actions.append(continueBtn, newBtn);
+
+        if (modeId === "easy") {
+          appendCheckpointPanel(card, openEasyPoints);
+        }
+
         modeList.appendChild(card);
       });
     }
 
-    function renderSaves() {
+    function appendCheckpointPanel(card, openByDefault = false) {
       const saves = getCheckpoints();
-      saveList.innerHTML = "";
+      const panel = document.createElement("div");
+      panel.className = "checkpoint-panel";
+
+      const toggle = document.createElement("button");
+      toggle.className = "checkpoint-toggle";
+
+      const title = document.createElement("span");
+      title.textContent = "Контрольные точки";
+
+      const counter = document.createElement("span");
+      counter.textContent = saves.length + "/" + MAX_CHECKPOINTS + (openByDefault ? " ▲" : " ▼");
+
+      const list = document.createElement("div");
+      list.className = "checkpoint-list";
+      list.hidden = !openByDefault;
+
+      toggle.append(title, counter);
+      toggle.addEventListener("click", () => {
+        list.hidden = !list.hidden;
+        counter.textContent = saves.length + "/" + MAX_CHECKPOINTS + (list.hidden ? " ▼" : " ▲");
+      });
 
       if (!saves.length) {
-        saveList.innerHTML = '<div class="empty-saves">Сохранённых партий лёгкого режима пока нет.</div>';
-        return;
+        const empty = document.createElement("div");
+        empty.className = "checkpoint-empty";
+        empty.textContent = "Точек пока нет. Создай её во время лёгкой игры.";
+        list.appendChild(empty);
+      } else {
+        saves.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "checkpoint-row";
+
+          const load = document.createElement("button");
+          load.className = "checkpoint-load";
+          load.innerHTML =
+            "<strong>" + item.maxTile + " · " + formatNumber(item.score) + " очков</strong>" +
+            "<span>" + formatDate(item.savedAt) + " · возвратов: " + item.history.length + "</span>";
+          load.addEventListener("click", () => requestLoadCheckpoint(item));
+
+          const remove = document.createElement("button");
+          remove.className = "checkpoint-delete";
+          remove.setAttribute("aria-label", "Удалить контрольную точку");
+          remove.textContent = "×";
+          remove.addEventListener("click", () => requestDeleteCheckpoint(index));
+
+          row.append(load, remove);
+          list.appendChild(row);
+        });
       }
 
-      saves.forEach((item) => {
-        const button = document.createElement("button");
-        button.className = "save-card";
-        button.innerHTML =
-          "<strong>" + item.maxTile + " · " + formatNumber(item.score) + " очков</strong>" +
-          "<span>" + formatDate(item.savedAt) + " · доступно возвратов: " + item.history.length + "</span>";
+      panel.append(toggle, list);
+      card.appendChild(panel);
+    }
 
-        button.addEventListener("click", () => {
-          if (!applyState(item)) return;
-          saveActive();
-          hideMenu();
-          render();
-          showToast("Сохранение загружено");
-        });
+    function requestLoadCheckpoint(item) {
+      openModal(
+        "Загрузить точку?",
+        "Текущая лёгкая партия будет заменена. Контрольная точка останется в списке.",
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Загрузить",
+            kind: "primary",
+            action: () => {
+              if (!applyState(item)) return;
+              saveActive();
+              closeModal();
+              hideMenu();
+              render();
+              showToast("Контрольная точка загружена");
+            }
+          }
+        ]
+      );
+    }
 
-        saveList.appendChild(button);
-      });
+    function requestDeleteCheckpoint(index) {
+      openModal(
+        "Удалить точку?",
+        "Вернуть удалённую контрольную точку будет нельзя.",
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Удалить",
+            kind: "primary",
+            action: () => {
+              const saves = getCheckpoints();
+              saves.splice(index, 1);
+              setCheckpoints(saves);
+              closeModal();
+              renderModes(true);
+              showToast("Контрольная точка удалена");
+            }
+          }
+        ]
+      );
     }
 
     function renderStats() {
@@ -1433,26 +1626,45 @@
         return;
       }
 
+      if (modeId !== "easy") {
+        openModal(
+          "Начать новую игру?",
+          MODES[modeId].name + ". Текущая партия этого режима будет заменена.",
+          [
+            { label: "Отмена", kind: "ghost", action: closeModal },
+            {
+              label: "Начать",
+              kind: "primary",
+              action: () => startNewGame(modeId)
+            }
+          ]
+        );
+        return;
+      }
+
       openModal(
-        "Начать новую игру?",
-        MODES[modeId].name + ". " + (
-          modeId === "easy"
-            ? "Текущая партия попадёт в список сохранений."
-            : "Текущая партия этого режима будет заменена."
-        ),
+        "Начать новую лёгкую игру?",
+        "Текущая партия будет заменена. При необходимости сначала сохрани её как контрольную точку.",
         [
           { label: "Отмена", kind: "ghost", action: closeModal },
           {
-            label: "Начать",
+            label: "Начать без сохранения",
+            action: () => startNewGame("easy")
+          },
+          {
+            label: "Сохранить точку и начать",
             kind: "primary",
             action: () => {
-              if (modeId === "easy") {
-                const currentState = hasActiveGame ? snapshot() : null;
-                applyState(oldState);
-                createCheckpoint(true);
-                if (currentState) applyState(currentState);
+              const result = addCheckpoint(oldState, true);
+
+              if (result === "full") {
+                closeModal();
+                renderModes(true);
+                showToast("Сначала удали одну из трёх контрольных точек");
+                return;
               }
-              startNewGame(modeId);
+
+              startNewGame("easy");
             }
           }
         ]
@@ -1465,30 +1677,49 @@
       const possibleUndos = history.length;
       const reminder = possibleUndos > 0
         ? "Можно откатить ещё " + possibleUndos + " ход" + (possibleUndos === 1 ? "" : "ов") + " и попробовать продолжить 😊"
-        : "Доступных откатов больше нет.";
+        : "Доступных возвратов сейчас нет.";
+
+      const buttons = [
+        { label: "Отмена", kind: "ghost", action: closeModal },
+        {
+          label: "В меню",
+          action: () => {
+            closeModal();
+            showMenu();
+          }
+        },
+        {
+          label: "Начать без сохранения",
+          kind: mode === "easy" ? "" : "primary",
+          action: () => startNewGame(mode)
+        }
+      ];
+
+      if (mode === "easy") {
+        buttons.push({
+          label: "Сохранить точку и начать",
+          kind: "primary",
+          action: () => {
+            const result = createCheckpoint(true);
+
+            if (result === "full") {
+              closeModal();
+              showMenu();
+              renderModes(true);
+              showOnly(modesMenu);
+              showToast("Сначала удали одну из трёх контрольных точек");
+              return;
+            }
+
+            startNewGame("easy");
+          }
+        });
+      }
 
       openModal(
         gameOver ? "Точно начать заново?" : "Начать новую игру?",
         reminder,
-        [
-          { label: "Отмена", kind: "ghost", action: closeModal },
-          {
-            label: "В меню",
-            action: () => {
-              if (mode === "easy") createCheckpoint(true);
-              closeModal();
-              showMenu();
-            }
-          },
-          {
-            label: "Начать заново",
-            kind: "primary",
-            action: () => {
-              if (mode === "easy") createCheckpoint(true);
-              startNewGame(mode);
-            }
-          }
-        ]
+        buttons
       );
     }
 
@@ -1498,8 +1729,11 @@
         return;
       }
 
-      if (mode === "easy") createCheckpoint(false);
       showMenu();
+    });
+
+    checkpointAction.addEventListener("click", () => {
+      createCheckpoint(false);
     });
 
     undoBtn.addEventListener("click", undo);
@@ -1513,11 +1747,6 @@
     modesButton.addEventListener("click", () => {
       renderModes();
       showOnly(modesMenu);
-    });
-
-    loadButton.addEventListener("click", () => {
-      renderSaves();
-      showOnly(loadMenu);
     });
 
     statsButton.addEventListener("click", () => {
@@ -1600,6 +1829,7 @@
     window.addEventListener("beforeunload", saveActive);
 
     migrateOldVersion();
+    trimLegacyCheckpoints();
 
     const initialMode = lastPlayableMode();
     if (initialMode) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v6-history-memory";
+const CACHE_NAME = "mika-2048-v7-control-points";
 const APP_FILES = [
   "./",
   "./index.html",
