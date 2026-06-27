@@ -599,7 +599,7 @@
         <h1>2048</h1>
         <button id="gameStateAction" class="game-state-action">Выйти в меню</button>
         <div class="mode-line">
-          <span id="modeName">Лёгкий</span><span>·</span><span id="undoStatus">20 откатов</span>
+          <span id="modeName">Лёгкий</span><span>·</span><span id="undoStatus">доступно: 0 из 20</span>
         </div>
       </div>
 
@@ -617,7 +617,7 @@
 
     <section class="controls">
       <button id="undo" class="icon-button" aria-label="Отменить ход" title="Отменить ход">
-        ↶<span id="undoBadge" class="undo-badge">20</span>
+        ↶<span id="undoBadge" class="undo-badge">0</span>
       </button>
       <button id="restart" class="icon-button" aria-label="Новая игра" title="Новая игра">↻</button>
     </section>
@@ -704,10 +704,10 @@
     const MAX_CHECKPOINTS = 5;
 
     const MODES = {
-      easy: { name: "Лёгкий", undos: 20, saves: true, rule: "20 откатов и контрольные сохранения" },
-      medium: { name: "Средний", undos: 5, saves: false, rule: "5 откатов, только автосохранение" },
-      hard: { name: "Сложный", undos: 1, saves: false, rule: "1 откат на всю партию" },
-      hardcore: { name: "Хардкор", undos: 0, saves: false, rule: "Без откатов и контрольных сохранений" }
+      easy: { name: "Лёгкий", historyLimit: 20, saves: true, rule: "Память последних 20 ходов и контрольные сохранения" },
+      medium: { name: "Средний", historyLimit: 5, saves: false, rule: "Память последних 5 ходов, только автосохранение" },
+      hard: { name: "Сложный", historyLimit: 1, saves: false, rule: "Память только одного предыдущего хода" },
+      hardcore: { name: "Хардкор", historyLimit: 0, saves: false, rule: "Без возврата ходов и контрольных сохранений" }
     };
 
     const $ = (id) => document.getElementById(id);
@@ -765,7 +765,6 @@
     let grid = emptyGrid();
     let score = 0;
     let history = [];
-    let undosLeft = MODES.easy.undos;
     let gameOver = false;
     let finishedCounted = false;
     let reached2048Counted = false;
@@ -884,25 +883,21 @@
       const stateMode = MODES[candidate.mode] ? candidate.mode : fallbackMode;
       if (!MODES[stateMode]) return null;
 
+      const historyLimit = MODES[stateMode].historyLimit;
       const safeHistory = Array.isArray(candidate.history)
         ? candidate.history
             .filter((item) => item && validGrid(item.grid) && Number.isFinite(item.score))
-            .slice(-20)
+            .slice(-historyLimit || undefined)
             .map((item) => ({ grid: copyGrid(item.grid), score: Number(item.score) || 0 }))
         : [];
 
-      const maxUndos = MODES[stateMode].undos;
-      const rawUndos = Number(candidate.undosLeft);
-      const normalizedUndos = Number.isFinite(rawUndos)
-        ? Math.max(0, Math.min(maxUndos, rawUndos))
-        : maxUndos;
+      if (historyLimit === 0) safeHistory.length = 0;
 
       return {
         mode: stateMode,
         grid: copyGrid(candidate.grid),
         score: Number(candidate.score) || 0,
         history: safeHistory,
-        undosLeft: normalizedUndos,
         gameOver: Boolean(candidate.gameOver),
         finishedCounted: Boolean(candidate.finishedCounted),
         reached2048Counted: Boolean(candidate.reached2048Counted),
@@ -913,7 +908,7 @@
 
     function snapshot() {
       return {
-        version: 5,
+        version: 6,
         mode,
         grid: copyGrid(grid),
         score,
@@ -921,7 +916,6 @@
           grid: copyGrid(item.grid),
           score: item.score
         })),
-        undosLeft,
         gameOver,
         finishedCounted,
         reached2048Counted,
@@ -966,7 +960,6 @@
       grid = copyGrid(normalized.grid);
       score = normalized.score;
       history = normalized.history;
-      undosLeft = normalized.undosLeft;
       gameOver = normalized.gameOver || !canMove();
       finishedCounted = normalized.finishedCounted;
       reached2048Counted = normalized.reached2048Counted;
@@ -989,7 +982,6 @@
               grid: old.grid,
               score: old.score,
               history: old.history || [],
-              undosLeft: 20,
               gameOver: old.gameOver,
               savedAt: old.savedAt,
               maxTile: old.maxTile
@@ -1006,7 +998,6 @@
                 grid: JSON.parse(oldGridRaw),
                 score: Number(safeGet("mika2048-score")) || 0,
                 history: [],
-                undosLeft: 20,
                 gameOver: false
               });
 
@@ -1027,7 +1018,6 @@
                 grid: item.grid,
                 score: item.score,
                 history: item.history || [],
-                undosLeft: 20,
                 gameOver: item.gameOver,
                 savedAt: item.savedAt,
                 maxTile: item.maxTile
@@ -1063,9 +1053,9 @@
       if (!hasActiveGame || mode !== "easy") return;
 
       const current = snapshot();
-      const signature = JSON.stringify(current.grid) + "|" + current.score + "|" + current.undosLeft;
+      const signature = JSON.stringify(current.grid) + "|" + current.score;
       let saves = getCheckpoints().filter((item) =>
-        JSON.stringify(item.grid) + "|" + item.score + "|" + item.undosLeft !== signature
+        JSON.stringify(item.grid) + "|" + item.score !== signature
       );
 
       saves.push(current);
@@ -1104,10 +1094,13 @@
       bestEl.dataset.digits = String(bestScore).length;
 
       modeNameEl.textContent = MODES[mode].name;
-      undoStatusEl.textContent = undosLeft === 1 ? "1 откат" : undosLeft + " откатов";
-      undoBadge.textContent = String(undosLeft);
-      undoBadge.hidden = MODES[mode].undos === 0;
-      undoBtn.disabled = !hasActiveGame || !history.length || undosLeft === 0;
+      const historyLimit = MODES[mode].historyLimit;
+      undoStatusEl.textContent = historyLimit === 0
+        ? "без возврата"
+        : "доступно: " + history.length + " из " + historyLimit;
+      undoBadge.textContent = String(history.length);
+      undoBadge.hidden = historyLimit === 0;
+      undoBtn.disabled = !hasActiveGame || history.length === 0;
 
       if (gameOver) {
         gameStateAction.textContent = "Игра окончена";
@@ -1147,7 +1140,6 @@
       grid = emptyGrid();
       score = 0;
       history = [];
-      undosLeft = MODES[mode].undos;
       gameOver = false;
       finishedCounted = false;
       reached2048Counted = false;
@@ -1228,8 +1220,11 @@
 
       if (sameGrid(before, next)) return;
 
-      history.push({ grid: before, score: beforeScore });
-      if (history.length > 20) history.shift();
+      const historyLimit = MODES[mode].historyLimit;
+      if (historyLimit > 0) {
+        history.push({ grid: before, score: beforeScore });
+        if (history.length > historyLimit) history.shift();
+      }
 
       grid = next;
       score += gained;
@@ -1271,12 +1266,11 @@
     }
 
     function undo() {
-      if (!history.length || undosLeft <= 0) return;
+      if (!history.length) return;
 
       const previous = history.pop();
       grid = copyGrid(previous.grid);
       score = previous.score;
-      undosLeft -= 1;
       gameOver = false;
       saveActive();
       render();
@@ -1377,7 +1371,7 @@
         button.className = "save-card";
         button.innerHTML =
           "<strong>" + item.maxTile + " · " + formatNumber(item.score) + " очков</strong>" +
-          "<span>" + formatDate(item.savedAt) + " · откатов осталось: " + item.undosLeft + "</span>";
+          "<span>" + formatDate(item.savedAt) + " · доступно возвратов: " + item.history.length + "</span>";
 
         button.addEventListener("click", () => {
           if (!applyState(item)) return;
@@ -1468,7 +1462,7 @@
     function requestRestart() {
       if (!hasActiveGame) return;
 
-      const possibleUndos = Math.min(history.length, undosLeft);
+      const possibleUndos = history.length;
       const reminder = possibleUndos > 0
         ? "Можно откатить ещё " + possibleUndos + " ход" + (possibleUndos === 1 ? "" : "ов") + " и попробовать продолжить 😊"
         : "Доступных откатов больше нет.";
