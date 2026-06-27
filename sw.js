@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v9-profiles-settings";
+const CACHE_NAME = "mika-2048-v10-reliability";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -7,6 +7,10 @@ const APP_FILES = [
   "./icon-192.png",
   "./icon-512.png"
 ];
+
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+});
 
 self.addEventListener("install", function (event) {
   event.waitUntil(

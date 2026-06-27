@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — 4×4</title>
+  <title>2048 — v10</title>
 
   <style>
     :root {
@@ -270,26 +270,32 @@
       inset: 0;
       z-index: 30;
       display: none;
-      align-items: center;
-      justify-content: center;
-      padding:
-        max(24px, env(safe-area-inset-top))
-        max(20px, env(safe-area-inset-right))
-        max(30px, env(safe-area-inset-bottom))
-        max(20px, env(safe-area-inset-left));
+      overflow-x: hidden;
       overflow-y: auto;
+      overscroll-behavior-y: contain;
       background: var(--bg);
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
+      scroll-behavior: auto;
     }
 
     .screen.show {
-      display: flex;
+      display: block;
     }
 
     .menu {
-      width: min(100%, 420px);
+      width: min(calc(100% - 40px), 420px);
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 0 max(72px, calc(env(safe-area-inset-bottom) + 48px));
       text-align: center;
+    }
+
+    #mainMenu {
+      padding-top: clamp(46px, 12vh, 112px);
+    }
+
+    .menu:not(#mainMenu) {
+      padding-top: 0;
     }
 
     .menu-title {
@@ -340,10 +346,15 @@
     }
 
     .load-header {
+      position: sticky;
+      top: 0;
+      z-index: 8;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 18px;
+      margin: 0 -8px 18px;
+      padding: max(16px, env(safe-area-inset-top)) 8px 12px;
+      background: linear-gradient(to bottom, var(--bg) 78%, rgba(247,244,234,0));
       text-align: left;
     }
 
@@ -670,11 +681,6 @@
     }
 
 
-    #statsMenu,
-    #achievementsMenu {
-      align-self: flex-start;
-      padding-bottom: 28px;
-    }
 
     .achievement-summary {
       display: grid;
@@ -859,12 +865,111 @@
     }
 
 
-    body.reduce-motion *,
-    body.reduce-motion *::before,
-    body.reduce-motion *::after {
-      animation-duration: .001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: .001ms !important;
+    body.animations-off *,
+    body.animations-off *::before,
+    body.animations-off *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    body.animations-minimal .board.move-left .cell,
+    body.animations-minimal .board.move-right .cell,
+    body.animations-minimal .board.move-up .cell,
+    body.animations-minimal .board.move-down .cell {
+      animation: none !important;
+    }
+
+    body.animations-minimal .cell.new {
+      animation-duration: .10s;
+    }
+
+    body.animations-minimal .cell.pop {
+      animation-duration: .11s;
+    }
+
+    .setting-row.setting-disabled {
+      opacity: .52;
+    }
+
+    .switch input:disabled + span {
+      background: rgba(119,111,102,.16);
+    }
+
+    .choice-row {
+      display: block;
+      padding: 10px 2px 12px;
+      border-bottom: 1px solid rgba(119,111,102,.10);
+      text-align: left;
+    }
+
+    .choice-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .choice-button {
+      min-height: 39px;
+      padding: 6px 7px;
+      border-radius: 9px;
+      background: rgba(159,130,109,.14);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .choice-button.active {
+      background: var(--button);
+      color: white;
+    }
+
+    .settings-action-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .settings-action {
+      width: 100%;
+      min-height: 48px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: var(--button);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .settings-action.secondary {
+      background: rgba(159,130,109,.17);
+      color: var(--text);
+    }
+
+    .version-info {
+      display: grid;
+      gap: 7px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .version-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 2px;
+      border-bottom: 1px solid rgba(119,111,102,.10);
+    }
+
+    .version-line strong {
+      flex: 0 0 auto;
+    }
+
+    .update-status {
+      min-height: 18px;
+      margin-top: 7px;
+      font-size: 12px;
+      line-height: 1.4;
+      opacity: .72;
     }
 
     .profile-chip {
@@ -889,11 +994,6 @@
       opacity: .7;
     }
 
-    #settingsMenu,
-    #profilesMenu {
-      align-self: flex-start;
-      padding-bottom: 28px;
-    }
 
     .settings-card,
     .profiles-card {
@@ -1149,6 +1249,10 @@
     "use strict";
 
     const N = 4;
+    const APP_VERSION = "10.0";
+    const APP_UPDATED_AT = "28.06.2026";
+    const BACKUP_FORMAT = "mika2048-backup";
+    const BACKUP_VERSION = 1;
     const ACTIVE_PREFIX = "mika2048-active-v5-";
     const STATS_KEY = "mika2048-stats-v5";
     const SAVES_KEY = "mika2048-checkpoints-v5-easy";
@@ -1298,7 +1402,7 @@
         achievementNotifications: true,
         goalNotifications: true,
         vibration: true,
-        animations: true,
+        animationLevel: "minimal",
         confirmNewGame: true,
         language: "ru"
       };
@@ -1308,8 +1412,21 @@
       const result = defaultSettings();
       const raw = rawGet(SETTINGS_KEY);
       if (!raw) return result;
-      try { return Object.assign(result, JSON.parse(raw) || {}); }
-      catch (_) { return result; }
+
+      try {
+        const parsed = JSON.parse(raw) || {};
+        Object.assign(result, parsed);
+
+        if (!["off", "minimal", "full"].includes(result.animationLevel)) {
+          if (parsed.animations === false) result.animationLevel = "off";
+          else if (parsed.animations === true) result.animationLevel = "full";
+          else result.animationLevel = "minimal";
+        }
+
+        return result;
+      } catch (_) {
+        return result;
+      }
     }
 
     function saveSettings() {
@@ -1335,6 +1452,7 @@
     }
 
     let settings = loadSettings();
+    const vibrationSupported = typeof navigator.vibrate === "function";
     let profiles = loadProfiles();
     let currentProfileId = rawGet(CURRENT_PROFILE_KEY);
     if (!profiles.some((item) => item.id === currentProfileId)) {
@@ -2211,7 +2329,7 @@
       saveActive();
       render();
 
-      if (settings.vibration && navigator.vibrate && gained > 0) {
+      if (settings.vibration && vibrationSupported && gained > 0) {
         try { navigator.vibrate(15); } catch (_) {}
       }
     }
@@ -2246,6 +2364,10 @@
     function showOnly(section) {
       [mainMenu, modesMenu, achievementsMenu, statsMenu, settingsMenu, profilesMenu].forEach((item) => {
         item.hidden = item !== section;
+      });
+
+      requestAnimationFrame(() => {
+        menuScreen.scrollTop = 0;
       });
     }
 
@@ -2418,11 +2540,15 @@
             label: "Удалить",
             kind: "primary",
             action: () => {
+              const previousScroll = menuScreen.scrollTop;
               const saves = getCheckpoints();
               saves.splice(index, 1);
               setCheckpoints(saves);
               closeModal();
               renderModes(true);
+              requestAnimationFrame(() => {
+                menuScreen.scrollTop = Math.min(previousScroll, menuScreen.scrollHeight - menuScreen.clientHeight);
+              });
               showToast("Контрольная точка удалена");
             }
           }
@@ -2578,25 +2704,27 @@
     }
 
     function applySettings() {
-      document.body.classList.toggle("reduce-motion", !settings.animations);
+      document.body.classList.remove("animations-off", "animations-minimal", "animations-full");
+      document.body.classList.add("animations-" + settings.animationLevel);
     }
 
-    function makeToggleRow(title, description, key) {
+    function makeToggleRow(title, description, key, options = {}) {
       const row = document.createElement("div");
-      row.className = "setting-row";
+      row.className = "setting-row" + (options.disabled ? " setting-disabled" : "");
       const copy = document.createElement("div");
       copy.className = "setting-copy";
       const strong = document.createElement("strong");
       strong.textContent = title;
       const small = document.createElement("small");
-      small.textContent = description;
+      small.textContent = options.disabledDescription || description;
       copy.append(strong, small);
 
       const label = document.createElement("label");
       label.className = "switch";
       const input = document.createElement("input");
       input.type = "checkbox";
-      input.checked = Boolean(settings[key]);
+      input.checked = options.disabled ? false : Boolean(settings[key]);
+      input.disabled = Boolean(options.disabled);
       const slider = document.createElement("span");
       input.addEventListener("change", () => {
         settings[key] = input.checked;
@@ -2606,6 +2734,143 @@
       label.append(input, slider);
       row.append(copy, label);
       return row;
+    }
+
+    function makeAnimationChoice() {
+      const row = document.createElement("div");
+      row.className = "choice-row";
+      row.innerHTML = '<div class="setting-copy"><strong>Анимации</strong><small>Выбери комфортную интенсивность эффектов</small></div>';
+
+      const group = document.createElement("div");
+      group.className = "choice-group";
+      [
+        ["off", "Выкл."],
+        ["minimal", "Минимальные"],
+        ["full", "Полные"]
+      ].forEach(([value, label]) => {
+        const button = document.createElement("button");
+        button.className = "choice-button" + (settings.animationLevel === value ? " active" : "");
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          settings.animationLevel = value;
+          saveSettings();
+          applySettings();
+          row.replaceWith(makeAnimationChoice());
+        });
+        group.appendChild(button);
+      });
+
+      row.appendChild(group);
+      return row;
+    }
+
+    function collectBackupData() {
+      flushActiveTime();
+      saveUsage();
+      saveActive();
+
+      const storage = {};
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("mika2048")) storage[key] = localStorage.getItem(key);
+        }
+      } catch (_) {}
+
+      return {
+        format: BACKUP_FORMAT,
+        backupVersion: BACKUP_VERSION,
+        appVersion: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        storage
+      };
+    }
+
+    async function exportBackup() {
+      const data = JSON.stringify(collectBackupData(), null, 2);
+      const filename = "2048-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      const blob = new Blob([data], { type: "application/json" });
+      const file = new File([blob], filename, { type: "application/json" });
+
+      try {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: "Резервная копия 2048", files: [file] });
+          showToast("Резервная копия подготовлена");
+          return;
+        }
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast("Резервная копия сохранена");
+    }
+
+    function validateBackup(data) {
+      if (!data || data.format !== BACKUP_FORMAT || typeof data.storage !== "object") return false;
+      const entries = Object.entries(data.storage);
+      if (!entries.length) return false;
+      return entries.every(([key, value]) => key.startsWith("mika2048") && typeof value === "string");
+    }
+
+    function requestImportBackup(data) {
+      openModal(
+        "Восстановить данные?",
+        "Текущие профили, партии, достижения и настройки будут заменены данными из резервной копии.",
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Восстановить",
+            kind: "primary",
+            action: () => {
+              try {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key && key.startsWith("mika2048")) keys.push(key);
+                }
+                keys.forEach((key) => localStorage.removeItem(key));
+                Object.entries(data.storage).forEach(([key, value]) => localStorage.setItem(key, value));
+                location.reload();
+              } catch (_) {
+                closeModal();
+                showToast("Не удалось восстановить данные");
+              }
+            }
+          }
+        ]
+      );
+    }
+
+    async function checkForUpdate(status, button) {
+      status.textContent = "Проверяем обновление…";
+      button.disabled = true;
+
+      try {
+        const response = await fetch("./index.html?update=" + Date.now(), { cache: "no-store" });
+        const text = await response.text();
+        const match = text.match(/const APP_VERSION = "([^"]+)"/);
+        const remoteVersion = match ? match[1] : APP_VERSION;
+
+        if (remoteVersion !== APP_VERSION) {
+          status.textContent = "Доступна версия v" + remoteVersion + ". Обновление загружается…";
+          const registration = await navigator.serviceWorker?.getRegistration();
+          if (registration) await registration.update();
+        } else {
+          status.textContent = "Установлена актуальная версия v" + APP_VERSION + ".";
+        }
+      } catch (_) {
+        status.textContent = "Не удалось проверить обновление. Проверь подключение к интернету.";
+      } finally {
+        button.disabled = false;
+      }
     }
 
     function renderSettings() {
@@ -2623,8 +2888,13 @@
       game.className = "settings-card";
       game.innerHTML = "<h3>Игра</h3>";
       game.append(
-        makeToggleRow("Вибрация", "Короткая вибрация при объединении плиток", "vibration"),
-        makeToggleRow("Анимации", "Движение, появление и объединение плиток", "animations"),
+        makeToggleRow(
+          "Вибрация",
+          "Короткая вибрация при объединении плиток",
+          "vibration",
+          vibrationSupported ? {} : { disabled: true, disabledDescription: "Недоступно в веб-версии на этом устройстве" }
+        ),
+        makeAnimationChoice(),
         makeToggleRow("Подтверждение новой игры", "Защита от случайного сброса партии", "confirmNewGame")
       );
 
@@ -2645,7 +2915,62 @@
       });
       players.appendChild(playerButton);
 
-      settingsContent.append(notices, game, players);
+      const backup = document.createElement("section");
+      backup.className = "settings-card";
+      backup.innerHTML = "<h3>Резервная копия</h3>";
+      const backupActions = document.createElement("div");
+      backupActions.className = "settings-action-list";
+
+      const exportButton = document.createElement("button");
+      exportButton.className = "settings-action";
+      exportButton.textContent = "Экспортировать данные";
+      exportButton.addEventListener("click", exportBackup);
+
+      const importButton = document.createElement("button");
+      importButton.className = "settings-action secondary";
+      importButton.textContent = "Импортировать данные";
+
+      const importInput = document.createElement("input");
+      importInput.type = "file";
+      importInput.accept = ".json,application/json";
+      importInput.hidden = true;
+      importButton.addEventListener("click", () => importInput.click());
+      importInput.addEventListener("change", async () => {
+        const file = importInput.files && importInput.files[0];
+        importInput.value = "";
+        if (!file) return;
+
+        try {
+          const parsed = JSON.parse(await file.text());
+          if (!validateBackup(parsed)) throw new Error("invalid");
+          requestImportBackup(parsed);
+        } catch (_) {
+          showToast("Файл не похож на резервную копию игры");
+        }
+      });
+
+      backupActions.append(exportButton, importButton, importInput);
+      backup.appendChild(backupActions);
+
+      const about = document.createElement("section");
+      about.className = "settings-card";
+      about.innerHTML = "<h3>О приложении</h3>";
+      const versionInfo = document.createElement("div");
+      versionInfo.className = "version-info";
+      versionInfo.innerHTML =
+        '<div class="version-line"><span>Версия</span><strong>v' + APP_VERSION + '</strong></div>' +
+        '<div class="version-line"><span>Обновлено</span><strong>' + APP_UPDATED_AT + '</strong></div>';
+
+      const updateButton = document.createElement("button");
+      updateButton.className = "settings-action secondary";
+      updateButton.textContent = "Проверить обновление";
+      const updateStatus = document.createElement("div");
+      updateStatus.className = "update-status";
+      updateStatus.textContent = "Игра обновляется без удаления иконки с экрана.";
+      updateButton.addEventListener("click", () => checkForUpdate(updateStatus, updateButton));
+
+      about.append(versionInfo, updateButton, updateStatus);
+      settingsContent.append(notices, game, players, backup, about);
     }
 
     function saveProfiles() {
