@@ -279,7 +279,8 @@
         max(20px, env(safe-area-inset-left));
       overflow-y: auto;
       background: var(--bg);
-      touch-action: none;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
     }
 
     .screen.show {
@@ -668,6 +669,175 @@
       opacity: .78;
     }
 
+
+    #statsMenu,
+    #achievementsMenu {
+      align-self: flex-start;
+      padding-bottom: 28px;
+    }
+
+    .achievement-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .summary-item {
+      padding: 10px 6px;
+      border-radius: 11px;
+      background: rgba(185,170,156,.30);
+      font-size: 11px;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .summary-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 20px;
+    }
+
+    .period-card,
+    .achievement-section {
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .period-card + .period-card,
+    .period-card + .achievement-section,
+    .achievement-section + .achievement-section {
+      margin-top: 10px;
+    }
+
+    .period-head,
+    .achievement-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .period-head h3,
+    .achievement-section-head h3 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .period-head span,
+    .achievement-section-head span {
+      flex: 0 0 auto;
+      font-size: 12px;
+      opacity: .70;
+    }
+
+    .goal-list,
+    .achievement-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .goal-card,
+    .achievement-card {
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.55);
+    }
+
+    .goal-card.done,
+    .achievement-card.done {
+      background: rgba(237,207,114,.36);
+    }
+
+    .goal-top,
+    .achievement-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .goal-icon,
+    .achievement-icon {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(159,130,109,.15);
+      font-size: 17px;
+    }
+
+    .goal-content,
+    .achievement-content {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .goal-title,
+    .achievement-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .goal-title span:last-child,
+    .achievement-title span:last-child {
+      flex: 0 0 auto;
+      font-size: 11px;
+      font-weight: 600;
+      opacity: .72;
+    }
+
+    .goal-description,
+    .achievement-description {
+      margin-top: 3px;
+      font-size: 11px;
+      line-height: 1.35;
+      opacity: .74;
+    }
+
+    .progress-track {
+      height: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(119,111,102,.15);
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width .25s ease;
+    }
+
+    .goal-card.done .progress-fill,
+    .achievement-card.done .progress-fill {
+      background: #d8b84b;
+    }
+
+    .period-history {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.42);
+      font-size: 11px;
+      line-height: 1.4;
+      text-align: center;
+      opacity: .78;
+    }
+
+    .overall-stats-card {
+      margin-bottom: 10px;
+      background: rgba(159,130,109,.18);
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -747,6 +917,11 @@
 
         <button id="modesButton" class="menu-button">Выбрать режим</button>
 
+        <button id="achievementsButton" class="menu-button">
+          Достижения
+          <small id="achievementsInfo"></small>
+        </button>
+
         <button id="statsButton" class="menu-button">Статистика</button>
       </div>
     </div>
@@ -757,6 +932,14 @@
         <h2 class="load-title">Режимы</h2>
       </div>
       <div id="modeList" class="save-list"></div>
+    </div>
+
+    <div id="achievementsMenu" class="menu" hidden>
+      <div class="load-header">
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
+        <h2 class="load-title">Достижения</h2>
+      </div>
+      <div id="achievementsContent"></div>
     </div>
 
     <div id="statsMenu" class="menu" hidden>
@@ -789,6 +972,8 @@
     const SAVES_KEY = "mika2048-checkpoints-v5-easy";
     const LAST_MODE_KEY = "mika2048-last-mode-v5";
     const MAX_CHECKPOINTS = 3;
+    const ACHIEVEMENTS_KEY = "mika2048-achievements-v8";
+    const PERIODS_KEY = "mika2048-periods-v8";
 
     const MODES = {
       easy: { name: "Лёгкий", historyLimit: 20, saves: true, rule: "Память последних 20 ходов и контрольные сохранения" },
@@ -796,6 +981,37 @@
       hard: { name: "Сложный", historyLimit: 1, saves: false, rule: "Память только одного предыдущего хода" },
       hardcore: { name: "Хардкор", historyLimit: 0, saves: false, rule: "Без возврата ходов и контрольных сохранений" }
     };
+
+    const WEEKLY_GOALS = [
+      { id: "moves", icon: "↔️", title: "Активная неделя", description: "Сделать 200 успешных ходов", metric: "moves", target: 200 },
+      { id: "score", icon: "⭐", title: "Очки недели", description: "Набрать суммарно 30 000 очков", metric: "score", target: 30000 },
+      { id: "merges", icon: "➕", title: "Мастер объединений", description: "Выполнить 100 объединений", metric: "merges", target: 100 },
+      { id: "tile", icon: "🔢", title: "Крупная плитка", description: "Получить плитку 512", metric: "maxTile", target: 512 }
+    ];
+
+    const MONTHLY_GOALS = [
+      { id: "moves", icon: "🏃", title: "Длинная дистанция", description: "Сделать 1 200 успешных ходов", metric: "moves", target: 1200 },
+      { id: "score", icon: "💯", title: "Большой счёт", description: "Набрать суммарно 250 000 очков", metric: "score", target: 250000 },
+      { id: "games", icon: "🎮", title: "Разные попытки", description: "Начать 8 партий", metric: "games", target: 8 },
+      { id: "tile", icon: "🏆", title: "Цель месяца", description: "Получить плитку 2048", metric: "maxTile", target: 2048 }
+    ];
+
+    const ALL_TIME_ACHIEVEMENTS = [
+      { id: "first_game", icon: "🎮", title: "Первый шаг", description: "Начать первую партию", target: 1, value: () => overallStats().gamesStarted },
+      { id: "moves_100", icon: "👣", title: "Разминка", description: "Сделать 100 успешных ходов", target: 100, value: () => overallStats().totalMoves },
+      { id: "moves_1000", icon: "🛣️", title: "Тысяча ходов", description: "Сделать 1 000 успешных ходов", target: 1000, value: () => overallStats().totalMoves },
+      { id: "merges_500", icon: "➕", title: "Собиратель", description: "Выполнить 500 объединений", target: 500, value: () => overallStats().totalMerges },
+      { id: "score_100k", icon: "⭐", title: "Сто тысяч", description: "Набрать 100 000 очков в одной партии", target: 100000, value: () => overallStats().bestScore },
+      { id: "score_250k", icon: "🌟", title: "Четверть миллиона", description: "Набрать 250 000 очков в одной партии", target: 250000, value: () => overallStats().bestScore },
+      { id: "tile_2048", icon: "🏅", title: "Классика", description: "Получить плитку 2048", target: 2048, value: () => overallStats().maxTile },
+      { id: "tile_4096", icon: "🥈", title: "За пределами цели", description: "Получить плитку 4096", target: 4096, value: () => overallStats().maxTile },
+      { id: "tile_8192", icon: "🥇", title: "Большая игра", description: "Получить плитку 8192", target: 8192, value: () => overallStats().maxTile },
+      { id: "tile_16384", icon: "👑", title: "Корона", description: "Получить плитку 16384", target: 16384, value: () => overallStats().maxTile },
+      { id: "all_modes", icon: "🧭", title: "Испытатель", description: "Начать игру во всех четырёх режимах", target: 4, value: () => overallStats().modesPlayed },
+      { id: "clean_2048", icon: "✨", title: "Чистые 2048", description: "Получить 2048 без единого возврата", target: 1, value: () => overallStats().clean2048 },
+      { id: "hardcore_2048", icon: "🔥", title: "Без права на ошибку", description: "Получить 2048 в режиме Хардкор", target: 2048, value: () => stats.hardcore.maxTile },
+      { id: "three_points", icon: "💾", title: "Стратегический запас", description: "Создать три контрольные точки", target: 3, value: () => getCheckpoints().length }
+    ];
 
     const $ = (id) => document.getElementById(id);
     const scoreEl = $("score");
@@ -813,13 +1029,17 @@
     const menuScreen = $("menuScreen");
     const mainMenu = $("mainMenu");
     const modesMenu = $("modesMenu");
+    const achievementsMenu = $("achievementsMenu");
     const statsMenu = $("statsMenu");
     const continueButton = $("continueButton");
     const continueInfo = $("continueInfo");
     const modesButton = $("modesButton");
+    const achievementsButton = $("achievementsButton");
+    const achievementsInfo = $("achievementsInfo");
     const statsButton = $("statsButton");
     const menuRecord = $("menuRecord");
     const modeList = $("modeList");
+    const achievementsContent = $("achievementsContent");
     const statsList = $("statsList");
 
     const modalLayer = $("modalLayer");
@@ -852,11 +1072,18 @@
     let gameOver = false;
     let finishedCounted = false;
     let reached2048Counted = false;
+    let movesCount = 0;
+    let undosUsed = 0;
+    let mergesCount = 0;
     let hasActiveGame = false;
     let lastNewIndex = -1;
     let lastMergedIndices = [];
     let stats = loadStats();
+    let achievementData = loadAchievementData();
+    let periodData = loadPeriodData();
     let toastTimer = null;
+    let toastQueue = [];
+    let toastActive = false;
 
     function safeGet(key) {
       try { return localStorage.getItem(key); } catch (_) { return null; }
@@ -906,7 +1133,20 @@
     }
 
     function defaultModeStats() {
-      return { bestScore: 0, maxTile: 0, gamesStarted: 0, gamesFinished: 0, reached2048: 0 };
+      return {
+        bestScore: 0,
+        maxTile: 0,
+        gamesStarted: 0,
+        gamesFinished: 0,
+        reached2048: 0,
+        reached2048NoUndo: 0,
+        totalMoves: 0,
+        totalScore: 0,
+        totalMerges: 0,
+        totalUndos: 0,
+        noUndoFinishes: 0,
+        bestNoUndoScore: 0
+      };
     }
 
     function defaultStats() {
@@ -951,11 +1191,235 @@
       return Math.max(...Object.keys(MODES).map((modeId) => stats[modeId].bestScore));
     }
 
-    function showToast(message) {
-      toast.textContent = message;
+    function showToast(message, duration = 1600) {
+      toastQueue.push({ message, duration });
+      showNextToast();
+    }
+
+    function showNextToast() {
+      if (toastActive || !toastQueue.length) return;
+      toastActive = true;
+      const item = toastQueue.shift();
+      toast.textContent = item.message;
       toast.classList.add("show");
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+          toastActive = false;
+          showNextToast();
+        }, 190);
+      }, item.duration);
+    }
+
+    function overallStats() {
+      const result = {
+        bestScore: 0,
+        maxTile: 0,
+        gamesStarted: 0,
+        gamesFinished: 0,
+        reached2048: 0,
+        clean2048: 0,
+        totalMoves: 0,
+        totalScore: 0,
+        totalMerges: 0,
+        totalUndos: 0,
+        noUndoFinishes: 0,
+        modesPlayed: 0
+      };
+
+      Object.keys(MODES).forEach((modeId) => {
+        const item = stats[modeId];
+        result.bestScore = Math.max(result.bestScore, item.bestScore);
+        result.maxTile = Math.max(result.maxTile, item.maxTile);
+        result.gamesStarted += item.gamesStarted;
+        result.gamesFinished += item.gamesFinished;
+        result.reached2048 += item.reached2048;
+        result.clean2048 += item.reached2048NoUndo;
+        result.totalMoves += item.totalMoves;
+        result.totalScore += item.totalScore;
+        result.totalMerges += item.totalMerges;
+        result.totalUndos += item.totalUndos;
+        result.noUndoFinishes += item.noUndoFinishes;
+        if (item.gamesStarted > 0) result.modesPlayed += 1;
+      });
+
+      return result;
+    }
+
+    function loadAchievementData() {
+      const raw = safeGet(ACHIEVEMENTS_KEY);
+      if (!raw) return { unlocked: {} };
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          unlocked: parsed && parsed.unlocked && typeof parsed.unlocked === "object"
+            ? parsed.unlocked
+            : {}
+        };
+      } catch (_) {
+        return { unlocked: {} };
+      }
+    }
+
+    function saveAchievementData() {
+      safeSet(ACHIEVEMENTS_KEY, JSON.stringify(achievementData));
+    }
+
+    function checkAllTimeAchievements(silent = false) {
+      let changed = false;
+
+      ALL_TIME_ACHIEVEMENTS.forEach((achievement) => {
+        if (achievementData.unlocked[achievement.id]) return;
+        if (achievement.value() < achievement.target) return;
+
+        achievementData.unlocked[achievement.id] = Date.now();
+        changed = true;
+        if (!silent) showToast("🏆 Достижение: " + achievement.title, 2200);
+      });
+
+      if (changed) saveAchievementData();
+    }
+
+    function defaultPeriodProgress() {
+      return { moves: 0, score: 0, merges: 0, games: 0, maxTile: 0 };
+    }
+
+    function defaultPeriodData() {
+      return {
+        week: { id: "", progress: defaultPeriodProgress(), completed: [], perfectNotified: false },
+        month: { id: "", progress: defaultPeriodProgress(), completed: [], perfectNotified: false },
+        history: { weeks: [], months: [] }
+      };
+    }
+
+    function loadPeriodData() {
+      const result = defaultPeriodData();
+      const raw = safeGet(PERIODS_KEY);
+      if (!raw) return result;
+
+      try {
+        const parsed = JSON.parse(raw);
+        ["week", "month"].forEach((type) => {
+          if (!parsed || !parsed[type]) return;
+          result[type].id = String(parsed[type].id || "");
+          result[type].progress = Object.assign(defaultPeriodProgress(), parsed[type].progress || {});
+          result[type].completed = Array.isArray(parsed[type].completed) ? parsed[type].completed.slice() : [];
+          result[type].perfectNotified = Boolean(parsed[type].perfectNotified);
+        });
+
+        if (parsed && parsed.history) {
+          result.history.weeks = Array.isArray(parsed.history.weeks) ? parsed.history.weeks.slice(0, 12) : [];
+          result.history.months = Array.isArray(parsed.history.months) ? parsed.history.months.slice(0, 12) : [];
+        }
+      } catch (_) {}
+
+      return result;
+    }
+
+    function savePeriodData() {
+      safeSet(PERIODS_KEY, JSON.stringify(periodData));
+    }
+
+    function weekId(date = new Date()) {
+      const local = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const day = local.getUTCDay() || 7;
+      local.setUTCDate(local.getUTCDate() + 4 - day);
+      const yearStart = new Date(Date.UTC(local.getUTCFullYear(), 0, 1));
+      const week = Math.ceil((((local - yearStart) / 86400000) + 1) / 7);
+      return local.getUTCFullYear() + "-W" + String(week).padStart(2, "0");
+    }
+
+    function monthId(date = new Date()) {
+      return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+    }
+
+    function completedGoalIds(progress, definitions) {
+      return definitions
+        .filter((goal) => Number(progress[goal.metric]) >= goal.target)
+        .map((goal) => goal.id);
+    }
+
+    function rollPeriod(type, newId, definitions, historyKey) {
+      const current = periodData[type];
+      if (!current.id) {
+        current.id = newId;
+        return;
+      }
+
+      if (current.id === newId) return;
+      const completed = completedGoalIds(current.progress, definitions);
+      periodData.history[historyKey].unshift({
+        id: current.id,
+        completed: completed.length,
+        total: definitions.length,
+        perfect: completed.length === definitions.length,
+        endedAt: Date.now()
+      });
+      periodData.history[historyKey] = periodData.history[historyKey].slice(0, 12);
+      periodData[type] = {
+        id: newId,
+        progress: defaultPeriodProgress(),
+        completed: [],
+        perfectNotified: false
+      };
+    }
+
+    function ensurePeriods() {
+      rollPeriod("week", weekId(), WEEKLY_GOALS, "weeks");
+      rollPeriod("month", monthId(), MONTHLY_GOALS, "months");
+      savePeriodData();
+    }
+
+    function evaluatePeriod(type, definitions, label) {
+      const current = periodData[type];
+      const completedNow = completedGoalIds(current.progress, definitions);
+
+      definitions.forEach((goal) => {
+        if (!completedNow.includes(goal.id) || current.completed.includes(goal.id)) return;
+        current.completed.push(goal.id);
+        showToast("✅ " + label + ": " + goal.title, 2100);
+      });
+
+      if (completedNow.length === definitions.length && !current.perfectNotified) {
+        current.perfectNotified = true;
+        showToast("🏆 Все " + label.toLowerCase() + " цели выполнены!", 2300);
+      }
+    }
+
+    function updatePeriodProgress(delta = {}) {
+      ensurePeriods();
+
+      ["week", "month"].forEach((type) => {
+        const progress = periodData[type].progress;
+        progress.moves += Number(delta.moves) || 0;
+        progress.score += Number(delta.score) || 0;
+        progress.merges += Number(delta.merges) || 0;
+        progress.games += Number(delta.games) || 0;
+        progress.maxTile = Math.max(progress.maxTile, Number(delta.maxTile) || 0);
+      });
+
+      evaluatePeriod("week", WEEKLY_GOALS, "Недельная цель");
+      evaluatePeriod("month", MONTHLY_GOALS, "Месячная цель");
+      savePeriodData();
+    }
+
+    function periodRemaining(type) {
+      const now = new Date();
+      let end;
+
+      if (type === "week") {
+        const day = now.getDay() || 7;
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (8 - day));
+      } else {
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      }
+
+      const hoursTotal = Math.max(0, Math.ceil((end - now) / 3600000));
+      const days = Math.floor(hoursTotal / 24);
+      const hours = hoursTotal % 24;
+      return days > 0 ? days + " дн. " + hours + " ч." : hours + " ч.";
     }
 
     function activeKey(modeId) {
@@ -985,6 +1449,9 @@
         gameOver: Boolean(candidate.gameOver),
         finishedCounted: Boolean(candidate.finishedCounted),
         reached2048Counted: Boolean(candidate.reached2048Counted),
+        movesCount: Number(candidate.movesCount) || 0,
+        undosUsed: Number(candidate.undosUsed) || 0,
+        mergesCount: Number(candidate.mergesCount) || 0,
         savedAt: Number(candidate.savedAt) || Date.now(),
         maxTile: Number(candidate.maxTile) || getMaxTile(candidate.grid)
       };
@@ -992,7 +1459,7 @@
 
     function snapshot() {
       return {
-        version: 7,
+        version: 8,
         mode,
         grid: copyGrid(grid),
         score,
@@ -1003,6 +1470,9 @@
         gameOver,
         finishedCounted,
         reached2048Counted,
+        movesCount,
+        undosUsed,
+        mergesCount,
         savedAt: Date.now(),
         maxTile: getMaxTile()
       };
@@ -1017,6 +1487,7 @@
 
       if (maxTile >= 2048 && !reached2048Counted) {
         current.reached2048 += 1;
+        if (undosUsed === 0) current.reached2048NoUndo += 1;
         reached2048Counted = true;
       }
     }
@@ -1047,6 +1518,9 @@
       gameOver = normalized.gameOver || !canMove();
       finishedCounted = normalized.finishedCounted;
       reached2048Counted = normalized.reached2048Counted;
+      movesCount = normalized.movesCount;
+      undosUsed = normalized.undosUsed;
+      mergesCount = normalized.mergesCount;
       hasActiveGame = true;
       lastNewIndex = -1;
       lastMergedIndices = [];
@@ -1159,6 +1633,7 @@
 
       saves.unshift(current);
       setCheckpoints(saves);
+      checkAllTimeAchievements();
 
       if (!silent) showToast("Контрольная точка создана");
       return "created";
@@ -1265,12 +1740,17 @@
       gameOver = false;
       finishedCounted = false;
       reached2048Counted = false;
+      movesCount = 0;
+      undosUsed = 0;
+      mergesCount = 0;
       hasActiveGame = true;
 
       addTile();
       addTile();
 
       stats[mode].gamesStarted += 1;
+      updatePeriodProgress({ games: 1, maxTile: getMaxTile() });
+      checkAllTimeAchievements();
       saveStats();
       saveActive();
       hideMenu();
@@ -1312,6 +1792,7 @@
       const next = emptyGrid();
       const mergedCells = [];
       let gained = 0;
+      let mergesMade = 0;
 
       for (let fixed = 0; fixed < N; fixed++) {
         const line = [];
@@ -1325,6 +1806,7 @@
 
         const merged = mergeLine(line);
         gained += merged.gained;
+        mergesMade += merged.mergedPositions.length;
 
         for (let moving = 0; moving < N; moving++) {
           let row;
@@ -1350,6 +1832,11 @@
 
       grid = next;
       score += gained;
+      movesCount += 1;
+      mergesCount += mergesMade;
+      stats[mode].totalMoves += 1;
+      stats[mode].totalScore += gained;
+      stats[mode].totalMerges += mergesMade;
       lastMergedIndices = mergedCells;
       addTile();
 
@@ -1363,9 +1850,20 @@
 
       if (gameOver && !finishedCounted) {
         stats[mode].gamesFinished += 1;
+        if (undosUsed === 0) {
+          stats[mode].noUndoFinishes += 1;
+          stats[mode].bestNoUndoScore = Math.max(stats[mode].bestNoUndoScore, score);
+        }
         finishedCounted = true;
       }
 
+      updatePeriodProgress({
+        moves: 1,
+        score: gained,
+        merges: mergesMade,
+        maxTile: getMaxTile()
+      });
+      checkAllTimeAchievements();
       saveActive();
       render();
 
@@ -1394,12 +1892,15 @@
       grid = copyGrid(previous.grid);
       score = previous.score;
       gameOver = false;
+      undosUsed += 1;
+      stats[mode].totalUndos += 1;
+      saveStats();
       saveActive();
       render();
     }
 
     function showOnly(section) {
-      [mainMenu, modesMenu, statsMenu].forEach((item) => {
+      [mainMenu, modesMenu, achievementsMenu, statsMenu].forEach((item) => {
         item.hidden = item !== section;
       });
     }
@@ -1419,6 +1920,12 @@
       continueInfo.textContent = state
         ? MODES[lastMode].name + " · " + formatNumber(state.score) + " очков · плитка " + state.maxTile
         : "Нет текущей партии";
+
+      ensurePeriods();
+      const weeklyDone = completedGoalIds(periodData.week.progress, WEEKLY_GOALS).length;
+      const monthlyDone = completedGoalIds(periodData.month.progress, MONTHLY_GOALS).length;
+      achievementsInfo.textContent = "Неделя " + weeklyDone + "/" + WEEKLY_GOALS.length +
+        " · месяц " + monthlyDone + "/" + MONTHLY_GOALS.length;
     }
 
     function showMenu() {
@@ -1578,8 +2085,129 @@
       );
     }
 
+    function formatProgressValue(value) {
+      return formatNumber(value);
+    }
+
+    function renderGoalCard(goal, progress) {
+      const value = Number(progress[goal.metric]) || 0;
+      const done = value >= goal.target;
+      const percent = Math.min(100, Math.round((value / goal.target) * 100));
+      const card = document.createElement("div");
+      card.className = "goal-card" + (done ? " done" : "");
+      card.innerHTML =
+        '<div class="goal-top">' +
+          '<div class="goal-icon">' + goal.icon + '</div>' +
+          '<div class="goal-content">' +
+            '<div class="goal-title"><span>' + goal.title + '</span><span>' +
+              (done ? "Готово ✓" : formatProgressValue(value) + " / " + formatProgressValue(goal.target)) +
+            '</span></div>' +
+            '<div class="goal-description">' + goal.description + '</div>' +
+            '<div class="progress-track"><div class="progress-fill" style="width:' + percent + '%"></div></div>' +
+          '</div>' +
+        '</div>';
+      return card;
+    }
+
+    function renderPeriodCard(title, type, definitions, historyKey) {
+      const current = periodData[type];
+      const completed = completedGoalIds(current.progress, definitions).length;
+      const card = document.createElement("section");
+      card.className = "period-card";
+
+      const head = document.createElement("div");
+      head.className = "period-head";
+      head.innerHTML = "<h3>" + title + "</h3><span>" + completed + "/" + definitions.length +
+        " · осталось " + periodRemaining(type) + "</span>";
+
+      const list = document.createElement("div");
+      list.className = "goal-list";
+      definitions.forEach((goal) => list.appendChild(renderGoalCard(goal, current.progress)));
+
+      const perfect = periodData.history[historyKey].filter((item) => item.perfect).length;
+      const history = document.createElement("div");
+      history.className = "period-history";
+      history.textContent = historyKey === "weeks"
+        ? "Полностью выполненных недель: " + perfect
+        : "Полностью выполненных месяцев: " + perfect;
+
+      card.append(head, list, history);
+      return card;
+    }
+
+    function renderAchievementCard(achievement) {
+      const value = achievement.value();
+      const unlockedAt = achievementData.unlocked[achievement.id];
+      const done = Boolean(unlockedAt);
+      const percent = Math.min(100, Math.round((value / achievement.target) * 100));
+      const card = document.createElement("div");
+      card.className = "achievement-card" + (done ? " done" : "");
+      card.innerHTML =
+        '<div class="achievement-top">' +
+          '<div class="achievement-icon">' + achievement.icon + '</div>' +
+          '<div class="achievement-content">' +
+            '<div class="achievement-title"><span>' + achievement.title + '</span><span>' +
+              (done ? "Получено ✓" : formatProgressValue(value) + " / " + formatProgressValue(achievement.target)) +
+            '</span></div>' +
+            '<div class="achievement-description">' + achievement.description + '</div>' +
+            '<div class="progress-track"><div class="progress-fill" style="width:' + (done ? 100 : percent) + '%"></div></div>' +
+          '</div>' +
+        '</div>';
+      return card;
+    }
+
+    function renderAchievements() {
+      ensurePeriods();
+      checkAllTimeAchievements(true);
+      achievementsContent.innerHTML = "";
+
+      const unlocked = Object.keys(achievementData.unlocked).length;
+      const weeklyDone = completedGoalIds(periodData.week.progress, WEEKLY_GOALS).length;
+      const monthlyDone = completedGoalIds(periodData.month.progress, MONTHLY_GOALS).length;
+
+      const summary = document.createElement("div");
+      summary.className = "achievement-summary";
+      summary.innerHTML =
+        '<div class="summary-item"><strong>' + weeklyDone + '/' + WEEKLY_GOALS.length + '</strong>Неделя</div>' +
+        '<div class="summary-item"><strong>' + monthlyDone + '/' + MONTHLY_GOALS.length + '</strong>Месяц</div>' +
+        '<div class="summary-item"><strong>' + unlocked + '/' + ALL_TIME_ACHIEVEMENTS.length + '</strong>За всё время</div>';
+
+      const allTime = document.createElement("section");
+      allTime.className = "achievement-section";
+      const allHead = document.createElement("div");
+      allHead.className = "achievement-section-head";
+      allHead.innerHTML = "<h3>За всё время</h3><span>" + unlocked + "/" + ALL_TIME_ACHIEVEMENTS.length + "</span>";
+      const allList = document.createElement("div");
+      allList.className = "achievement-list";
+      ALL_TIME_ACHIEVEMENTS.forEach((achievement) => allList.appendChild(renderAchievementCard(achievement)));
+      allTime.append(allHead, allList);
+
+      achievementsContent.append(
+        summary,
+        renderPeriodCard("На этой неделе", "week", WEEKLY_GOALS, "weeks"),
+        renderPeriodCard("В этом месяце", "month", MONTHLY_GOALS, "months"),
+        allTime
+      );
+    }
+
     function renderStats() {
       statsList.innerHTML = "";
+      const total = overallStats();
+      const unlocked = Object.keys(achievementData.unlocked).length;
+
+      const overall = document.createElement("div");
+      overall.className = "stats-card overall-stats-card";
+      overall.innerHTML =
+        "<h3>Общая статистика</h3>" +
+        '<div class="stats-grid">' +
+          '<div class="stats-item">Всего ходов<strong>' + formatNumber(total.totalMoves) + '</strong></div>' +
+          '<div class="stats-item">Всего очков<strong>' + formatNumber(total.totalScore) + '</strong></div>' +
+          '<div class="stats-item">Объединений<strong>' + formatNumber(total.totalMerges) + '</strong></div>' +
+          '<div class="stats-item">Возвратов<strong>' + formatNumber(total.totalUndos) + '</strong></div>' +
+          '<div class="stats-item">Начато партий<strong>' + formatNumber(total.gamesStarted) + '</strong></div>' +
+          '<div class="stats-item">Достижения<strong>' + unlocked + '/' + ALL_TIME_ACHIEVEMENTS.length + '</strong></div>' +
+        '</div>';
+      statsList.appendChild(overall);
 
       Object.keys(MODES).forEach((modeId) => {
         const current = stats[modeId];
@@ -1591,7 +2219,11 @@
             '<div class="stats-item">Рекорд<strong>' + formatNumber(current.bestScore) + '</strong></div>' +
             '<div class="stats-item">Макс. плитка<strong>' + current.maxTile + '</strong></div>' +
             '<div class="stats-item">Начато партий<strong>' + current.gamesStarted + '</strong></div>' +
+            '<div class="stats-item">Завершено партий<strong>' + current.gamesFinished + '</strong></div>' +
+            '<div class="stats-item">Успешных ходов<strong>' + formatNumber(current.totalMoves) + '</strong></div>' +
+            '<div class="stats-item">Возвратов<strong>' + formatNumber(current.totalUndos) + '</strong></div>' +
             '<div class="stats-item">Получено 2048<strong>' + current.reached2048 + '</strong></div>' +
+            '<div class="stats-item">2048 без возврата<strong>' + current.reached2048NoUndo + '</strong></div>' +
           '</div>';
         statsList.appendChild(card);
       });
@@ -1749,6 +2381,11 @@
       showOnly(modesMenu);
     });
 
+    achievementsButton.addEventListener("click", () => {
+      renderAchievements();
+      showOnly(achievementsMenu);
+    });
+
     statsButton.addEventListener("click", () => {
       renderStats();
       showOnly(statsMenu);
@@ -1788,12 +2425,16 @@
     }
 
     document.addEventListener("touchstart", (event) => {
+      if (menuScreen.classList.contains("show")) return;
       if (!event.touches.length || isInteractiveTarget(event.target)) return;
       const touch = event.touches[0];
       beginSwipe(touch.clientX, touch.clientY);
     }, { passive: true });
 
-    document.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
+    document.addEventListener("touchmove", (event) => {
+      if (menuScreen.classList.contains("show")) return;
+      event.preventDefault();
+    }, { passive: false });
 
     document.addEventListener("touchend", (event) => {
       if (!tracking || !event.changedTouches.length) return;
@@ -1828,8 +2469,11 @@
     window.addEventListener("pagehide", saveActive);
     window.addEventListener("beforeunload", saveActive);
 
+    const hadAchievementData = Boolean(safeGet(ACHIEVEMENTS_KEY));
     migrateOldVersion();
     trimLegacyCheckpoints();
+    ensurePeriods();
+    checkAllTimeAchievements(!hadAchievementData);
 
     const initialMode = lastPlayableMode();
     if (initialMode) {
