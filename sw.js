@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v8-achievements";
+const CACHE_NAME = "mika-2048-v9-profiles-settings";
 const APP_FILES = [
   "./",
   "./index.html",

@@ -858,6 +858,166 @@
       font-size: 17px;
     }
 
+
+    body.reduce-motion *,
+    body.reduce-motion *::before,
+    body.reduce-motion *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+    }
+
+    .profile-chip {
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 10px 14px;
+      border-radius: 13px;
+      background: rgba(159,130,109,.16);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .profile-chip strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .profile-chip small {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      opacity: .7;
+    }
+
+    #settingsMenu,
+    #profilesMenu {
+      align-self: flex-start;
+      padding-bottom: 28px;
+    }
+
+    .settings-card,
+    .profiles-card {
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .settings-card + .settings-card,
+    .profiles-card + .profiles-card {
+      margin-top: 10px;
+    }
+
+    .settings-card h3,
+    .profiles-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .setting-row {
+      min-height: 49px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 8px 2px;
+      border-bottom: 1px solid rgba(119,111,102,.10);
+    }
+
+    .setting-row:last-child { border-bottom: 0; }
+
+    .setting-copy { min-width: 0; }
+    .setting-copy strong { display: block; font-size: 15px; }
+    .setting-copy small { display: block; margin-top: 3px; font-size: 11px; line-height: 1.35; opacity: .68; }
+
+    .switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 28px;
+    }
+
+    .switch input { position: absolute; opacity: 0; }
+    .switch span {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(119,111,102,.25);
+      transition: background .18s ease;
+    }
+    .switch span::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.18);
+      transition: transform .18s ease;
+    }
+    .switch input:checked + span { background: var(--accent); }
+    .switch input:checked + span::after { transform: translateX(20px); }
+
+    .language-placeholder {
+      flex: 0 0 auto;
+      padding: 6px 9px;
+      border-radius: 8px;
+      background: rgba(159,130,109,.15);
+      font-size: 12px;
+    }
+
+    .profiles-list { display: grid; gap: 9px; }
+    .profile-row {
+      padding: 11px;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border-radius: 11px;
+      background: rgba(255,255,255,.52);
+    }
+    .profile-row.active { background: rgba(237,207,114,.38); }
+    .profile-main strong { display: block; font-size: 16px; }
+    .profile-main small { display: block; margin-top: 3px; font-size: 11px; opacity: .68; }
+    .profile-actions { display: flex; gap: 6px; }
+    .profile-mini {
+      min-width: 39px;
+      min-height: 38px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: var(--button);
+      color: white;
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .profile-mini.danger { background: rgba(177,77,62,.16); color: #a34b3f; }
+    .profile-create {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+    }
+    .profile-create input {
+      min-width: 0;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(119,111,102,.18);
+      border-radius: 10px;
+      background: rgba(255,255,255,.72);
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+    }
+    .profile-create button {
+      min-height: 46px;
+      padding: 8px 13px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+    }
+
   </style>
 </head>
 
@@ -909,6 +1069,11 @@
       <h2 class="menu-title">2048</h2>
       <p id="menuRecord" class="menu-record">Лучший результат: 0</p>
 
+      <button id="profileButton" class="profile-chip">
+        <strong id="currentProfileName">Mikayil</strong>
+        <small>Сменить игрока</small>
+      </button>
+
       <div class="menu-buttons">
         <button id="continueButton" class="menu-button primary">
           Продолжить
@@ -923,6 +1088,7 @@
         </button>
 
         <button id="statsButton" class="menu-button">Статистика</button>
+        <button id="settingsButton" class="menu-button">Настройки</button>
       </div>
     </div>
 
@@ -949,6 +1115,22 @@
       </div>
       <div id="statsList" class="save-list"></div>
     </div>
+
+    <div id="settingsMenu" class="menu" hidden>
+      <div class="load-header">
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
+        <h2 class="load-title">Настройки</h2>
+      </div>
+      <div id="settingsContent"></div>
+    </div>
+
+    <div id="profilesMenu" class="menu" hidden>
+      <div class="load-header">
+        <button id="profilesBackButton" class="back-button" aria-label="Назад">‹</button>
+        <h2 class="load-title">Игроки</h2>
+      </div>
+      <div id="profilesContent"></div>
+    </div>
   </section>
 
   <section id="modalLayer" class="modal-layer" role="dialog" aria-modal="true">
@@ -974,6 +1156,11 @@
     const MAX_CHECKPOINTS = 3;
     const ACHIEVEMENTS_KEY = "mika2048-achievements-v8";
     const PERIODS_KEY = "mika2048-periods-v8";
+    const USAGE_KEY = "mika2048-usage-v9";
+    const PROFILES_KEY = "mika2048-profiles-v9";
+    const CURRENT_PROFILE_KEY = "mika2048-current-profile-v9";
+    const SETTINGS_KEY = "mika2048-settings-v9";
+    const PROFILE_MIGRATION_KEY = "mika2048-profile-migration-v9";
 
     const MODES = {
       easy: { name: "Лёгкий", historyLimit: 20, saves: true, rule: "Память последних 20 ходов и контрольные сохранения" },
@@ -1010,7 +1197,11 @@
       { id: "all_modes", icon: "🧭", title: "Испытатель", description: "Начать игру во всех четырёх режимах", target: 4, value: () => overallStats().modesPlayed },
       { id: "clean_2048", icon: "✨", title: "Чистые 2048", description: "Получить 2048 без единого возврата", target: 1, value: () => overallStats().clean2048 },
       { id: "hardcore_2048", icon: "🔥", title: "Без права на ошибку", description: "Получить 2048 в режиме Хардкор", target: 2048, value: () => stats.hardcore.maxTile },
-      { id: "three_points", icon: "💾", title: "Стратегический запас", description: "Создать три контрольные точки", target: 3, value: () => getCheckpoints().length }
+      { id: "three_points", icon: "💾", title: "Стратегический запас", description: "Создать три контрольные точки", target: 3, value: () => getCheckpoints().length },
+      { id: "swipes_1000", icon: "👉", title: "Тысяча свайпов", description: "Сделать 1 000 свайпов", target: 1000, value: () => usage.totalSwipes },
+      { id: "swipes_10000", icon: "🖐️", title: "Неутомимый палец", description: "Сделать 10 000 свайпов", target: 10000, value: () => usage.totalSwipes },
+      { id: "time_1h", icon: "⏱️", title: "Час в игре", description: "Провести в игре 1 активный час", target: 3600000, format: "time", value: () => usage.activeTimeMs },
+      { id: "time_10h", icon: "⌛", title: "Десять часов", description: "Провести в игре 10 активных часов", target: 36000000, format: "time", value: () => usage.activeTimeMs }
     ];
 
     const $ = (id) => document.getElementById(id);
@@ -1031,16 +1222,24 @@
     const modesMenu = $("modesMenu");
     const achievementsMenu = $("achievementsMenu");
     const statsMenu = $("statsMenu");
+    const settingsMenu = $("settingsMenu");
+    const profilesMenu = $("profilesMenu");
     const continueButton = $("continueButton");
     const continueInfo = $("continueInfo");
     const modesButton = $("modesButton");
     const achievementsButton = $("achievementsButton");
     const achievementsInfo = $("achievementsInfo");
     const statsButton = $("statsButton");
+    const settingsButton = $("settingsButton");
+    const profileButton = $("profileButton");
+    const currentProfileName = $("currentProfileName");
     const menuRecord = $("menuRecord");
     const modeList = $("modeList");
     const achievementsContent = $("achievementsContent");
     const statsList = $("statsList");
+    const settingsContent = $("settingsContent");
+    const profilesContent = $("profilesContent");
+    const profilesBackButton = $("profilesBackButton");
 
     const modalLayer = $("modalLayer");
     const modalTitle = $("modalTitle");
@@ -1078,20 +1277,139 @@
     let hasActiveGame = false;
     let lastNewIndex = -1;
     let lastMergedIndices = [];
-    let stats = loadStats();
-    let achievementData = loadAchievementData();
-    let periodData = loadPeriodData();
     let toastTimer = null;
     let toastQueue = [];
     let toastActive = false;
 
-    function safeGet(key) {
+    function rawGet(key) {
       try { return localStorage.getItem(key); } catch (_) { return null; }
     }
 
-    function safeSet(key, value) {
+    function rawSet(key, value) {
       try { localStorage.setItem(key, value); return true; } catch (_) { return false; }
     }
+
+    function rawRemove(key) {
+      try { localStorage.removeItem(key); } catch (_) {}
+    }
+
+    function defaultSettings() {
+      return {
+        achievementNotifications: true,
+        goalNotifications: true,
+        vibration: true,
+        animations: true,
+        confirmNewGame: true,
+        language: "ru"
+      };
+    }
+
+    function loadSettings() {
+      const result = defaultSettings();
+      const raw = rawGet(SETTINGS_KEY);
+      if (!raw) return result;
+      try { return Object.assign(result, JSON.parse(raw) || {}); }
+      catch (_) { return result; }
+    }
+
+    function saveSettings() {
+      rawSet(SETTINGS_KEY, JSON.stringify(settings));
+    }
+
+    function createProfileId() {
+      return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    function loadProfiles() {
+      let items = [];
+      try {
+        const parsed = JSON.parse(rawGet(PROFILES_KEY) || "[]");
+        if (Array.isArray(parsed)) items = parsed.filter((item) => item && item.id && item.name);
+      } catch (_) {}
+
+      if (!items.length) {
+        items = [{ id: "mikayil", name: "Mikayil", createdAt: Date.now() }];
+        rawSet(PROFILES_KEY, JSON.stringify(items));
+      }
+      return items;
+    }
+
+    let settings = loadSettings();
+    let profiles = loadProfiles();
+    let currentProfileId = rawGet(CURRENT_PROFILE_KEY);
+    if (!profiles.some((item) => item.id === currentProfileId)) {
+      currentProfileId = profiles[0].id;
+      rawSet(CURRENT_PROFILE_KEY, currentProfileId);
+    }
+
+    function currentProfile() {
+      return profiles.find((item) => item.id === currentProfileId) || profiles[0];
+    }
+
+    function profileStorageKey(key, profileId = currentProfileId) {
+      return "mika2048-profile-v9:" + profileId + ":" + key;
+    }
+
+    function isProfileKey(key) {
+      return key === STATS_KEY ||
+        key === SAVES_KEY ||
+        key === LAST_MODE_KEY ||
+        key === ACHIEVEMENTS_KEY ||
+        key === PERIODS_KEY ||
+        key === USAGE_KEY ||
+        key.startsWith(ACTIVE_PREFIX);
+    }
+
+    function safeGet(key) {
+      return rawGet(isProfileKey(key) ? profileStorageKey(key) : key);
+    }
+
+    function safeSet(key, value) {
+      return rawSet(isProfileKey(key) ? profileStorageKey(key) : key, value);
+    }
+
+    function migrateExistingDataToFirstProfile() {
+      if (rawGet(PROFILE_MIGRATION_KEY)) return;
+      const targetId = profiles[0].id;
+      const keys = [STATS_KEY, SAVES_KEY, LAST_MODE_KEY, ACHIEVEMENTS_KEY, PERIODS_KEY];
+      Object.keys(MODES).forEach((modeId) => keys.push(ACTIVE_PREFIX + modeId));
+
+      keys.forEach((key) => {
+        const oldValue = rawGet(key);
+        const destination = profileStorageKey(key, targetId);
+        if (oldValue !== null && rawGet(destination) === null) rawSet(destination, oldValue);
+      });
+      rawSet(PROFILE_MIGRATION_KEY, "1");
+    }
+
+    migrateExistingDataToFirstProfile();
+
+    function defaultUsage() {
+      return { activeTimeMs: 0, totalSwipes: 0 };
+    }
+
+    function loadUsage() {
+      const result = defaultUsage();
+      const raw = safeGet(USAGE_KEY);
+      if (!raw) return result;
+      try {
+        const parsed = JSON.parse(raw) || {};
+        result.activeTimeMs = Math.max(0, Number(parsed.activeTimeMs) || 0);
+        result.totalSwipes = Math.max(0, Number(parsed.totalSwipes) || 0);
+      } catch (_) {}
+      return result;
+    }
+
+    function saveUsage() {
+      safeSet(USAGE_KEY, JSON.stringify(usage));
+    }
+
+    let stats = loadStats();
+    let achievementData = loadAchievementData();
+    let periodData = loadPeriodData();
+    let usage = loadUsage();
+    let lastActivityAt = Date.now();
+    let activeClockAt = Date.now();
 
     function emptyGrid() {
       return Array.from({ length: N }, () => Array(N).fill(0));
@@ -1130,6 +1448,26 @@
           day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
         });
       } catch (_) { return ""; }
+    }
+
+    function formatDuration(milliseconds) {
+      const totalMinutes = Math.floor(Math.max(0, milliseconds) / 60000);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      if (hours > 0) return hours + " ч. " + minutes + " мин.";
+      return minutes + " мин.";
+    }
+
+    function markActivity() {
+      lastActivityAt = Date.now();
+    }
+
+    function flushActiveTime() {
+      const now = Date.now();
+      if (document.visibilityState === "visible" && now - lastActivityAt <= 60000) {
+        usage.activeTimeMs += Math.max(0, now - activeClockAt);
+      }
+      activeClockAt = now;
     }
 
     function defaultModeStats() {
@@ -1175,11 +1513,13 @@
         } catch (_) {}
       }
 
-      result.easy.bestScore = Math.max(
-        result.easy.bestScore,
-        Number(safeGet("mika2048-best-v4")) || 0,
-        Number(safeGet("mika2048-best")) || 0
-      );
+      if (currentProfileId === profiles[0].id) {
+        result.easy.bestScore = Math.max(
+          result.easy.bestScore,
+          Number(safeGet("mika2048-best-v4")) || 0,
+          Number(safeGet("mika2048-best")) || 0
+        );
+      }
       return result;
     }
 
@@ -1276,7 +1616,9 @@
 
         achievementData.unlocked[achievement.id] = Date.now();
         changed = true;
-        if (!silent) showToast("🏆 Достижение: " + achievement.title, 2200);
+        if (!silent && settings.achievementNotifications) {
+          showToast("🏆 Достижение: " + achievement.title, 2200);
+        }
       });
 
       if (changed) saveAchievementData();
@@ -1379,12 +1721,12 @@
       definitions.forEach((goal) => {
         if (!completedNow.includes(goal.id) || current.completed.includes(goal.id)) return;
         current.completed.push(goal.id);
-        showToast("✅ " + label + ": " + goal.title, 2100);
+        if (settings.goalNotifications) showToast("✅ " + label + ": " + goal.title, 2100);
       });
 
       if (completedNow.length === definitions.length && !current.perfectNotified) {
         current.perfectNotified = true;
-        showToast("🏆 Все " + label.toLowerCase() + " цели выполнены!", 2300);
+        if (settings.goalNotifications) showToast("🏆 Все " + label.toLowerCase() + " цели выполнены!", 2300);
       }
     }
 
@@ -1459,7 +1801,7 @@
 
     function snapshot() {
       return {
-        version: 8,
+        version: 9,
         mode,
         grid: copyGrid(grid),
         score,
@@ -1529,6 +1871,8 @@
     }
 
     function migrateOldVersion() {
+      if (currentProfileId !== profiles[0].id) return;
+
       if (!safeGet(activeKey("easy"))) {
         const v4Raw = safeGet("mika2048-active-v4");
 
@@ -1867,7 +2211,7 @@
       saveActive();
       render();
 
-      if (navigator.vibrate && gained > 0) {
+      if (settings.vibration && navigator.vibrate && gained > 0) {
         try { navigator.vibrate(15); } catch (_) {}
       }
     }
@@ -1900,7 +2244,7 @@
     }
 
     function showOnly(section) {
-      [mainMenu, modesMenu, achievementsMenu, statsMenu].forEach((item) => {
+      [mainMenu, modesMenu, achievementsMenu, statsMenu, settingsMenu, profilesMenu].forEach((item) => {
         item.hidden = item !== section;
       });
     }
@@ -1915,6 +2259,7 @@
       const lastMode = lastPlayableMode();
       const state = lastMode ? loadModeState(lastMode) : null;
 
+      currentProfileName.textContent = currentProfile().name;
       menuRecord.textContent = "Лучший результат: " + formatNumber(bestAcrossModes());
       continueButton.disabled = !state;
       continueInfo.textContent = state
@@ -2085,7 +2430,8 @@
       );
     }
 
-    function formatProgressValue(value) {
+    function formatProgressValue(value, definition = null) {
+      if (definition && definition.format === "time") return formatDuration(value);
       return formatNumber(value);
     }
 
@@ -2147,7 +2493,7 @@
           '<div class="achievement-icon">' + achievement.icon + '</div>' +
           '<div class="achievement-content">' +
             '<div class="achievement-title"><span>' + achievement.title + '</span><span>' +
-              (done ? "Получено ✓" : formatProgressValue(value) + " / " + formatProgressValue(achievement.target)) +
+              (done ? "Получено ✓" : formatProgressValue(value, achievement) + " / " + formatProgressValue(achievement.target, achievement)) +
             '</span></div>' +
             '<div class="achievement-description">' + achievement.description + '</div>' +
             '<div class="progress-track"><div class="progress-fill" style="width:' + (done ? 100 : percent) + '%"></div></div>' +
@@ -2205,6 +2551,8 @@
           '<div class="stats-item">Объединений<strong>' + formatNumber(total.totalMerges) + '</strong></div>' +
           '<div class="stats-item">Возвратов<strong>' + formatNumber(total.totalUndos) + '</strong></div>' +
           '<div class="stats-item">Начато партий<strong>' + formatNumber(total.gamesStarted) + '</strong></div>' +
+          '<div class="stats-item">Все свайпы<strong>' + formatNumber(usage.totalSwipes) + '</strong></div>' +
+          '<div class="stats-item">Активное время<strong>' + formatDuration(usage.activeTimeMs) + '</strong></div>' +
           '<div class="stats-item">Достижения<strong>' + unlocked + '/' + ALL_TIME_ACHIEVEMENTS.length + '</strong></div>' +
         '</div>';
       statsList.appendChild(overall);
@@ -2227,6 +2575,209 @@
           '</div>';
         statsList.appendChild(card);
       });
+    }
+
+    function applySettings() {
+      document.body.classList.toggle("reduce-motion", !settings.animations);
+    }
+
+    function makeToggleRow(title, description, key) {
+      const row = document.createElement("div");
+      row.className = "setting-row";
+      const copy = document.createElement("div");
+      copy.className = "setting-copy";
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+      const small = document.createElement("small");
+      small.textContent = description;
+      copy.append(strong, small);
+
+      const label = document.createElement("label");
+      label.className = "switch";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = Boolean(settings[key]);
+      const slider = document.createElement("span");
+      input.addEventListener("change", () => {
+        settings[key] = input.checked;
+        saveSettings();
+        applySettings();
+      });
+      label.append(input, slider);
+      row.append(copy, label);
+      return row;
+    }
+
+    function renderSettings() {
+      settingsContent.innerHTML = "";
+
+      const notices = document.createElement("section");
+      notices.className = "settings-card";
+      notices.innerHTML = "<h3>Уведомления</h3>";
+      notices.append(
+        makeToggleRow("Достижения", "Показывать сообщение при получении достижения", "achievementNotifications"),
+        makeToggleRow("Недельные и месячные цели", "Показывать сообщения о выполнении целей", "goalNotifications")
+      );
+
+      const game = document.createElement("section");
+      game.className = "settings-card";
+      game.innerHTML = "<h3>Игра</h3>";
+      game.append(
+        makeToggleRow("Вибрация", "Короткая вибрация при объединении плиток", "vibration"),
+        makeToggleRow("Анимации", "Движение, появление и объединение плиток", "animations"),
+        makeToggleRow("Подтверждение новой игры", "Защита от случайного сброса партии", "confirmNewGame")
+      );
+
+      const language = document.createElement("div");
+      language.className = "setting-row";
+      language.innerHTML = '<div class="setting-copy"><strong>Язык</strong><small>Другие языки добавим в следующем этапе</small></div><span class="language-placeholder">Русский</span>';
+      game.appendChild(language);
+
+      const players = document.createElement("section");
+      players.className = "settings-card";
+      players.innerHTML = "<h3>Игроки</h3>";
+      const playerButton = document.createElement("button");
+      playerButton.className = "menu-button";
+      playerButton.innerHTML = "Управление игроками<small>Сейчас: " + currentProfile().name + "</small>";
+      playerButton.addEventListener("click", () => {
+        renderProfiles();
+        showOnly(profilesMenu);
+      });
+      players.appendChild(playerButton);
+
+      settingsContent.append(notices, game, players);
+    }
+
+    function saveProfiles() {
+      rawSet(PROFILES_KEY, JSON.stringify(profiles));
+    }
+
+    function removeProfileData(profileId) {
+      const prefix = "mika2048-profile-v9:" + profileId + ":";
+      const keys = [];
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(prefix)) keys.push(key);
+        }
+        keys.forEach((key) => localStorage.removeItem(key));
+      } catch (_) {}
+    }
+
+    function switchProfile(profileId) {
+      if (profileId === currentProfileId) {
+        showOnly(mainMenu);
+        return;
+      }
+      flushActiveTime();
+      saveUsage();
+      saveActive();
+      rawSet(CURRENT_PROFILE_KEY, profileId);
+      location.reload();
+    }
+
+    function renderProfiles() {
+      profilesContent.innerHTML = "";
+      const card = document.createElement("section");
+      card.className = "profiles-card";
+      card.innerHTML = "<h3>Профили на этом устройстве</h3>";
+      const list = document.createElement("div");
+      list.className = "profiles-list";
+
+      profiles.forEach((profile) => {
+        const row = document.createElement("div");
+        row.className = "profile-row" + (profile.id === currentProfileId ? " active" : "");
+        const main = document.createElement("div");
+        main.className = "profile-main";
+        const name = document.createElement("strong");
+        name.textContent = profile.name;
+        const status = document.createElement("small");
+        status.textContent = profile.id === currentProfileId ? "Текущий игрок" : "Нажми, чтобы переключиться";
+        main.append(name, status);
+        main.addEventListener("click", () => switchProfile(profile.id));
+
+        const actions = document.createElement("div");
+        actions.className = "profile-actions";
+        const rename = document.createElement("button");
+        rename.className = "profile-mini";
+        rename.textContent = "✎";
+        rename.setAttribute("aria-label", "Переименовать");
+        rename.addEventListener("click", () => {
+          const next = window.prompt("Новое имя игрока", profile.name);
+          if (!next || !next.trim()) return;
+          profile.name = next.trim().slice(0, 24);
+          saveProfiles();
+          renderProfiles();
+          updateMainMenu();
+        });
+        actions.appendChild(rename);
+
+        const remove = document.createElement("button");
+        remove.className = "profile-mini danger";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", "Удалить");
+        remove.disabled = profiles.length === 1;
+        remove.addEventListener("click", () => requestDeleteProfile(profile));
+        actions.appendChild(remove);
+
+        row.append(main, actions);
+        list.appendChild(row);
+      });
+
+      card.appendChild(list);
+
+      const create = document.createElement("section");
+      create.className = "profiles-card";
+      create.innerHTML = "<h3>Новый игрок</h3>";
+      const form = document.createElement("div");
+      form.className = "profile-create";
+      const input = document.createElement("input");
+      input.maxLength = 24;
+      input.placeholder = profiles.length >= 5 ? "Максимум 5 игроков" : "Имя игрока";
+      input.disabled = profiles.length >= 5;
+      const add = document.createElement("button");
+      add.textContent = "Добавить";
+      add.disabled = profiles.length >= 5;
+      add.addEventListener("click", () => {
+        const name = input.value.trim();
+        if (!name) return;
+        const profile = { id: createProfileId(), name: name.slice(0, 24), createdAt: Date.now() };
+        profiles.push(profile);
+        saveProfiles();
+        switchProfile(profile.id);
+      });
+      form.append(input, add);
+      create.appendChild(form);
+      profilesContent.append(card, create);
+    }
+
+    function requestDeleteProfile(profile) {
+      if (profiles.length === 1) return;
+      openModal(
+        "Удалить игрока?",
+        "Будут удалены партии, достижения и статистика игрока «" + profile.name + "».",
+        [
+          { label: "Отмена", kind: "ghost", action: closeModal },
+          {
+            label: "Удалить",
+            kind: "primary",
+            action: () => {
+              const deletingCurrent = profile.id === currentProfileId;
+              profiles = profiles.filter((item) => item.id !== profile.id);
+              removeProfileData(profile.id);
+              saveProfiles();
+              closeModal();
+              if (deletingCurrent) {
+                rawSet(CURRENT_PROFILE_KEY, profiles[0].id);
+                location.reload();
+              } else {
+                renderProfiles();
+                showToast("Игрок удалён");
+              }
+            }
+          }
+        ]
+      );
     }
 
     function openModal(title, text, buttons) {
@@ -2252,6 +2803,10 @@
 
     function requestNewModeGame(modeId) {
       const oldState = loadModeState(modeId);
+      if (oldState && !settings.confirmNewGame) {
+        startNewGame(modeId);
+        return;
+      }
 
       if (!oldState) {
         startNewGame(modeId);
@@ -2305,6 +2860,10 @@
 
     function requestRestart() {
       if (!hasActiveGame) return;
+      if (!settings.confirmNewGame) {
+        startNewGame(mode);
+        return;
+      }
 
       const possibleUndos = history.length;
       const reminder = possibleUndos > 0
@@ -2387,8 +2946,24 @@
     });
 
     statsButton.addEventListener("click", () => {
+      flushActiveTime();
       renderStats();
       showOnly(statsMenu);
+    });
+
+    settingsButton.addEventListener("click", () => {
+      renderSettings();
+      showOnly(settingsMenu);
+    });
+
+    profileButton.addEventListener("click", () => {
+      renderProfiles();
+      showOnly(profilesMenu);
+    });
+
+    profilesBackButton.addEventListener("click", () => {
+      updateMainMenu();
+      showOnly(mainMenu);
     });
 
     document.querySelectorAll("[data-back-main]").forEach((button) => {
@@ -2416,6 +2991,11 @@
       const dy = y - startY;
       if (Math.hypot(dx, dy) < 25) return;
 
+      usage.totalSwipes += 1;
+      markActivity();
+      saveUsage();
+      checkAllTimeAchievements();
+
       if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
       else move(dy > 0 ? "down" : "up");
     }
@@ -2425,6 +3005,7 @@
     }
 
     document.addEventListener("touchstart", (event) => {
+      markActivity();
       if (menuScreen.classList.contains("show")) return;
       if (!event.touches.length || isInteractiveTarget(event.target)) return;
       const touch = event.touches[0];
@@ -2446,12 +3027,14 @@
     document.addEventListener("gesturestart", (event) => event.preventDefault(), { passive: false });
 
     document.addEventListener("mousedown", (event) => {
+      markActivity();
       if (!isInteractiveTarget(event.target)) beginSwipe(event.clientX, event.clientY);
     });
 
     window.addEventListener("mouseup", (event) => finishSwipe(event.clientX, event.clientY));
 
     document.addEventListener("keydown", (event) => {
+      markActivity();
       const map = {
         ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down",
         a: "left", d: "right", w: "up", s: "down",
@@ -2464,11 +3047,31 @@
     }, { passive: false });
 
     document.addEventListener("visibilitychange", () => {
+      flushActiveTime();
+      saveUsage();
       if (document.visibilityState === "hidden") saveActive();
+      else { activeClockAt = Date.now(); markActivity(); }
     });
-    window.addEventListener("pagehide", saveActive);
-    window.addEventListener("beforeunload", saveActive);
 
+    setInterval(() => {
+      flushActiveTime();
+      saveUsage();
+      checkAllTimeAchievements();
+    }, 10000);
+
+    window.addEventListener("pagehide", () => {
+      flushActiveTime();
+      saveUsage();
+      saveActive();
+    });
+    window.addEventListener("beforeunload", () => {
+      flushActiveTime();
+      saveUsage();
+      saveActive();
+    });
+
+    applySettings();
+    currentProfileName.textContent = currentProfile().name;
     const hadAchievementData = Boolean(safeGet(ACHIEVEMENTS_KEY));
     migrateOldVersion();
     trimLegacyCheckpoints();
