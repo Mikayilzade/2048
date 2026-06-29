@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — v10</title>
+  <title>2048 — v11</title>
 
   <style>
     :root {
@@ -1118,6 +1118,24 @@
       font-weight: 700;
     }
 
+    .language-select {
+      min-width: 132px;
+      min-height: 42px;
+      padding: 8px 34px 8px 11px;
+      border: 1px solid rgba(119,111,102,.18);
+      border-radius: 10px;
+      background: rgba(255,255,255,.72);
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .language-select:focus {
+      outline: 2px solid rgba(247,125,92,.30);
+      outline-offset: 1px;
+    }
+
   </style>
 </head>
 
@@ -1249,8 +1267,8 @@
     "use strict";
 
     const N = 4;
-    const APP_VERSION = "10.0";
-    const APP_UPDATED_AT = "28.06.2026";
+    const APP_VERSION = "11.0";
+    const APP_UPDATED_AT = "29.06.2026";
     const BACKUP_FORMAT = "mika2048-backup";
     const BACKUP_VERSION = 1;
     const ACTIVE_PREFIX = "mika2048-active-v5-";
@@ -1265,6 +1283,293 @@
     const CURRENT_PROFILE_KEY = "mika2048-current-profile-v9";
     const SETTINGS_KEY = "mika2048-settings-v9";
     const PROFILE_MIGRATION_KEY = "mika2048-profile-migration-v9";
+
+
+    const SUPPORTED_LANGUAGES = ["ru", "en", "az", "tr"];
+    const LANGUAGE_LOCALES = {
+      ru: "ru-RU",
+      en: "en-US",
+      az: "az-AZ",
+      tr: "tr-TR"
+    };
+    const LANGUAGE_NAMES = {
+      ru: "Русский",
+      en: "English",
+      az: "Azərbaycan",
+      tr: "Türkçe"
+    };
+    const PHRASE_TRANSLATIONS = {"Выйти в меню":{"ru":"Выйти в меню","en":"Exit to menu","az":"Menyuya çıx","tr":"Menüye çık"},"Создать контрольную точку":{"ru":"Создать контрольную точку","en":"Create checkpoint","az":"Nəzarət nöqtəsi yarat","tr":"Kontrol noktası oluştur"},"Очки":{"ru":"Очки","en":"Score","az":"Xal","tr":"Puan"},"Рекорд":{"ru":"Рекорд","en":"Best","az":"Rekord","tr":"Rekor"},"Отменить ход":{"ru":"Отменить ход","en":"Undo move","az":"Gedişi geri qaytar","tr":"Hamleyi geri al"},"Новая игра":{"ru":"Новая игра","en":"New game","az":"Yeni oyun","tr":"Yeni oyun"},"Игровое поле":{"ru":"Игровое поле","en":"Game board","az":"Oyun sahəsi","tr":"Oyun tahtası"},"Свайпай в любом свободном месте экрана. На компьютере работают стрелки и WASD.":{"ru":"Свайпай в любом свободном месте экрана. На компьютере работают стрелки и WASD.","en":"Swipe anywhere in the free area. On a computer, use the arrow keys or WASD.","az":"Ekranın boş hissəsində istənilən istiqamətə sürüşdür. Kompüterdə ox düymələri və WASD işləyir.","tr":"Ekranın boş bir alanında kaydır. Bilgisayarda ok tuşları ve WASD çalışır."},"Сменить игрока":{"ru":"Сменить игрока","en":"Switch player","az":"Oyunçunu dəyiş","tr":"Oyuncu değiştir"},"Продолжить":{"ru":"Продолжить","en":"Continue","az":"Davam et","tr":"Devam et"},"Выбрать режим":{"ru":"Выбрать режим","en":"Choose mode","az":"Rejim seç","tr":"Mod seç"},"Достижения":{"ru":"Достижения","en":"Achievements","az":"Nailiyyətlər","tr":"Başarılar"},"Статистика":{"ru":"Статистика","en":"Statistics","az":"Statistika","tr":"İstatistikler"},"Настройки":{"ru":"Настройки","en":"Settings","az":"Ayarlar","tr":"Ayarlar"},"Назад":{"ru":"Назад","en":"Back","az":"Geri","tr":"Geri"},"Режимы":{"ru":"Режимы","en":"Modes","az":"Rejimlər","tr":"Modlar"},"Игроки":{"ru":"Игроки","en":"Players","az":"Oyunçular","tr":"Oyuncular"},"Нет текущей партии":{"ru":"Нет текущей партии","en":"No current game","az":"Cari oyun yoxdur","tr":"Devam eden oyun yok"},"Нет партии":{"ru":"Нет партии","en":"No game","az":"Oyun yoxdur","tr":"Oyun yok"},"Игра окончена":{"ru":"Игра окончена","en":"Game over","az":"Oyun bitdi","tr":"Oyun bitti"},"без возврата":{"ru":"без возврата","en":"no undo","az":"geri qaytarma yoxdur","tr":"geri alma yok"},"Лёгкий":{"ru":"Лёгкий","en":"Easy","az":"Asan","tr":"Kolay"},"Средний":{"ru":"Средний","en":"Medium","az":"Orta","tr":"Orta"},"Сложный":{"ru":"Сложный","en":"Hard","az":"Çətin","tr":"Zor"},"Хардкор":{"ru":"Хардкор","en":"Hardcore","az":"Hardkor","tr":"Hardkor"},"Память последних 20 ходов и контрольные сохранения":{"ru":"Память последних 20 ходов и контрольные сохранения","en":"Remembers the last 20 moves and supports checkpoints","az":"Son 20 gedişi yadda saxlayır və nəzarət nöqtələrini dəstəkləyir","tr":"Son 20 hamleyi hatırlar ve kontrol noktalarını destekler"},"Память последних 5 ходов, только автосохранение":{"ru":"Память последних 5 ходов, только автосохранение","en":"Remembers the last 5 moves; autosave only","az":"Son 5 gedişi yadda saxlayır; yalnız avtomatik saxlama","tr":"Son 5 hamleyi hatırlar; yalnızca otomatik kayıt"},"Память только одного предыдущего хода":{"ru":"Память только одного предыдущего хода","en":"Remembers only the previous move","az":"Yalnız əvvəlki bir gedişi yadda saxlayır","tr":"Yalnızca önceki tek hamleyi hatırlar"},"Без возврата ходов и контрольных сохранений":{"ru":"Без возврата ходов и контрольных сохранений","en":"No undo and no checkpoints","az":"Geri qaytarma və nəzarət nöqtələri yoxdur","tr":"Geri alma ve kontrol noktaları yok"},"Контрольные точки":{"ru":"Контрольные точки","en":"Checkpoints","az":"Nəzarət nöqtələri","tr":"Kontrol noktaları"},"Точек пока нет. Создай её во время лёгкой игры.":{"ru":"Точек пока нет. Создай её во время лёгкой игры.","en":"No checkpoints yet. Create one during an Easy game.","az":"Hələ nəzarət nöqtəsi yoxdur. Asan rejimdə oyun zamanı yarat.","tr":"Henüz kontrol noktası yok. Kolay modda oynarken bir tane oluştur."},"Удалить контрольную точку":{"ru":"Удалить контрольную точку","en":"Delete checkpoint","az":"Nəzarət nöqtəsini sil","tr":"Kontrol noktasını sil"},"Загрузить точку?":{"ru":"Загрузить точку?","en":"Load checkpoint?","az":"Nəzarət nöqtəsi yüklənsin?","tr":"Kontrol noktası yüklensin mi?"},"Текущая лёгкая партия будет заменена. Контрольная точка останется в списке.":{"ru":"Текущая лёгкая партия будет заменена. Контрольная точка останется в списке.","en":"The current Easy game will be replaced. The checkpoint will remain in the list.","az":"Cari Asan oyun əvəz ediləcək. Nəzarət nöqtəsi siyahıda qalacaq.","tr":"Mevcut Kolay oyun değiştirilecek. Kontrol noktası listede kalacak."},"Отмена":{"ru":"Отмена","en":"Cancel","az":"Ləğv et","tr":"İptal"},"Загрузить":{"ru":"Загрузить","en":"Load","az":"Yüklə","tr":"Yükle"},"Контрольная точка загружена":{"ru":"Контрольная точка загружена","en":"Checkpoint loaded","az":"Nəzarət nöqtəsi yükləndi","tr":"Kontrol noktası yüklendi"},"Удалить точку?":{"ru":"Удалить точку?","en":"Delete checkpoint?","az":"Nəzarət nöqtəsi silinsin?","tr":"Kontrol noktası silinsin mi?"},"Вернуть удалённую контрольную точку будет нельзя.":{"ru":"Вернуть удалённую контрольную точку будет нельзя.","en":"A deleted checkpoint cannot be restored.","az":"Silinmiş nəzarət nöqtəsini bərpa etmək mümkün olmayacaq.","tr":"Silinen kontrol noktası geri getirilemez."},"Удалить":{"ru":"Удалить","en":"Delete","az":"Sil","tr":"Sil"},"Контрольная точка удалена":{"ru":"Контрольная точка удалена","en":"Checkpoint deleted","az":"Nəzarət nöqtəsi silindi","tr":"Kontrol noktası silindi"},"Такая контрольная точка уже сохранена":{"ru":"Такая контрольная точка уже сохранена","en":"This checkpoint is already saved","az":"Bu nəzarət nöqtəsi artıq saxlanılıb","tr":"Bu kontrol noktası zaten kayıtlı"},"Максимум 3 точки. Удали ненужную в меню режимов":{"ru":"Максимум 3 точки. Удали ненужную в меню режимов","en":"The limit is 3 checkpoints. Delete one in the Modes menu.","az":"Maksimum 3 nəzarət nöqtəsi mümkündür. Rejimlər menyusunda birini sil.","tr":"En fazla 3 kontrol noktası olabilir. Modlar menüsünden birini sil."},"Контрольная точка создана":{"ru":"Контрольная точка создана","en":"Checkpoint created","az":"Nəzarət nöqtəsi yaradıldı","tr":"Kontrol noktası oluşturuldu"},"Сначала удали одну из трёх контрольных точек":{"ru":"Сначала удали одну из трёх контрольных точек","en":"Delete one of the three checkpoints first","az":"Əvvəl üç nəzarət nöqtəsindən birini sil","tr":"Önce üç kontrol noktasından birini sil"},"Активная неделя":{"ru":"Активная неделя","en":"Active week","az":"Aktiv həftə","tr":"Aktif hafta"},"Сделать 200 успешных ходов":{"ru":"Сделать 200 успешных ходов","en":"Make 200 successful moves","az":"200 uğurlu gediş et","tr":"200 başarılı hamle yap"},"Очки недели":{"ru":"Очки недели","en":"Weekly score","az":"Həftəlik xal","tr":"Haftalık puan"},"Набрать суммарно 30 000 очков":{"ru":"Набрать суммарно 30 000 очков","en":"Earn 30,000 total points","az":"Ümumilikdə 30 000 xal topla","tr":"Toplam 30.000 puan kazan"},"Мастер объединений":{"ru":"Мастер объединений","en":"Merge master","az":"Birləşdirmə ustası","tr":"Birleştirme ustası"},"Выполнить 100 объединений":{"ru":"Выполнить 100 объединений","en":"Make 100 merges","az":"100 birləşdirmə et","tr":"100 birleştirme yap"},"Крупная плитка":{"ru":"Крупная плитка","en":"Big tile","az":"Böyük daş","tr":"Büyük karo"},"Получить плитку 512":{"ru":"Получить плитку 512","en":"Reach the 512 tile","az":"512 daşını əldə et","tr":"512 karosuna ulaş"},"Длинная дистанция":{"ru":"Длинная дистанция","en":"Long distance","az":"Uzun məsafə","tr":"Uzun mesafe"},"Сделать 1 200 успешных ходов":{"ru":"Сделать 1 200 успешных ходов","en":"Make 1,200 successful moves","az":"1 200 uğurlu gediş et","tr":"1.200 başarılı hamle yap"},"Большой счёт":{"ru":"Большой счёт","en":"High score","az":"Böyük hesab","tr":"Yüksek puan"},"Набрать суммарно 250 000 очков":{"ru":"Набрать суммарно 250 000 очков","en":"Earn 250,000 total points","az":"Ümumilikdə 250 000 xal topla","tr":"Toplam 250.000 puan kazan"},"Разные попытки":{"ru":"Разные попытки","en":"Fresh attempts","az":"Fərqli cəhdlər","tr":"Farklı denemeler"},"Начать 8 партий":{"ru":"Начать 8 партий","en":"Start 8 games","az":"8 oyun başlat","tr":"8 oyun başlat"},"Цель месяца":{"ru":"Цель месяца","en":"Monthly target","az":"Ayın məqsədi","tr":"Ayın hedefi"},"Получить плитку 2048":{"ru":"Получить плитку 2048","en":"Reach the 2048 tile","az":"2048 daşını əldə et","tr":"2048 karosuna ulaş"},"Первый шаг":{"ru":"Первый шаг","en":"First step","az":"İlk addım","tr":"İlk adım"},"Начать первую партию":{"ru":"Начать первую партию","en":"Start your first game","az":"İlk oyuna başla","tr":"İlk oyununu başlat"},"Разминка":{"ru":"Разминка","en":"Warm-up","az":"İsinmə","tr":"Isınma"},"Сделать 100 успешных ходов":{"ru":"Сделать 100 успешных ходов","en":"Make 100 successful moves","az":"100 uğurlu gediş et","tr":"100 başarılı hamle yap"},"Тысяча ходов":{"ru":"Тысяча ходов","en":"A thousand moves","az":"Min gediş","tr":"Bin hamle"},"Сделать 1 000 успешных ходов":{"ru":"Сделать 1 000 успешных ходов","en":"Make 1,000 successful moves","az":"1 000 uğurlu gediş et","tr":"1.000 başarılı hamle yap"},"Собиратель":{"ru":"Собиратель","en":"Collector","az":"Toplayıcı","tr":"Toplayıcı"},"Выполнить 500 объединений":{"ru":"Выполнить 500 объединений","en":"Make 500 merges","az":"500 birləşdirmə et","tr":"500 birleştirme yap"},"Сто тысяч":{"ru":"Сто тысяч","en":"One hundred thousand","az":"Yüz min","tr":"Yüz bin"},"Набрать 100 000 очков в одной партии":{"ru":"Набрать 100 000 очков в одной партии","en":"Score 100,000 points in one game","az":"Bir oyunda 100 000 xal topla","tr":"Tek oyunda 100.000 puan kazan"},"Четверть миллиона":{"ru":"Четверть миллиона","en":"Quarter million","az":"Dörddəbir milyon","tr":"Çeyrek milyon"},"Набрать 250 000 очков в одной партии":{"ru":"Набрать 250 000 очков в одной партии","en":"Score 250,000 points in one game","az":"Bir oyunda 250 000 xal topla","tr":"Tek oyunda 250.000 puan kazan"},"Классика":{"ru":"Классика","en":"Classic","az":"Klassika","tr":"Klasik"},"За пределами цели":{"ru":"За пределами цели","en":"Beyond the goal","az":"Məqsəddən kənar","tr":"Hedefin ötesi"},"Большая игра":{"ru":"Большая игра","en":"Big game","az":"Böyük oyun","tr":"Büyük oyun"},"Корона":{"ru":"Корона","en":"Crown","az":"Tac","tr":"Taç"},"Испытатель":{"ru":"Испытатель","en":"Explorer","az":"Sınaqçı","tr":"Kaşif"},"Начать игру во всех четырёх режимах":{"ru":"Начать игру во всех четырёх режимах","en":"Start a game in all four modes","az":"Dörd rejimin hamısında oyun başlat","tr":"Dört modun tamamında oyun başlat"},"Чистые 2048":{"ru":"Чистые 2048","en":"Clean 2048","az":"Təmiz 2048","tr":"Temiz 2048"},"Получить 2048 без единого возврата":{"ru":"Получить 2048 без единого возврата","en":"Reach 2048 without using undo","az":"Heç bir geri qaytarma olmadan 2048 əldə et","tr":"Hiç geri alma kullanmadan 2048'e ulaş"},"Без права на ошибку":{"ru":"Без права на ошибку","en":"No room for error","az":"Səhv etmək olmaz","tr":"Hata hakkı yok"},"Получить 2048 в режиме Хардкор":{"ru":"Получить 2048 в режиме Хардкор","en":"Reach 2048 in Hardcore mode","az":"Hardkor rejimində 2048 əldə et","tr":"Hardkor modda 2048'e ulaş"},"Стратегический запас":{"ru":"Стратегический запас","en":"Strategic reserve","az":"Strateji ehtiyat","tr":"Stratejik yedek"},"Создать три контрольные точки":{"ru":"Создать три контрольные точки","en":"Create three checkpoints","az":"Üç nəzarət nöqtəsi yarat","tr":"Üç kontrol noktası oluştur"},"Тысяча свайпов":{"ru":"Тысяча свайпов","en":"A thousand swipes","az":"Min sürüşdürmə","tr":"Bin kaydırma"},"Сделать 1 000 свайпов":{"ru":"Сделать 1 000 свайпов","en":"Make 1,000 swipes","az":"1 000 sürüşdürmə et","tr":"1.000 kaydırma yap"},"Неутомимый палец":{"ru":"Неутомимый палец","en":"Tireless finger","az":"Yorulmaz barmaq","tr":"Yorulmaz parmak"},"Сделать 10 000 свайпов":{"ru":"Сделать 10 000 свайпов","en":"Make 10,000 swipes","az":"10 000 sürüşdürmə et","tr":"10.000 kaydırma yap"},"Час в игре":{"ru":"Час в игре","en":"One hour in game","az":"Oyunda bir saat","tr":"Oyunda bir saat"},"Провести в игре 1 активный час":{"ru":"Провести в игре 1 активный час","en":"Spend 1 active hour in the game","az":"Oyunda 1 aktiv saat keçir","tr":"Oyunda 1 aktif saat geçir"},"Десять часов":{"ru":"Десять часов","en":"Ten hours","az":"On saat","tr":"On saat"},"Провести в игре 10 активных часов":{"ru":"Провести в игре 10 активных часов","en":"Spend 10 active hours in the game","az":"Oyunda 10 aktiv saat keçir","tr":"Oyunda 10 aktif saat geçir"},"Готово ✓":{"ru":"Готово ✓","en":"Done ✓","az":"Hazırdır ✓","tr":"Tamamlandı ✓"},"Получено ✓":{"ru":"Получено ✓","en":"Unlocked ✓","az":"Əldə edildi ✓","tr":"Kazanıldı ✓"},"На этой неделе":{"ru":"На этой неделе","en":"This week","az":"Bu həftə","tr":"Bu hafta"},"В этом месяце":{"ru":"В этом месяце","en":"This month","az":"Bu ay","tr":"Bu ay"},"Неделя":{"ru":"Неделя","en":"Week","az":"Həftə","tr":"Hafta"},"Месяц":{"ru":"Месяц","en":"Month","az":"Ay","tr":"Ay"},"За всё время":{"ru":"За всё время","en":"All time","az":"Bütün dövr","tr":"Tüm zamanlar"},"Общая статистика":{"ru":"Общая статистика","en":"Overall statistics","az":"Ümumi statistika","tr":"Genel istatistikler"},"Всего ходов":{"ru":"Всего ходов","en":"Total moves","az":"Ümumi gedişlər","tr":"Toplam hamle"},"Всего очков":{"ru":"Всего очков","en":"Total points","az":"Ümumi xal","tr":"Toplam puan"},"Объединений":{"ru":"Объединений","en":"Merges","az":"Birləşdirmələr","tr":"Birleştirmeler"},"Возвратов":{"ru":"Возвратов","en":"Undos","az":"Geri qaytarmalar","tr":"Geri almalar"},"Начато партий":{"ru":"Начато партий","en":"Games started","az":"Başladılan oyunlar","tr":"Başlatılan oyunlar"},"Завершено партий":{"ru":"Завершено партий","en":"Games finished","az":"Bitirilən oyunlar","tr":"Tamamlanan oyunlar"},"Все свайпы":{"ru":"Все свайпы","en":"All swipes","az":"Bütün sürüşdürmələr","tr":"Tüm kaydırmalar"},"Активное время":{"ru":"Активное время","en":"Active time","az":"Aktiv vaxt","tr":"Aktif süre"},"Макс. плитка":{"ru":"Макс. плитка","en":"Max tile","az":"Ən böyük daş","tr":"En büyük karo"},"Успешных ходов":{"ru":"Успешных ходов","en":"Successful moves","az":"Uğurlu gedişlər","tr":"Başarılı hamleler"},"Получено 2048":{"ru":"Получено 2048","en":"2048 reached","az":"2048 əldə edildi","tr":"2048'e ulaşıldı"},"2048 без возврата":{"ru":"2048 без возврата","en":"2048 without undo","az":"Geri qaytarma olmadan 2048","tr":"Geri alma olmadan 2048"},"Уведомления":{"ru":"Уведомления","en":"Notifications","az":"Bildirişlər","tr":"Bildirimler"},"Показывать сообщение при получении достижения":{"ru":"Показывать сообщение при получении достижения","en":"Show a message when an achievement is unlocked","az":"Nailiyyət əldə ediləndə bildiriş göstər","tr":"Başarı kazanıldığında bildirim göster"},"Недельные и месячные цели":{"ru":"Недельные и месячные цели","en":"Weekly and monthly goals","az":"Həftəlik və aylıq məqsədlər","tr":"Haftalık ve aylık hedefler"},"Показывать сообщения о выполнении целей":{"ru":"Показывать сообщения о выполнении целей","en":"Show messages when goals are completed","az":"Məqsədlər tamamlananda bildiriş göstər","tr":"Hedefler tamamlandığında bildirim göster"},"Игра":{"ru":"Игра","en":"Game","az":"Oyun","tr":"Oyun"},"Вибрация":{"ru":"Вибрация","en":"Vibration","az":"Vibrasiya","tr":"Titreşim"},"Короткая вибрация при объединении плиток":{"ru":"Короткая вибрация при объединении плиток","en":"Short vibration when tiles merge","az":"Daşlar birləşəndə qısa vibrasiya","tr":"Karolar birleştiğinde kısa titreşim"},"Недоступно в веб-версии на этом устройстве":{"ru":"Недоступно в веб-версии на этом устройстве","en":"Unavailable in the web version on this device","az":"Bu cihazda veb versiyada mövcud deyil","tr":"Bu cihazda web sürümünde kullanılamıyor"},"Анимации":{"ru":"Анимации","en":"Animations","az":"Animasiyalar","tr":"Animasyonlar"},"Выбери комфортную интенсивность эффектов":{"ru":"Выбери комфортную интенсивность эффектов","en":"Choose a comfortable effect level","az":"Rahat effekt səviyyəsini seç","tr":"Rahat bir efekt düzeyi seç"},"Выкл.":{"ru":"Выкл.","en":"Off","az":"Söndür","tr":"Kapalı"},"Минимальные":{"ru":"Минимальные","en":"Minimal","az":"Minimal","tr":"Minimum"},"Полные":{"ru":"Полные","en":"Full","az":"Tam","tr":"Tam"},"Подтверждение новой игры":{"ru":"Подтверждение новой игры","en":"Confirm new game","az":"Yeni oyunu təsdiqlə","tr":"Yeni oyunu onayla"},"Защита от случайного сброса партии":{"ru":"Защита от случайного сброса партии","en":"Prevent accidental game reset","az":"Oyunun təsadüfən sıfırlanmasının qarşısını al","tr":"Oyunun yanlışlıkla sıfırlanmasını önle"},"Язык":{"ru":"Язык","en":"Language","az":"Dil","tr":"Dil"},"Язык интерфейса можно изменить сразу":{"ru":"Язык интерфейса можно изменить сразу","en":"Changes the interface language immediately","az":"İnterfeys dili dərhal dəyişir","tr":"Arayüz dili hemen değişir"},"Управление игроками":{"ru":"Управление игроками","en":"Manage players","az":"Oyunçuları idarə et","tr":"Oyuncuları yönet"},"Резервная копия":{"ru":"Резервная копия","en":"Backup","az":"Ehtiyat nüsxə","tr":"Yedek"},"Экспортировать данные":{"ru":"Экспортировать данные","en":"Export data","az":"Məlumatları ixrac et","tr":"Verileri dışa aktar"},"Импортировать данные":{"ru":"Импортировать данные","en":"Import data","az":"Məlumatları idxal et","tr":"Verileri içe aktar"},"О приложении":{"ru":"О приложении","en":"About","az":"Tətbiq haqqında","tr":"Uygulama hakkında"},"Версия":{"ru":"Версия","en":"Version","az":"Versiya","tr":"Sürüm"},"Обновлено":{"ru":"Обновлено","en":"Updated","az":"Yenilənib","tr":"Güncellendi"},"Проверить обновление":{"ru":"Проверить обновление","en":"Check for update","az":"Yeniləməni yoxla","tr":"Güncellemeyi kontrol et"},"Игра обновляется без удаления иконки с экрана.":{"ru":"Игра обновляется без удаления иконки с экрана.","en":"The game updates without removing its Home Screen icon.","az":"Oyun ana ekran nişanını silmədən yenilənir.","tr":"Oyun, Ana Ekran simgesini silmeden güncellenir."},"Проверяем обновление…":{"ru":"Проверяем обновление…","en":"Checking for updates…","az":"Yeniləmə yoxlanılır…","tr":"Güncelleme kontrol ediliyor…"},"Не удалось проверить обновление. Проверь подключение к интернету.":{"ru":"Не удалось проверить обновление. Проверь подключение к интернету.","en":"Could not check for updates. Check your internet connection.","az":"Yeniləməni yoxlamaq mümkün olmadı. İnternet bağlantısını yoxla.","tr":"Güncelleme kontrol edilemedi. İnternet bağlantını kontrol et."},"Резервная копия подготовлена":{"ru":"Резервная копия подготовлена","en":"Backup is ready","az":"Ehtiyat nüsxə hazırdır","tr":"Yedek hazır"},"Резервная копия сохранена":{"ru":"Резервная копия сохранена","en":"Backup saved","az":"Ehtiyat nüsxə saxlanıldı","tr":"Yedek kaydedildi"},"Восстановить данные?":{"ru":"Восстановить данные?","en":"Restore data?","az":"Məlumatlar bərpa edilsin?","tr":"Veriler geri yüklensin mi?"},"Текущие профили, партии, достижения и настройки будут заменены данными из резервной копии.":{"ru":"Текущие профили, партии, достижения и настройки будут заменены данными из резервной копии.","en":"Current profiles, games, achievements, and settings will be replaced with the backup data.","az":"Cari profillər, oyunlar, nailiyyətlər və ayarlar ehtiyat nüsxədəki məlumatlarla əvəz ediləcək.","tr":"Mevcut profiller, oyunlar, başarılar ve ayarlar yedek verileriyle değiştirilecek."},"Восстановить":{"ru":"Восстановить","en":"Restore","az":"Bərpa et","tr":"Geri yükle"},"Не удалось восстановить данные":{"ru":"Не удалось восстановить данные","en":"Could not restore data","az":"Məlumatları bərpa etmək mümkün olmadı","tr":"Veriler geri yüklenemedi"},"Файл не похож на резервную копию игры":{"ru":"Файл не похож на резервную копию игры","en":"This file does not look like a game backup","az":"Bu fayl oyun ehtiyat nüsxəsinə bənzəmir","tr":"Bu dosya bir oyun yedeğine benzemiyor"},"Резервная копия 2048":{"ru":"Резервная копия 2048","en":"2048 backup","az":"2048 ehtiyat nüsxəsi","tr":"2048 yedeği"},"Профили на этом устройстве":{"ru":"Профили на этом устройстве","en":"Profiles on this device","az":"Bu cihazdakı profillər","tr":"Bu cihazdaki profiller"},"Текущий игрок":{"ru":"Текущий игрок","en":"Current player","az":"Cari oyunçu","tr":"Mevcut oyuncu"},"Нажми, чтобы переключиться":{"ru":"Нажми, чтобы переключиться","en":"Tap to switch","az":"Dəyişmək üçün toxun","tr":"Değiştirmek için dokun"},"Переименовать":{"ru":"Переименовать","en":"Rename","az":"Adını dəyiş","tr":"Yeniden adlandır"},"Новый игрок":{"ru":"Новый игрок","en":"New player","az":"Yeni oyunçu","tr":"Yeni oyuncu"},"Максимум 5 игроков":{"ru":"Максимум 5 игроков","en":"Maximum 5 players","az":"Maksimum 5 oyunçu","tr":"En fazla 5 oyuncu"},"Имя игрока":{"ru":"Имя игрока","en":"Player name","az":"Oyunçunun adı","tr":"Oyuncu adı"},"Добавить":{"ru":"Добавить","en":"Add","az":"Əlavə et","tr":"Ekle"},"Удалить игрока?":{"ru":"Удалить игрока?","en":"Delete player?","az":"Oyunçu silinsin?","tr":"Oyuncu silinsin mi?"},"Игрок удалён":{"ru":"Игрок удалён","en":"Player deleted","az":"Oyunçu silindi","tr":"Oyuncu silindi"},"Новое имя игрока":{"ru":"Новое имя игрока","en":"New player name","az":"Oyunçunun yeni adı","tr":"Yeni oyuncu adı"},"Начать новую игру?":{"ru":"Начать новую игру?","en":"Start a new game?","az":"Yeni oyun başlansın?","tr":"Yeni oyun başlatılsın mı?"},"Начать":{"ru":"Начать","en":"Start","az":"Başla","tr":"Başlat"},"Начать новую лёгкую игру?":{"ru":"Начать новую лёгкую игру?","en":"Start a new Easy game?","az":"Yeni Asan oyun başlansın?","tr":"Yeni Kolay oyun başlatılsın mı?"},"Текущая партия будет заменена. При необходимости сначала сохрани её как контрольную точку.":{"ru":"Текущая партия будет заменена. При необходимости сначала сохрани её как контрольную точку.","en":"The current game will be replaced. Save it as a checkpoint first if needed.","az":"Cari oyun əvəz ediləcək. Lazımdırsa, əvvəl onu nəzarət nöqtəsi kimi saxla.","tr":"Mevcut oyun değiştirilecek. Gerekirse önce kontrol noktası olarak kaydet."},"Начать без сохранения":{"ru":"Начать без сохранения","en":"Start without saving","az":"Saxlamadan başla","tr":"Kaydetmeden başlat"},"Сохранить точку и начать":{"ru":"Сохранить точку и начать","en":"Save checkpoint and start","az":"Nəzarət nöqtəsini saxla və başla","tr":"Kontrol noktasını kaydet ve başlat"},"Доступных возвратов сейчас нет.":{"ru":"Доступных возвратов сейчас нет.","en":"No undo is available right now.","az":"Hazırda geri qaytarma mümkün deyil.","tr":"Şu anda geri alma kullanılamıyor."},"В меню":{"ru":"В меню","en":"Go to menu","az":"Menyuya","tr":"Menüye"},"Точно начать заново?":{"ru":"Точно начать заново?","en":"Start over?","az":"Yenidən başlamağa əminsən?","tr":"Baştan başlatılsın mı?"},"Недельная цель":{"ru":"Недельная цель","en":"Weekly goal","az":"Həftəlik məqsəd","tr":"Haftalık hedef"},"Месячная цель":{"ru":"Месячная цель","en":"Monthly goal","az":"Aylıq məqsəd","tr":"Aylık hedef"},"Полностью выполненных недель":{"ru":"Полностью выполненных недель","en":"Fully completed weeks","az":"Tam tamamlanan həftələr","tr":"Tamamlanan haftalar"},"Полностью выполненных месяцев":{"ru":"Полностью выполненных месяцев","en":"Fully completed months","az":"Tam tamamlanan aylar","tr":"Tamamlanan aylar"}};
+
+    const localizationTextSources = new WeakMap();
+    const localizationAttributeSources = new WeakMap();
+    let localizationBusy = false;
+    let localizationObserver = null;
+
+    function detectPreferredLanguage() {
+      const candidates = Array.isArray(navigator.languages) && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || "en"];
+
+      for (const item of candidates) {
+        const code = String(item || "").toLowerCase().split("-")[0];
+        if (SUPPORTED_LANGUAGES.includes(code)) return code;
+      }
+      return "en";
+    }
+
+    function currentLanguage() {
+      return settings && SUPPORTED_LANGUAGES.includes(settings.language)
+        ? settings.language
+        : "ru";
+    }
+
+    function currentLocale() {
+      return LANGUAGE_LOCALES[currentLanguage()] || "ru-RU";
+    }
+
+    function exactTranslation(source) {
+      const item = PHRASE_TRANSLATIONS[source];
+      return item && item[currentLanguage()] ? item[currentLanguage()] : source;
+    }
+
+    function translateCore(source) {
+      if (!source || currentLanguage() === "ru") return source;
+      if (PHRASE_TRANSLATIONS[source]) return exactTranslation(source);
+
+      let match;
+      const lang = currentLanguage();
+
+      match = source.match(/^доступно: (\d+) из (\d+)$/);
+      if (match) {
+        if (lang === "en") return "available: " + match[1] + " of " + match[2];
+        if (lang === "az") return "mövcuddur: " + match[1] + " / " + match[2];
+        return "kullanılabilir: " + match[1] + " / " + match[2];
+      }
+
+      match = source.match(/^Лучший результат: (.+)$/);
+      if (match) {
+        if (lang === "en") return "Best result: " + match[1];
+        if (lang === "az") return "Ən yaxşı nəticə: " + match[1];
+        return "En iyi sonuç: " + match[1];
+      }
+
+      match = source.match(/^(.+) · (.+) очков · плитка (.+)$/);
+      if (match) {
+        const modeText = translateCore(match[1]);
+        if (lang === "en") return modeText + " · " + match[2] + " points · tile " + match[3];
+        if (lang === "az") return modeText + " · " + match[2] + " xal · daş " + match[3];
+        return modeText + " · " + match[2] + " puan · karo " + match[3];
+      }
+
+      match = source.match(/^Неделя (\d+\/\d+) · месяц (\d+\/\d+)$/);
+      if (match) {
+        if (lang === "en") return "Week " + match[1] + " · month " + match[2];
+        if (lang === "az") return "Həftə " + match[1] + " · ay " + match[2];
+        return "Hafta " + match[1] + " · ay " + match[2];
+      }
+
+      match = source.match(/^🏆 Достижение: (.+)$/);
+      if (match) {
+        const title = translateCore(match[1]);
+        if (lang === "en") return "🏆 Achievement: " + title;
+        if (lang === "az") return "🏆 Nailiyyət: " + title;
+        return "🏆 Başarı: " + title;
+      }
+
+      match = source.match(/^✅ (Недельная цель|Месячная цель): (.+)$/);
+      if (match) return "✅ " + translateCore(match[1]) + ": " + translateCore(match[2]);
+
+      match = source.match(/^🏆 Все (недельная цель|месячная цель) цели выполнены!$/i);
+      if (match) {
+        if (lang === "en") return "🏆 All " + (match[1].toLowerCase().startsWith("недель") ? "weekly" : "monthly") + " goals completed!";
+        if (lang === "az") return "🏆 Bütün " + (match[1].toLowerCase().startsWith("недель") ? "həftəlik" : "aylıq") + " məqsədlər tamamlandı!";
+        return "🏆 Tüm " + (match[1].toLowerCase().startsWith("недель") ? "haftalık" : "aylık") + " hedefler tamamlandı!";
+      }
+
+      match = source.match(/^(\d+) ч\. (\d+) мин\.$/);
+      if (match) {
+        if (lang === "en") return match[1] + " h " + match[2] + " min";
+        if (lang === "az") return match[1] + " saat " + match[2] + " dəq.";
+        return match[1] + " sa " + match[2] + " dk.";
+      }
+      match = source.match(/^(\d+) мин\.$/);
+      if (match) {
+        if (lang === "en") return match[1] + " min";
+        if (lang === "az") return match[1] + " dəq.";
+        return match[1] + " dk.";
+      }
+      match = source.match(/^(\d+) дн\. (\d+) ч\.$/);
+      if (match) {
+        if (lang === "en") return match[1] + " d " + match[2] + " h";
+        if (lang === "az") return match[1] + " gün " + match[2] + " saat";
+        return match[1] + " gün " + match[2] + " sa";
+      }
+      match = source.match(/^(\d+) ч\.$/);
+      if (match) {
+        if (lang === "en") return match[1] + " h";
+        if (lang === "az") return match[1] + " saat";
+        return match[1] + " sa";
+      }
+
+      match = source.match(/^(.+) · (.+) очков$/);
+      if (match) {
+        if (lang === "en") return match[1] + " · " + match[2] + " points";
+        if (lang === "az") return match[1] + " · " + match[2] + " xal";
+        return match[1] + " · " + match[2] + " puan";
+      }
+
+      match = source.match(/^(.+) · возвратов: (\d+)$/);
+      if (match) {
+        if (lang === "en") return match[1] + " · undo: " + match[2];
+        if (lang === "az") return match[1] + " · geri qaytarma: " + match[2];
+        return match[1] + " · geri alma: " + match[2];
+      }
+
+      match = source.match(/^(.+) · осталось (.+)$/);
+      if (match) {
+        if (lang === "en") return match[1] + " · " + translateCore(match[2]) + " left";
+        if (lang === "az") return match[1] + " · " + translateCore(match[2]) + " qalıb";
+        return match[1] + " · " + translateCore(match[2]) + " kaldı";
+      }
+
+      match = source.match(/^Полностью выполненных недель: (\d+)$/);
+      if (match) return exactTranslation("Полностью выполненных недель") + ": " + match[1];
+      match = source.match(/^Полностью выполненных месяцев: (\d+)$/);
+      if (match) return exactTranslation("Полностью выполненных месяцев") + ": " + match[1];
+
+      match = source.match(/^Сейчас: (.+)$/);
+      if (match) {
+        if (lang === "en") return "Current: " + match[1];
+        if (lang === "az") return "Hazırda: " + match[1];
+        return "Şu an: " + match[1];
+      }
+
+      match = source.match(/^Доступна версия v(.+)\. Обновление загружается…$/);
+      if (match) {
+        if (lang === "en") return "Version v" + match[1] + " is available. Downloading update…";
+        if (lang === "az") return "v" + match[1] + " versiyası mövcuddur. Yeniləmə yüklənir…";
+        return "v" + match[1] + " sürümü mevcut. Güncelleme indiriliyor…";
+      }
+
+      match = source.match(/^Установлена актуальная версия v(.+)\.$/);
+      if (match) {
+        if (lang === "en") return "The latest version v" + match[1] + " is installed.";
+        if (lang === "az") return "Ən son v" + match[1] + " versiyası quraşdırılıb.";
+        return "En güncel v" + match[1] + " sürümü yüklü.";
+      }
+
+      match = source.match(/^Будут удалены партии, достижения и статистика игрока «(.+)»\.$/);
+      if (match) {
+        if (lang === "en") return "Games, achievements, and statistics for “" + match[1] + "” will be deleted.";
+        if (lang === "az") return "“" + match[1] + "” oyunçusunun oyunları, nailiyyətləri və statistikası silinəcək.";
+        return "“" + match[1] + "” oyuncusunun oyunları, başarıları ve istatistikleri silinecek.";
+      }
+
+      match = source.match(/^(Лёгкий|Средний|Сложный|Хардкор)\. Текущая партия этого режима будет заменена\.$/);
+      if (match) {
+        const modeText = translateCore(match[1]);
+        if (lang === "en") return modeText + ". The current game in this mode will be replaced.";
+        if (lang === "az") return modeText + ". Bu rejimdəki cari oyun əvəz ediləcək.";
+        return modeText + ". Bu moddaki mevcut oyun değiştirilecek.";
+      }
+
+      match = source.match(/^Можно откатить ещё (\d+) ход(?:ов)? и попробовать продолжить 😊$/);
+      if (match) {
+        const count = match[1];
+        if (lang === "en") return "You can still undo " + count + " move" + (count === "1" ? "" : "s") + " and try again 😊";
+        if (lang === "az") return "Daha " + count + " gediş geri qayıdıb başqa cür davam edə bilərsən 😊";
+        return count + " hamle daha geri alıp farklı şekilde devam edebilirsin 😊";
+      }
+
+      return source;
+    }
+
+    function translateString(source) {
+      if (!source || !source.trim()) return source;
+      const leading = (source.match(/^\s*/) || [""])[0];
+      const trailing = (source.match(/\s*$/) || [""])[0];
+      const core = source.slice(leading.length, source.length - trailing.length);
+      return leading + translateCore(core) + trailing;
+    }
+
+    function localizeTextNode(node, refreshSource = false) {
+      if (!node || node.nodeType !== Node.TEXT_NODE) return;
+      if (node.parentElement && node.parentElement.closest("[data-no-i18n]")) return;
+      if (refreshSource || !localizationTextSources.has(node)) {
+        localizationTextSources.set(node, node.nodeValue);
+      }
+      const source = localizationTextSources.get(node);
+      const translated = translateString(source);
+      if (node.nodeValue !== translated) node.nodeValue = translated;
+    }
+
+    function localizeAttributes(element, refreshSource = false) {
+      if (!element || element.nodeType !== Node.ELEMENT_NODE || element.closest("[data-no-i18n]")) return;
+      const names = ["aria-label", "title", "placeholder"];
+      let sources = localizationAttributeSources.get(element);
+      if (!sources) {
+        sources = {};
+        localizationAttributeSources.set(element, sources);
+      }
+      names.forEach((name) => {
+        if (!element.hasAttribute(name)) return;
+        if (refreshSource || !(name in sources)) sources[name] = element.getAttribute(name);
+        const translated = translateString(sources[name]);
+        if (element.getAttribute(name) !== translated) element.setAttribute(name, translated);
+      });
+    }
+
+    function localizeTree(root, refreshSource = false) {
+      if (!root) return;
+      localizationBusy = true;
+      try {
+        if (root.nodeType === Node.TEXT_NODE) {
+          localizeTextNode(root, refreshSource);
+          return;
+        }
+        if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_NODE) return;
+        if (root.nodeType === Node.ELEMENT_NODE) localizeAttributes(root, refreshSource);
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node.nodeType === Node.TEXT_NODE) localizeTextNode(node, refreshSource);
+          else localizeAttributes(node, refreshSource);
+        }
+      } finally {
+        localizationBusy = false;
+      }
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLanguage();
+      document.title = "2048 — v" + APP_VERSION;
+      localizeTree(document.body, false);
+    }
+
+    function initLocalization() {
+      localizeTree(document.body, true);
+      if (localizationObserver) localizationObserver.disconnect();
+      localizationObserver = new MutationObserver((mutations) => {
+        if (localizationBusy) return;
+        mutations.forEach((mutation) => {
+          if (mutation.type === "characterData") {
+            localizeTextNode(mutation.target, true);
+          } else if (mutation.type === "attributes") {
+            localizeAttributes(mutation.target, true);
+          } else {
+            mutation.addedNodes.forEach((node) => localizeTree(node, true));
+          }
+        });
+      });
+      localizationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ["aria-label", "title", "placeholder"]
+      });
+      applyLanguage();
+    }
 
     const MODES = {
       easy: { name: "Лёгкий", historyLimit: 20, saves: true, rule: "Память последних 20 ходов и контрольные сохранения" },
@@ -1404,7 +1709,7 @@
         vibration: true,
         animationLevel: "minimal",
         confirmNewGame: true,
-        language: "ru"
+        language: detectPreferredLanguage()
       };
     }
 
@@ -1421,6 +1726,10 @@
           if (parsed.animations === false) result.animationLevel = "off";
           else if (parsed.animations === true) result.animationLevel = "full";
           else result.animationLevel = "minimal";
+        }
+
+        if (!SUPPORTED_LANGUAGES.includes(result.language)) {
+          result.language = detectPreferredLanguage();
         }
 
         return result;
@@ -1453,6 +1762,7 @@
 
     let settings = loadSettings();
     const vibrationSupported = typeof navigator.vibrate === "function";
+    initLocalization();
     let profiles = loadProfiles();
     let currentProfileId = rawGet(CURRENT_PROFILE_KEY);
     if (!profiles.some((item) => item.id === currentProfileId)) {
@@ -1556,13 +1866,13 @@
     }
 
     function formatNumber(value) {
-      try { return Number(value).toLocaleString("ru-RU"); }
+      try { return Number(value).toLocaleString(currentLocale()); }
       catch (_) { return String(value); }
     }
 
     function formatDate(timestamp) {
       try {
-        return new Date(timestamp).toLocaleString("ru-RU", {
+        return new Date(timestamp).toLocaleString(currentLocale(), {
           day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
         });
       } catch (_) { return ""; }
@@ -1572,8 +1882,8 @@
       const totalMinutes = Math.floor(Math.max(0, milliseconds) / 60000);
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      if (hours > 0) return hours + " ч. " + minutes + " мин.";
-      return minutes + " мин.";
+      if (hours > 0) return translateCore(hours + " ч. " + minutes + " мин.");
+      return translateCore(minutes + " мин.");
     }
 
     function markActivity() {
@@ -1879,7 +2189,7 @@
       const hoursTotal = Math.max(0, Math.ceil((end - now) / 3600000));
       const days = Math.floor(hoursTotal / 24);
       const hours = hoursTotal % 24;
-      return days > 0 ? days + " дн. " + hours + " ч." : hours + " ч.";
+      return translateCore(days > 0 ? days + " дн. " + hours + " ч." : hours + " ч.");
     }
 
     function activeKey(modeId) {
@@ -2706,6 +3016,7 @@
     function applySettings() {
       document.body.classList.remove("animations-off", "animations-minimal", "animations-full");
       document.body.classList.add("animations-" + settings.animationLevel);
+      applyLanguage();
     }
 
     function makeToggleRow(title, description, key, options = {}) {
@@ -2794,7 +3105,7 @@
 
       try {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: "Резервная копия 2048", files: [file] });
+          await navigator.share({ title: translateCore("Резервная копия 2048"), files: [file] });
           showToast("Резервная копия подготовлена");
           return;
         }
@@ -2900,7 +3211,39 @@
 
       const language = document.createElement("div");
       language.className = "setting-row";
-      language.innerHTML = '<div class="setting-copy"><strong>Язык</strong><small>Другие языки добавим в следующем этапе</small></div><span class="language-placeholder">Русский</span>';
+
+      const languageCopy = document.createElement("div");
+      languageCopy.className = "setting-copy";
+      const languageTitle = document.createElement("strong");
+      languageTitle.textContent = "Язык";
+      const languageDescription = document.createElement("small");
+      languageDescription.textContent = "Язык интерфейса можно изменить сразу";
+      languageCopy.append(languageTitle, languageDescription);
+
+      const languageSelect = document.createElement("select");
+      languageSelect.className = "language-select";
+      languageSelect.setAttribute("data-no-i18n", "");
+      languageSelect.setAttribute("aria-label", "Language");
+      Object.keys(LANGUAGE_NAMES).forEach((code) => {
+        const option = document.createElement("option");
+        option.value = code;
+        option.textContent = LANGUAGE_NAMES[code];
+        languageSelect.appendChild(option);
+      });
+      languageSelect.value = currentLanguage();
+      languageSelect.addEventListener("change", () => {
+        settings.language = SUPPORTED_LANGUAGES.includes(languageSelect.value)
+          ? languageSelect.value
+          : "en";
+        saveSettings();
+        applyLanguage();
+        render();
+        updateMainMenu();
+        renderSettings();
+        applyLanguage();
+      });
+
+      language.append(languageCopy, languageSelect);
       game.appendChild(language);
 
       const players = document.createElement("section");
@@ -3028,7 +3371,7 @@
         rename.textContent = "✎";
         rename.setAttribute("aria-label", "Переименовать");
         rename.addEventListener("click", () => {
-          const next = window.prompt("Новое имя игрока", profile.name);
+          const next = window.prompt(translateCore("Новое имя игрока"), profile.name);
           if (!next || !next.trim()) return;
           profile.name = next.trim().slice(0, 24);
           saveProfiles();
@@ -3411,6 +3754,7 @@
 
     render();
     showMenu();
+    applyLanguage();
   })();
   </script>
 
