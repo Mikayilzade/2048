@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — v11</title>
+  <title>2048 — v11.1</title>
 
   <style>
     :root {
@@ -1267,7 +1267,7 @@
     "use strict";
 
     const N = 4;
-    const APP_VERSION = "11.0";
+    const APP_VERSION = "11.1";
     const APP_UPDATED_AT = "29.06.2026";
     const BACKUP_FORMAT = "mika2048-backup";
     const BACKUP_VERSION = 1;
@@ -1302,6 +1302,8 @@
 
     const localizationTextSources = new WeakMap();
     const localizationAttributeSources = new WeakMap();
+    const localizationTextWrites = new WeakSet();
+    const localizationAttributeWrites = new WeakMap();
     let localizationBusy = false;
     let localizationObserver = null;
 
@@ -1500,7 +1502,10 @@
       }
       const source = localizationTextSources.get(node);
       const translated = translateString(source);
-      if (node.nodeValue !== translated) node.nodeValue = translated;
+      if (node.nodeValue !== translated) {
+        localizationTextWrites.add(node);
+        node.nodeValue = translated;
+      }
     }
 
     function localizeAttributes(element, refreshSource = false) {
@@ -1515,7 +1520,15 @@
         if (!element.hasAttribute(name)) return;
         if (refreshSource || !(name in sources)) sources[name] = element.getAttribute(name);
         const translated = translateString(sources[name]);
-        if (element.getAttribute(name) !== translated) element.setAttribute(name, translated);
+        if (element.getAttribute(name) !== translated) {
+          let writtenNames = localizationAttributeWrites.get(element);
+          if (!writtenNames) {
+            writtenNames = new Set();
+            localizationAttributeWrites.set(element, writtenNames);
+          }
+          writtenNames.add(name);
+          element.setAttribute(name, translated);
+        }
       });
     }
 
@@ -1553,8 +1566,17 @@
         if (localizationBusy) return;
         mutations.forEach((mutation) => {
           if (mutation.type === "characterData") {
+            if (localizationTextWrites.has(mutation.target)) {
+              localizationTextWrites.delete(mutation.target);
+              return;
+            }
             localizeTextNode(mutation.target, true);
           } else if (mutation.type === "attributes") {
+            const writtenNames = localizationAttributeWrites.get(mutation.target);
+            if (writtenNames && writtenNames.has(mutation.attributeName)) {
+              writtenNames.delete(mutation.attributeName);
+              return;
+            }
             localizeAttributes(mutation.target, true);
           } else {
             mutation.addedNodes.forEach((node) => localizeTree(node, true));
@@ -3236,11 +3258,11 @@
           ? languageSelect.value
           : "en";
         saveSettings();
-        applyLanguage();
         render();
         updateMainMenu();
         renderSettings();
         applyLanguage();
+        requestAnimationFrame(applyLanguage);
       });
 
       language.append(languageCopy, languageSelect);

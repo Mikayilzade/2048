@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v11-languages";
+const CACHE_NAME = "mika-2048-v11-1-language-switch-fix";
 const APP_FILES = [
   "./",
   "./index.html",
