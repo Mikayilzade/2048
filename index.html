@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — v11.1</title>
+  <title>2048 — v11.2</title>
 
   <style>
     :root {
@@ -1267,7 +1267,7 @@
     "use strict";
 
     const N = 4;
-    const APP_VERSION = "11.1";
+    const APP_VERSION = "11.2";
     const APP_UPDATED_AT = "29.06.2026";
     const BACKUP_FORMAT = "mika2048-backup";
     const BACKUP_VERSION = 1;
@@ -3423,18 +3423,28 @@
       form.className = "profile-create";
       const input = document.createElement("input");
       input.maxLength = 24;
+      input.autocomplete = "off";
+      input.autocapitalize = "words";
+      input.spellcheck = false;
       input.placeholder = profiles.length >= 5 ? "Максимум 5 игроков" : "Имя игрока";
       input.disabled = profiles.length >= 5;
       const add = document.createElement("button");
       add.textContent = "Добавить";
       add.disabled = profiles.length >= 5;
-      add.addEventListener("click", () => {
+      function createProfileFromInput() {
         const name = input.value.trim();
         if (!name) return;
         const profile = { id: createProfileId(), name: name.slice(0, 24), createdAt: Date.now() };
         profiles.push(profile);
         saveProfiles();
         switchProfile(profile.id);
+      }
+
+      add.addEventListener("click", createProfileFromInput);
+      input.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        createProfileFromInput();
       });
       form.append(input, add);
       create.appendChild(form);
@@ -3725,6 +3735,14 @@
 
     document.addEventListener("keydown", (event) => {
       markActivity();
+
+      const target = event.target;
+      const typing =
+        isInteractiveTarget(target) ||
+        Boolean(target && target.isContentEditable);
+
+      if (typing || menuScreen.classList.contains("show")) return;
+
       const map = {
         ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down",
         a: "left", d: "right", w: "up", s: "down",
