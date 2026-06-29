@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — v12</title>
+  <title>2048 — v13</title>
 
   <style>
     :root {
@@ -1395,6 +1395,220 @@
       color: white;
     }
 
+    .daily-button {
+      background: linear-gradient(135deg, #d79a46, #f77d5c);
+    }
+
+    .daily-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .daily-hero,
+    .daily-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .daily-hero {
+      background:
+        radial-gradient(circle at top right, rgba(237,194,46,.30), transparent 45%),
+        rgba(185,170,156,.30);
+    }
+
+    .daily-hero h3,
+    .daily-card h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .daily-hero p,
+    .daily-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      opacity: .80;
+    }
+
+    .daily-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .daily-meta-item {
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.56);
+    }
+
+    .daily-meta-item span {
+      display: block;
+      font-size: 11px;
+      opacity: .68;
+    }
+
+    .daily-meta-item strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 16px;
+    }
+
+    .daily-current {
+      display: grid;
+      gap: 10px;
+    }
+
+    .daily-current-status {
+      padding: 11px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.56);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .daily-rules {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .daily-rule {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.48);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .daily-rule b {
+      flex: 0 0 auto;
+    }
+
+    .daily-results {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .daily-result-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0,1fr) auto;
+      gap: 9px;
+      align-items: center;
+      padding: 10px 11px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.56);
+    }
+
+    .daily-result-row.current {
+      background: rgba(237,204,97,.30);
+      box-shadow: inset 0 0 0 1px rgba(183,145,31,.18);
+    }
+
+    .daily-result-rank {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(159,130,109,.15);
+      font-weight: 750;
+    }
+
+    .daily-result-player {
+      min-width: 0;
+    }
+
+    .daily-result-player strong {
+      display: block;
+      overflow: hidden;
+      font-size: 16px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .daily-result-player small {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      opacity: .68;
+    }
+
+    .daily-result-score {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .daily-result-score strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    .daily-result-score small {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      opacity: .68;
+    }
+
+    .daily-history {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .daily-history-row {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) auto;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.50);
+      font-size: 13px;
+    }
+
+    .daily-history-row strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .daily-history-row span:last-child {
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .daily-empty {
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.45);
+      text-align: center;
+      font-size: 13px;
+      opacity: .72;
+    }
+
+    @media (max-width: 390px) {
+      .daily-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .daily-history-row {
+        grid-template-columns: auto minmax(0,1fr);
+      }
+
+      .daily-history-row span:last-child {
+        grid-column: 2;
+      }
+    }
+
   </style>
 </head>
 
@@ -1457,6 +1671,11 @@
           <small id="continueInfo"></small>
         </button>
 
+        <button id="dailyButton" class="menu-button daily-button">
+          Испытание дня
+          <small id="dailyInfo"></small>
+        </button>
+
         <button id="modesButton" class="menu-button">Выбрать режим</button>
 
         <button id="achievementsButton" class="menu-button">
@@ -1469,6 +1688,14 @@
         <button id="rulesButton" class="menu-button">Правила и обучение</button>
         <button id="settingsButton" class="menu-button">Настройки</button>
       </div>
+    </div>
+
+    <div id="dailyMenu" class="menu" hidden>
+      <div class="load-header">
+        <button class="back-button" data-back-main aria-label="Назад">‹</button>
+        <h2 class="load-title">Испытание дня</h2>
+      </div>
+      <div id="dailyContent"></div>
     </div>
 
     <div id="modesMenu" class="menu" hidden>
@@ -1557,7 +1784,7 @@
     "use strict";
 
     const N = 4;
-    const APP_VERSION = "12.0";
+    const APP_VERSION = "13.0";
     const APP_UPDATED_AT = "29.06.2026";
     const BACKUP_FORMAT = "mika2048-backup";
     const BACKUP_VERSION = 1;
@@ -1574,6 +1801,7 @@
     const SETTINGS_KEY = "mika2048-settings-v9";
     const PROFILE_MIGRATION_KEY = "mika2048-profile-migration-v9";
     const ONBOARDING_KEY = "mika2048-onboarding-v12";
+    const DAILY_KEY = "mika2048-daily-v13";
 
 
     const SUPPORTED_LANGUAGES = ["ru", "en", "az", "tr"];
@@ -1592,6 +1820,8 @@
     const PHRASE_TRANSLATIONS = {"Выйти в меню":{"ru":"Выйти в меню","en":"Exit to menu","az":"Menyuya çıx","tr":"Menüye çık"},"Создать контрольную точку":{"ru":"Создать контрольную точку","en":"Create checkpoint","az":"Nəzarət nöqtəsi yarat","tr":"Kontrol noktası oluştur"},"Очки":{"ru":"Очки","en":"Score","az":"Xal","tr":"Puan"},"Рекорд":{"ru":"Рекорд","en":"Best","az":"Rekord","tr":"Rekor"},"Отменить ход":{"ru":"Отменить ход","en":"Undo move","az":"Gedişi geri qaytar","tr":"Hamleyi geri al"},"Новая игра":{"ru":"Новая игра","en":"New game","az":"Yeni oyun","tr":"Yeni oyun"},"Игровое поле":{"ru":"Игровое поле","en":"Game board","az":"Oyun sahəsi","tr":"Oyun tahtası"},"Свайпай в любом свободном месте экрана. На компьютере работают стрелки и WASD.":{"ru":"Свайпай в любом свободном месте экрана. На компьютере работают стрелки и WASD.","en":"Swipe anywhere in the free area. On a computer, use the arrow keys or WASD.","az":"Ekranın boş hissəsində istənilən istiqamətə sürüşdür. Kompüterdə ox düymələri və WASD işləyir.","tr":"Ekranın boş bir alanında kaydır. Bilgisayarda ok tuşları ve WASD çalışır."},"Сменить игрока":{"ru":"Сменить игрока","en":"Switch player","az":"Oyunçunu dəyiş","tr":"Oyuncu değiştir"},"Продолжить":{"ru":"Продолжить","en":"Continue","az":"Davam et","tr":"Devam et"},"Выбрать режим":{"ru":"Выбрать режим","en":"Choose mode","az":"Rejim seç","tr":"Mod seç"},"Достижения":{"ru":"Достижения","en":"Achievements","az":"Nailiyyətlər","tr":"Başarılar"},"Статистика":{"ru":"Статистика","en":"Statistics","az":"Statistika","tr":"İstatistikler"},"Настройки":{"ru":"Настройки","en":"Settings","az":"Ayarlar","tr":"Ayarlar"},"Назад":{"ru":"Назад","en":"Back","az":"Geri","tr":"Geri"},"Режимы":{"ru":"Режимы","en":"Modes","az":"Rejimlər","tr":"Modlar"},"Игроки":{"ru":"Игроки","en":"Players","az":"Oyunçular","tr":"Oyuncular"},"Нет текущей партии":{"ru":"Нет текущей партии","en":"No current game","az":"Cari oyun yoxdur","tr":"Devam eden oyun yok"},"Нет партии":{"ru":"Нет партии","en":"No game","az":"Oyun yoxdur","tr":"Oyun yok"},"Игра окончена":{"ru":"Игра окончена","en":"Game over","az":"Oyun bitdi","tr":"Oyun bitti"},"без возврата":{"ru":"без возврата","en":"no undo","az":"geri qaytarma yoxdur","tr":"geri alma yok"},"Лёгкий":{"ru":"Лёгкий","en":"Easy","az":"Asan","tr":"Kolay"},"Средний":{"ru":"Средний","en":"Medium","az":"Orta","tr":"Orta"},"Сложный":{"ru":"Сложный","en":"Hard","az":"Çətin","tr":"Zor"},"Хардкор":{"ru":"Хардкор","en":"Hardcore","az":"Hardkor","tr":"Hardkor"},"Память последних 20 ходов и контрольные сохранения":{"ru":"Память последних 20 ходов и контрольные сохранения","en":"Remembers the last 20 moves and supports checkpoints","az":"Son 20 gedişi yadda saxlayır və nəzarət nöqtələrini dəstəkləyir","tr":"Son 20 hamleyi hatırlar ve kontrol noktalarını destekler"},"Память последних 5 ходов, только автосохранение":{"ru":"Память последних 5 ходов, только автосохранение","en":"Remembers the last 5 moves; autosave only","az":"Son 5 gedişi yadda saxlayır; yalnız avtomatik saxlama","tr":"Son 5 hamleyi hatırlar; yalnızca otomatik kayıt"},"Память только одного предыдущего хода":{"ru":"Память только одного предыдущего хода","en":"Remembers only the previous move","az":"Yalnız əvvəlki bir gedişi yadda saxlayır","tr":"Yalnızca önceki tek hamleyi hatırlar"},"Без возврата ходов и контрольных сохранений":{"ru":"Без возврата ходов и контрольных сохранений","en":"No undo and no checkpoints","az":"Geri qaytarma və nəzarət nöqtələri yoxdur","tr":"Geri alma ve kontrol noktaları yok"},"Контрольные точки":{"ru":"Контрольные точки","en":"Checkpoints","az":"Nəzarət nöqtələri","tr":"Kontrol noktaları"},"Точек пока нет. Создай её во время лёгкой игры.":{"ru":"Точек пока нет. Создай её во время лёгкой игры.","en":"No checkpoints yet. Create one during an Easy game.","az":"Hələ nəzarət nöqtəsi yoxdur. Asan rejimdə oyun zamanı yarat.","tr":"Henüz kontrol noktası yok. Kolay modda oynarken bir tane oluştur."},"Удалить контрольную точку":{"ru":"Удалить контрольную точку","en":"Delete checkpoint","az":"Nəzarət nöqtəsini sil","tr":"Kontrol noktasını sil"},"Загрузить точку?":{"ru":"Загрузить точку?","en":"Load checkpoint?","az":"Nəzarət nöqtəsi yüklənsin?","tr":"Kontrol noktası yüklensin mi?"},"Текущая лёгкая партия будет заменена. Контрольная точка останется в списке.":{"ru":"Текущая лёгкая партия будет заменена. Контрольная точка останется в списке.","en":"The current Easy game will be replaced. The checkpoint will remain in the list.","az":"Cari Asan oyun əvəz ediləcək. Nəzarət nöqtəsi siyahıda qalacaq.","tr":"Mevcut Kolay oyun değiştirilecek. Kontrol noktası listede kalacak."},"Отмена":{"ru":"Отмена","en":"Cancel","az":"Ləğv et","tr":"İptal"},"Загрузить":{"ru":"Загрузить","en":"Load","az":"Yüklə","tr":"Yükle"},"Контрольная точка загружена":{"ru":"Контрольная точка загружена","en":"Checkpoint loaded","az":"Nəzarət nöqtəsi yükləndi","tr":"Kontrol noktası yüklendi"},"Удалить точку?":{"ru":"Удалить точку?","en":"Delete checkpoint?","az":"Nəzarət nöqtəsi silinsin?","tr":"Kontrol noktası silinsin mi?"},"Вернуть удалённую контрольную точку будет нельзя.":{"ru":"Вернуть удалённую контрольную точку будет нельзя.","en":"A deleted checkpoint cannot be restored.","az":"Silinmiş nəzarət nöqtəsini bərpa etmək mümkün olmayacaq.","tr":"Silinen kontrol noktası geri getirilemez."},"Удалить":{"ru":"Удалить","en":"Delete","az":"Sil","tr":"Sil"},"Контрольная точка удалена":{"ru":"Контрольная точка удалена","en":"Checkpoint deleted","az":"Nəzarət nöqtəsi silindi","tr":"Kontrol noktası silindi"},"Такая контрольная точка уже сохранена":{"ru":"Такая контрольная точка уже сохранена","en":"This checkpoint is already saved","az":"Bu nəzarət nöqtəsi artıq saxlanılıb","tr":"Bu kontrol noktası zaten kayıtlı"},"Максимум 3 точки. Удали ненужную в меню режимов":{"ru":"Максимум 3 точки. Удали ненужную в меню режимов","en":"The limit is 3 checkpoints. Delete one in the Modes menu.","az":"Maksimum 3 nəzarət nöqtəsi mümkündür. Rejimlər menyusunda birini sil.","tr":"En fazla 3 kontrol noktası olabilir. Modlar menüsünden birini sil."},"Контрольная точка создана":{"ru":"Контрольная точка создана","en":"Checkpoint created","az":"Nəzarət nöqtəsi yaradıldı","tr":"Kontrol noktası oluşturuldu"},"Сначала удали одну из трёх контрольных точек":{"ru":"Сначала удали одну из трёх контрольных точек","en":"Delete one of the three checkpoints first","az":"Əvvəl üç nəzarət nöqtəsindən birini sil","tr":"Önce üç kontrol noktasından birini sil"},"Активная неделя":{"ru":"Активная неделя","en":"Active week","az":"Aktiv həftə","tr":"Aktif hafta"},"Сделать 200 успешных ходов":{"ru":"Сделать 200 успешных ходов","en":"Make 200 successful moves","az":"200 uğurlu gediş et","tr":"200 başarılı hamle yap"},"Очки недели":{"ru":"Очки недели","en":"Weekly score","az":"Həftəlik xal","tr":"Haftalık puan"},"Набрать суммарно 30 000 очков":{"ru":"Набрать суммарно 30 000 очков","en":"Earn 30,000 total points","az":"Ümumilikdə 30 000 xal topla","tr":"Toplam 30.000 puan kazan"},"Мастер объединений":{"ru":"Мастер объединений","en":"Merge master","az":"Birləşdirmə ustası","tr":"Birleştirme ustası"},"Выполнить 100 объединений":{"ru":"Выполнить 100 объединений","en":"Make 100 merges","az":"100 birləşdirmə et","tr":"100 birleştirme yap"},"Крупная плитка":{"ru":"Крупная плитка","en":"Big tile","az":"Böyük daş","tr":"Büyük karo"},"Получить плитку 512":{"ru":"Получить плитку 512","en":"Reach the 512 tile","az":"512 daşını əldə et","tr":"512 karosuna ulaş"},"Длинная дистанция":{"ru":"Длинная дистанция","en":"Long distance","az":"Uzun məsafə","tr":"Uzun mesafe"},"Сделать 1 200 успешных ходов":{"ru":"Сделать 1 200 успешных ходов","en":"Make 1,200 successful moves","az":"1 200 uğurlu gediş et","tr":"1.200 başarılı hamle yap"},"Большой счёт":{"ru":"Большой счёт","en":"High score","az":"Böyük hesab","tr":"Yüksek puan"},"Набрать суммарно 250 000 очков":{"ru":"Набрать суммарно 250 000 очков","en":"Earn 250,000 total points","az":"Ümumilikdə 250 000 xal topla","tr":"Toplam 250.000 puan kazan"},"Разные попытки":{"ru":"Разные попытки","en":"Fresh attempts","az":"Fərqli cəhdlər","tr":"Farklı denemeler"},"Начать 8 партий":{"ru":"Начать 8 партий","en":"Start 8 games","az":"8 oyun başlat","tr":"8 oyun başlat"},"Цель месяца":{"ru":"Цель месяца","en":"Monthly target","az":"Ayın məqsədi","tr":"Ayın hedefi"},"Получить плитку 2048":{"ru":"Получить плитку 2048","en":"Reach the 2048 tile","az":"2048 daşını əldə et","tr":"2048 karosuna ulaş"},"Первый шаг":{"ru":"Первый шаг","en":"First step","az":"İlk addım","tr":"İlk adım"},"Начать первую партию":{"ru":"Начать первую партию","en":"Start your first game","az":"İlk oyuna başla","tr":"İlk oyununu başlat"},"Разминка":{"ru":"Разминка","en":"Warm-up","az":"İsinmə","tr":"Isınma"},"Сделать 100 успешных ходов":{"ru":"Сделать 100 успешных ходов","en":"Make 100 successful moves","az":"100 uğurlu gediş et","tr":"100 başarılı hamle yap"},"Тысяча ходов":{"ru":"Тысяча ходов","en":"A thousand moves","az":"Min gediş","tr":"Bin hamle"},"Сделать 1 000 успешных ходов":{"ru":"Сделать 1 000 успешных ходов","en":"Make 1,000 successful moves","az":"1 000 uğurlu gediş et","tr":"1.000 başarılı hamle yap"},"Собиратель":{"ru":"Собиратель","en":"Collector","az":"Toplayıcı","tr":"Toplayıcı"},"Выполнить 500 объединений":{"ru":"Выполнить 500 объединений","en":"Make 500 merges","az":"500 birləşdirmə et","tr":"500 birleştirme yap"},"Сто тысяч":{"ru":"Сто тысяч","en":"One hundred thousand","az":"Yüz min","tr":"Yüz bin"},"Набрать 100 000 очков в одной партии":{"ru":"Набрать 100 000 очков в одной партии","en":"Score 100,000 points in one game","az":"Bir oyunda 100 000 xal topla","tr":"Tek oyunda 100.000 puan kazan"},"Четверть миллиона":{"ru":"Четверть миллиона","en":"Quarter million","az":"Dörddəbir milyon","tr":"Çeyrek milyon"},"Набрать 250 000 очков в одной партии":{"ru":"Набрать 250 000 очков в одной партии","en":"Score 250,000 points in one game","az":"Bir oyunda 250 000 xal topla","tr":"Tek oyunda 250.000 puan kazan"},"Классика":{"ru":"Классика","en":"Classic","az":"Klassika","tr":"Klasik"},"За пределами цели":{"ru":"За пределами цели","en":"Beyond the goal","az":"Məqsəddən kənar","tr":"Hedefin ötesi"},"Большая игра":{"ru":"Большая игра","en":"Big game","az":"Böyük oyun","tr":"Büyük oyun"},"Корона":{"ru":"Корона","en":"Crown","az":"Tac","tr":"Taç"},"Испытатель":{"ru":"Испытатель","en":"Explorer","az":"Sınaqçı","tr":"Kaşif"},"Начать игру во всех четырёх режимах":{"ru":"Начать игру во всех четырёх режимах","en":"Start a game in all four modes","az":"Dörd rejimin hamısında oyun başlat","tr":"Dört modun tamamında oyun başlat"},"Чистые 2048":{"ru":"Чистые 2048","en":"Clean 2048","az":"Təmiz 2048","tr":"Temiz 2048"},"Получить 2048 без единого возврата":{"ru":"Получить 2048 без единого возврата","en":"Reach 2048 without using undo","az":"Heç bir geri qaytarma olmadan 2048 əldə et","tr":"Hiç geri alma kullanmadan 2048'e ulaş"},"Без права на ошибку":{"ru":"Без права на ошибку","en":"No room for error","az":"Səhv etmək olmaz","tr":"Hata hakkı yok"},"Получить 2048 в режиме Хардкор":{"ru":"Получить 2048 в режиме Хардкор","en":"Reach 2048 in Hardcore mode","az":"Hardkor rejimində 2048 əldə et","tr":"Hardkor modda 2048'e ulaş"},"Стратегический запас":{"ru":"Стратегический запас","en":"Strategic reserve","az":"Strateji ehtiyat","tr":"Stratejik yedek"},"Создать три контрольные точки":{"ru":"Создать три контрольные точки","en":"Create three checkpoints","az":"Üç nəzarət nöqtəsi yarat","tr":"Üç kontrol noktası oluştur"},"Тысяча свайпов":{"ru":"Тысяча свайпов","en":"A thousand swipes","az":"Min sürüşdürmə","tr":"Bin kaydırma"},"Сделать 1 000 свайпов":{"ru":"Сделать 1 000 свайпов","en":"Make 1,000 swipes","az":"1 000 sürüşdürmə et","tr":"1.000 kaydırma yap"},"Неутомимый палец":{"ru":"Неутомимый палец","en":"Tireless finger","az":"Yorulmaz barmaq","tr":"Yorulmaz parmak"},"Сделать 10 000 свайпов":{"ru":"Сделать 10 000 свайпов","en":"Make 10,000 swipes","az":"10 000 sürüşdürmə et","tr":"10.000 kaydırma yap"},"Час в игре":{"ru":"Час в игре","en":"One hour in game","az":"Oyunda bir saat","tr":"Oyunda bir saat"},"Провести в игре 1 активный час":{"ru":"Провести в игре 1 активный час","en":"Spend 1 active hour in the game","az":"Oyunda 1 aktiv saat keçir","tr":"Oyunda 1 aktif saat geçir"},"Десять часов":{"ru":"Десять часов","en":"Ten hours","az":"On saat","tr":"On saat"},"Провести в игре 10 активных часов":{"ru":"Провести в игре 10 активных часов","en":"Spend 10 active hours in the game","az":"Oyunda 10 aktiv saat keçir","tr":"Oyunda 10 aktif saat geçir"},"Готово ✓":{"ru":"Готово ✓","en":"Done ✓","az":"Hazırdır ✓","tr":"Tamamlandı ✓"},"Получено ✓":{"ru":"Получено ✓","en":"Unlocked ✓","az":"Əldə edildi ✓","tr":"Kazanıldı ✓"},"На этой неделе":{"ru":"На этой неделе","en":"This week","az":"Bu həftə","tr":"Bu hafta"},"В этом месяце":{"ru":"В этом месяце","en":"This month","az":"Bu ay","tr":"Bu ay"},"Неделя":{"ru":"Неделя","en":"Week","az":"Həftə","tr":"Hafta"},"Месяц":{"ru":"Месяц","en":"Month","az":"Ay","tr":"Ay"},"За всё время":{"ru":"За всё время","en":"All time","az":"Bütün dövr","tr":"Tüm zamanlar"},"Общая статистика":{"ru":"Общая статистика","en":"Overall statistics","az":"Ümumi statistika","tr":"Genel istatistikler"},"Всего ходов":{"ru":"Всего ходов","en":"Total moves","az":"Ümumi gedişlər","tr":"Toplam hamle"},"Всего очков":{"ru":"Всего очков","en":"Total points","az":"Ümumi xal","tr":"Toplam puan"},"Объединений":{"ru":"Объединений","en":"Merges","az":"Birləşdirmələr","tr":"Birleştirmeler"},"Возвратов":{"ru":"Возвратов","en":"Undos","az":"Geri qaytarmalar","tr":"Geri almalar"},"Начато партий":{"ru":"Начато партий","en":"Games started","az":"Başladılan oyunlar","tr":"Başlatılan oyunlar"},"Завершено партий":{"ru":"Завершено партий","en":"Games finished","az":"Bitirilən oyunlar","tr":"Tamamlanan oyunlar"},"Все свайпы":{"ru":"Все свайпы","en":"All swipes","az":"Bütün sürüşdürmələr","tr":"Tüm kaydırmalar"},"Активное время":{"ru":"Активное время","en":"Active time","az":"Aktiv vaxt","tr":"Aktif süre"},"Макс. плитка":{"ru":"Макс. плитка","en":"Max tile","az":"Ən böyük daş","tr":"En büyük karo"},"Успешных ходов":{"ru":"Успешных ходов","en":"Successful moves","az":"Uğurlu gedişlər","tr":"Başarılı hamleler"},"Получено 2048":{"ru":"Получено 2048","en":"2048 reached","az":"2048 əldə edildi","tr":"2048'e ulaşıldı"},"2048 без возврата":{"ru":"2048 без возврата","en":"2048 without undo","az":"Geri qaytarma olmadan 2048","tr":"Geri alma olmadan 2048"},"Уведомления":{"ru":"Уведомления","en":"Notifications","az":"Bildirişlər","tr":"Bildirimler"},"Показывать сообщение при получении достижения":{"ru":"Показывать сообщение при получении достижения","en":"Show a message when an achievement is unlocked","az":"Nailiyyət əldə ediləndə bildiriş göstər","tr":"Başarı kazanıldığında bildirim göster"},"Недельные и месячные цели":{"ru":"Недельные и месячные цели","en":"Weekly and monthly goals","az":"Həftəlik və aylıq məqsədlər","tr":"Haftalık ve aylık hedefler"},"Показывать сообщения о выполнении целей":{"ru":"Показывать сообщения о выполнении целей","en":"Show messages when goals are completed","az":"Məqsədlər tamamlananda bildiriş göstər","tr":"Hedefler tamamlandığında bildirim göster"},"Игра":{"ru":"Игра","en":"Game","az":"Oyun","tr":"Oyun"},"Вибрация":{"ru":"Вибрация","en":"Vibration","az":"Vibrasiya","tr":"Titreşim"},"Короткая вибрация при объединении плиток":{"ru":"Короткая вибрация при объединении плиток","en":"Short vibration when tiles merge","az":"Daşlar birləşəndə qısa vibrasiya","tr":"Karolar birleştiğinde kısa titreşim"},"Недоступно в веб-версии на этом устройстве":{"ru":"Недоступно в веб-версии на этом устройстве","en":"Unavailable in the web version on this device","az":"Bu cihazda veb versiyada mövcud deyil","tr":"Bu cihazda web sürümünde kullanılamıyor"},"Анимации":{"ru":"Анимации","en":"Animations","az":"Animasiyalar","tr":"Animasyonlar"},"Выбери комфортную интенсивность эффектов":{"ru":"Выбери комфортную интенсивность эффектов","en":"Choose a comfortable effect level","az":"Rahat effekt səviyyəsini seç","tr":"Rahat bir efekt düzeyi seç"},"Выкл.":{"ru":"Выкл.","en":"Off","az":"Söndür","tr":"Kapalı"},"Минимальные":{"ru":"Минимальные","en":"Minimal","az":"Minimal","tr":"Minimum"},"Полные":{"ru":"Полные","en":"Full","az":"Tam","tr":"Tam"},"Подтверждение новой игры":{"ru":"Подтверждение новой игры","en":"Confirm new game","az":"Yeni oyunu təsdiqlə","tr":"Yeni oyunu onayla"},"Защита от случайного сброса партии":{"ru":"Защита от случайного сброса партии","en":"Prevent accidental game reset","az":"Oyunun təsadüfən sıfırlanmasının qarşısını al","tr":"Oyunun yanlışlıkla sıfırlanmasını önle"},"Язык":{"ru":"Язык","en":"Language","az":"Dil","tr":"Dil"},"Язык интерфейса можно изменить сразу":{"ru":"Язык интерфейса можно изменить сразу","en":"Changes the interface language immediately","az":"İnterfeys dili dərhal dəyişir","tr":"Arayüz dili hemen değişir"},"Управление игроками":{"ru":"Управление игроками","en":"Manage players","az":"Oyunçuları idarə et","tr":"Oyuncuları yönet"},"Резервная копия":{"ru":"Резервная копия","en":"Backup","az":"Ehtiyat nüsxə","tr":"Yedek"},"Экспортировать данные":{"ru":"Экспортировать данные","en":"Export data","az":"Məlumatları ixrac et","tr":"Verileri dışa aktar"},"Импортировать данные":{"ru":"Импортировать данные","en":"Import data","az":"Məlumatları idxal et","tr":"Verileri içe aktar"},"О приложении":{"ru":"О приложении","en":"About","az":"Tətbiq haqqında","tr":"Uygulama hakkında"},"Версия":{"ru":"Версия","en":"Version","az":"Versiya","tr":"Sürüm"},"Обновлено":{"ru":"Обновлено","en":"Updated","az":"Yenilənib","tr":"Güncellendi"},"Проверить обновление":{"ru":"Проверить обновление","en":"Check for update","az":"Yeniləməni yoxla","tr":"Güncellemeyi kontrol et"},"Игра обновляется без удаления иконки с экрана.":{"ru":"Игра обновляется без удаления иконки с экрана.","en":"The game updates without removing its Home Screen icon.","az":"Oyun ana ekran nişanını silmədən yenilənir.","tr":"Oyun, Ana Ekran simgesini silmeden güncellenir."},"Проверяем обновление…":{"ru":"Проверяем обновление…","en":"Checking for updates…","az":"Yeniləmə yoxlanılır…","tr":"Güncelleme kontrol ediliyor…"},"Не удалось проверить обновление. Проверь подключение к интернету.":{"ru":"Не удалось проверить обновление. Проверь подключение к интернету.","en":"Could not check for updates. Check your internet connection.","az":"Yeniləməni yoxlamaq mümkün olmadı. İnternet bağlantısını yoxla.","tr":"Güncelleme kontrol edilemedi. İnternet bağlantını kontrol et."},"Резервная копия подготовлена":{"ru":"Резервная копия подготовлена","en":"Backup is ready","az":"Ehtiyat nüsxə hazırdır","tr":"Yedek hazır"},"Резервная копия сохранена":{"ru":"Резервная копия сохранена","en":"Backup saved","az":"Ehtiyat nüsxə saxlanıldı","tr":"Yedek kaydedildi"},"Восстановить данные?":{"ru":"Восстановить данные?","en":"Restore data?","az":"Məlumatlar bərpa edilsin?","tr":"Veriler geri yüklensin mi?"},"Текущие профили, партии, достижения и настройки будут заменены данными из резервной копии.":{"ru":"Текущие профили, партии, достижения и настройки будут заменены данными из резервной копии.","en":"Current profiles, games, achievements, and settings will be replaced with the backup data.","az":"Cari profillər, oyunlar, nailiyyətlər və ayarlar ehtiyat nüsxədəki məlumatlarla əvəz ediləcək.","tr":"Mevcut profiller, oyunlar, başarılar ve ayarlar yedek verileriyle değiştirilecek."},"Восстановить":{"ru":"Восстановить","en":"Restore","az":"Bərpa et","tr":"Geri yükle"},"Не удалось восстановить данные":{"ru":"Не удалось восстановить данные","en":"Could not restore data","az":"Məlumatları bərpa etmək mümkün olmadı","tr":"Veriler geri yüklenemedi"},"Файл не похож на резервную копию игры":{"ru":"Файл не похож на резервную копию игры","en":"This file does not look like a game backup","az":"Bu fayl oyun ehtiyat nüsxəsinə bənzəmir","tr":"Bu dosya bir oyun yedeğine benzemiyor"},"Резервная копия 2048":{"ru":"Резервная копия 2048","en":"2048 backup","az":"2048 ehtiyat nüsxəsi","tr":"2048 yedeği"},"Профили на этом устройстве":{"ru":"Профили на этом устройстве","en":"Profiles on this device","az":"Bu cihazdakı profillər","tr":"Bu cihazdaki profiller"},"Текущий игрок":{"ru":"Текущий игрок","en":"Current player","az":"Cari oyunçu","tr":"Mevcut oyuncu"},"Нажми, чтобы переключиться":{"ru":"Нажми, чтобы переключиться","en":"Tap to switch","az":"Dəyişmək üçün toxun","tr":"Değiştirmek için dokun"},"Переименовать":{"ru":"Переименовать","en":"Rename","az":"Adını dəyiş","tr":"Yeniden adlandır"},"Новый игрок":{"ru":"Новый игрок","en":"New player","az":"Yeni oyunçu","tr":"Yeni oyuncu"},"Максимум 5 игроков":{"ru":"Максимум 5 игроков","en":"Maximum 5 players","az":"Maksimum 5 oyunçu","tr":"En fazla 5 oyuncu"},"Имя игрока":{"ru":"Имя игрока","en":"Player name","az":"Oyunçunun adı","tr":"Oyuncu adı"},"Добавить":{"ru":"Добавить","en":"Add","az":"Əlavə et","tr":"Ekle"},"Удалить игрока?":{"ru":"Удалить игрока?","en":"Delete player?","az":"Oyunçu silinsin?","tr":"Oyuncu silinsin mi?"},"Игрок удалён":{"ru":"Игрок удалён","en":"Player deleted","az":"Oyunçu silindi","tr":"Oyuncu silindi"},"Новое имя игрока":{"ru":"Новое имя игрока","en":"New player name","az":"Oyunçunun yeni adı","tr":"Yeni oyuncu adı"},"Начать новую игру?":{"ru":"Начать новую игру?","en":"Start a new game?","az":"Yeni oyun başlansın?","tr":"Yeni oyun başlatılsın mı?"},"Начать":{"ru":"Начать","en":"Start","az":"Başla","tr":"Başlat"},"Начать новую лёгкую игру?":{"ru":"Начать новую лёгкую игру?","en":"Start a new Easy game?","az":"Yeni Asan oyun başlansın?","tr":"Yeni Kolay oyun başlatılsın mı?"},"Текущая партия будет заменена. При необходимости сначала сохрани её как контрольную точку.":{"ru":"Текущая партия будет заменена. При необходимости сначала сохрани её как контрольную точку.","en":"The current game will be replaced. Save it as a checkpoint first if needed.","az":"Cari oyun əvəz ediləcək. Lazımdırsa, əvvəl onu nəzarət nöqtəsi kimi saxla.","tr":"Mevcut oyun değiştirilecek. Gerekirse önce kontrol noktası olarak kaydet."},"Начать без сохранения":{"ru":"Начать без сохранения","en":"Start without saving","az":"Saxlamadan başla","tr":"Kaydetmeden başlat"},"Сохранить точку и начать":{"ru":"Сохранить точку и начать","en":"Save checkpoint and start","az":"Nəzarət nöqtəsini saxla və başla","tr":"Kontrol noktasını kaydet ve başlat"},"Доступных возвратов сейчас нет.":{"ru":"Доступных возвратов сейчас нет.","en":"No undo is available right now.","az":"Hazırda geri qaytarma mümkün deyil.","tr":"Şu anda geri alma kullanılamıyor."},"В меню":{"ru":"В меню","en":"Go to menu","az":"Menyuya","tr":"Menüye"},"Точно начать заново?":{"ru":"Точно начать заново?","en":"Start over?","az":"Yenidən başlamağa əminsən?","tr":"Baştan başlatılsın mı?"},"Недельная цель":{"ru":"Недельная цель","en":"Weekly goal","az":"Həftəlik məqsəd","tr":"Haftalık hedef"},"Месячная цель":{"ru":"Месячная цель","en":"Monthly goal","az":"Aylıq məqsəd","tr":"Aylık hedef"},"Полностью выполненных недель":{"ru":"Полностью выполненных недель","en":"Fully completed weeks","az":"Tam tamamlanan həftələr","tr":"Tamamlanan haftalar"},"Полностью выполненных месяцев":{"ru":"Полностью выполненных месяцев","en":"Fully completed months","az":"Tam tamamlanan aylar","tr":"Tamamlanan aylar"}};
 
     Object.assign(PHRASE_TRANSLATIONS, {"Таблица лидеров":{"ru":"Таблица лидеров","en":"Leaderboard","az":"Liderlər cədvəli","tr":"Lider tablosu"},"Правила и обучение":{"ru":"Правила и обучение","en":"Rules and tutorial","az":"Qaydalar və təlim","tr":"Kurallar ve eğitim"},"Локальное соревнование":{"ru":"Локальное соревнование","en":"Local competition","az":"Yerli yarış","tr":"Yerel yarışma"},"Результаты сравниваются только между профилями на этом устройстве.":{"ru":"Результаты сравниваются только между профилями на этом устройстве.","en":"Results are compared only between profiles on this device.","az":"Nəticələr yalnız bu cihazdakı profillər arasında müqayisə olunur.","tr":"Sonuçlar yalnızca bu cihazdaki profiller arasında karşılaştırılır."},"Общий рейтинг":{"ru":"Общий рейтинг","en":"Overall ranking","az":"Ümumi reytinq","tr":"Genel sıralama"},"Рейтинг по режимам":{"ru":"Рейтинг по режимам","en":"Ranking by mode","az":"Rejimlər üzrə reytinq","tr":"Modlara göre sıralama"},"ходов":{"ru":"ходов","en":"moves","az":"gediş","tr":"hamle"},"плитка":{"ru":"плитка","en":"tile","az":"daş","tr":"karo"},"достижений":{"ru":"достижений","en":"achievements","az":"nailiyyət","tr":"başarı"},"Как играть":{"ru":"Как играть","en":"How to play","az":"Necə oynamaq olar","tr":"Nasıl oynanır"},"Свайпай вверх, вниз, влево или вправо. Одинаковые плитки соединяются. После каждого успешного хода появляется новая плитка 2 или 4.":{"ru":"Свайпай вверх, вниз, влево или вправо. Одинаковые плитки соединяются. После каждого успешного хода появляется новая плитка 2 или 4.","en":"Swipe up, down, left, or right. Equal tiles merge. After every successful move, a new 2 or 4 tile appears.","az":"Yuxarı, aşağı, sola və ya sağa sürüşdür. Eyni daşlar birləşir. Hər uğurlu gedişdən sonra yeni 2 və ya 4 daşı yaranır.","tr":"Yukarı, aşağı, sola veya sağa kaydır. Aynı karolar birleşir. Her başarılı hamleden sonra yeni bir 2 veya 4 karosu gelir."},"Как работают возвраты":{"ru":"Как работают возвраты","en":"How undo works","az":"Geri qaytarma necə işləyir","tr":"Geri alma nasıl çalışır"},"Число на кнопке возврата показывает, сколько последних положений хранится в памяти. Возвраты не расходуются навсегда: новые ходы снова заполняют историю.":{"ru":"Число на кнопке возврата показывает, сколько последних положений хранится в памяти. Возвраты не расходуются навсегда: новые ходы снова заполняют историю.","en":"The number on the undo button shows how many previous positions are stored. Undo is not permanently consumed: new moves fill the history again.","az":"Geri qaytarma düyməsindəki rəqəm yaddaşda neçə əvvəlki vəziyyətin saxlandığını göstərir. Geri qaytarma birdəfəlik tükənmir: yeni gedişlər tarixçəni yenidən doldurur.","tr":"Geri alma düğmesindeki sayı, kaç önceki konumun hafızada tutulduğunu gösterir. Geri alma kalıcı olarak tükenmez; yeni hamleler geçmişi yeniden doldurur."},"Контрольные точки":{"ru":"Контрольные точки","en":"Checkpoints","az":"Nəzarət nöqtələri","tr":"Kontrol noktaları"},"В лёгком режиме можно вручную сохранить до трёх важных позиций. Загрузка точки заменяет текущую лёгкую партию, но сама точка остаётся.":{"ru":"В лёгком режиме можно вручную сохранить до трёх важных позиций. Загрузка точки заменяет текущую лёгкую партию, но сама точка остаётся.","en":"In Easy mode you can manually save up to three important positions. Loading one replaces the current Easy game, but the checkpoint remains.","az":"Asan rejimdə üç vacib vəziyyəti əl ilə saxlamaq olar. Nöqtəni yükləmək cari Asan oyunu əvəz edir, lakin nöqtənin özü qalır.","tr":"Kolay modda üç önemli konumu elle kaydedebilirsin. Bir noktayı yüklemek mevcut Kolay oyunu değiştirir, ancak nokta listede kalır."},"Режимы игры":{"ru":"Режимы игры","en":"Game modes","az":"Oyun rejimləri","tr":"Oyun modları"},"Показать обучение":{"ru":"Показать обучение","en":"Show tutorial","az":"Təlimi göstər","tr":"Eğitimi göster"},"Соединяй одинаковые плитки":{"ru":"Соединяй одинаковые плитки","en":"Merge matching tiles","az":"Eyni daşları birləşdir","tr":"Aynı karoları birleştir"},"Свайпай по экрану. Одинаковые плитки объединяются, а после успешного хода появляется новая.":{"ru":"Свайпай по экрану. Одинаковые плитки объединяются, а после успешного хода появляется новая.","en":"Swipe across the screen. Matching tiles merge, and a new tile appears after a successful move.","az":"Ekranda sürüşdür. Eyni daşlar birləşir və uğurlu gedişdən sonra yeni daş yaranır.","tr":"Ekranda kaydır. Aynı karolar birleşir ve başarılı bir hamleden sonra yeni karo gelir."},"Возвраты — это память":{"ru":"Возвраты — это память","en":"Undo is stored history","az":"Geri qaytarma yaddaşdır","tr":"Geri alma hafızadır"},"Лёгкий режим хранит 20 последних положений, средний — 5, сложный — 1, хардкор — ни одного.":{"ru":"Лёгкий режим хранит 20 последних положений, средний — 5, сложный — 1, хардкор — ни одного.","en":"Easy stores the last 20 positions, Medium stores 5, Hard stores 1, and Hardcore stores none.","az":"Asan rejim son 20 vəziyyəti, Orta 5-ni, Çətin 1-ni saxlayır, Hardkor isə heç birini saxlamır.","tr":"Kolay son 20 konumu, Orta 5'i, Zor 1'i saklar; Hardkor hiçbirini saklamaz."},"Играй и соревнуйся":{"ru":"Играй и соревнуйся","en":"Play and compete","az":"Oyna və yarış","tr":"Oyna ve yarış"},"Создавай отдельные профили для семьи. У каждого игрока свои партии, рекорды, достижения и статистика.":{"ru":"Создавай отдельные профили для семьи. У каждого игрока свои партии, рекорды, достижения и статистика.","en":"Create separate profiles for family members. Every player has their own games, records, achievements, and statistics.","az":"Ailə üzvləri üçün ayrıca profillər yarat. Hər oyunçunun öz oyunları, rekordları, nailiyyətləri və statistikası var.","tr":"Aile üyeleri için ayrı profiller oluştur. Her oyuncunun kendi oyunları, rekorları, başarıları ve istatistikleri vardır."},"Пропустить":{"ru":"Пропустить","en":"Skip","az":"Keç","tr":"Atla"},"Далее":{"ru":"Далее","en":"Next","az":"Növbəti","tr":"İleri"},"Готово":{"ru":"Готово","en":"Done","az":"Hazırdır","tr":"Bitti"},"Обучение завершено":{"ru":"Обучение завершено","en":"Tutorial completed","az":"Təlim tamamlandı","tr":"Eğitim tamamlandı"},"Текущий":{"ru":"Текущий","en":"Current","az":"Cari","tr":"Mevcut"},"Нет данных":{"ru":"Нет данных","en":"No data","az":"Məlumat yoxdur","tr":"Veri yok"},"профилей":{"ru":"профилей","en":"profiles","az":"profil","tr":"profil"}});
+
+    Object.assign(PHRASE_TRANSLATIONS, {"Испытание дня":{"ru":"Испытание дня","en":"Daily challenge","az":"Günün sınağı","tr":"Günün meydan okuması"},"Одинаковые условия для всех игроков":{"ru":"Одинаковые условия для всех игроков","en":"The same conditions for every player","az":"Bütün oyunçular üçün eyni şərtlər","tr":"Tüm oyuncular için aynı koşullar"},"Одинаковое стартовое поле и одинаковая последовательность новых плиток для всех профилей.":{"ru":"Одинаковое стартовое поле и одинаковая последовательность новых плиток для всех профилей.","en":"Every profile gets the same starting board and the same sequence of new tiles.","az":"Bütün profillər eyni başlanğıc sahəsini və eyni yeni daş ardıcıllığını alır.","tr":"Tüm profiller aynı başlangıç tahtasını ve aynı yeni karo sırasını alır."},"До нового испытания":{"ru":"До нового испытания","en":"Until the next challenge","az":"Yeni sınağa qədər","tr":"Yeni meydan okumaya kalan"},"Сегодня":{"ru":"Сегодня","en":"Today","az":"Bu gün","tr":"Bugün"},"Одна попытка":{"ru":"Одна попытка","en":"One attempt","az":"Bir cəhd","tr":"Tek deneme"},"Без возвратов":{"ru":"Без возвратов","en":"No undo","az":"Geri qaytarma yoxdur","tr":"Geri alma yok"},"Без контрольных точек":{"ru":"Без контрольных точек","en":"No checkpoints","az":"Nəzarət nöqtəsi yoxdur","tr":"Kontrol noktası yok"},"Ещё не начато":{"ru":"Ещё не начато","en":"Not started yet","az":"Hələ başlanmayıb","tr":"Henüz başlanmadı"},"Попытка продолжается":{"ru":"Попытка продолжается","en":"Attempt in progress","az":"Cəhd davam edir","tr":"Deneme devam ediyor"},"Попытка завершена":{"ru":"Попытка завершена","en":"Attempt completed","az":"Cəhd tamamlandı","tr":"Deneme tamamlandı"},"Начать испытание":{"ru":"Начать испытание","en":"Start challenge","az":"Sınağa başla","tr":"Meydan okumayı başlat"},"Продолжить испытание":{"ru":"Продолжить испытание","en":"Continue challenge","az":"Sınağa davam et","tr":"Meydan okumaya devam et"},"Результат зафиксирован":{"ru":"Результат зафиксирован","en":"Result recorded","az":"Nəticə qeydə alındı","tr":"Sonuç kaydedildi"},"Сегодняшние результаты":{"ru":"Сегодняшние результаты","en":"Today's results","az":"Bugünkü nəticələr","tr":"Bugünün sonuçları"},"История за 30 дней":{"ru":"История за 30 дней","en":"30-day history","az":"30 günlük tarixçə","tr":"30 günlük geçmiş"},"Серия участия":{"ru":"Серия участия","en":"Participation streak","az":"İştirak seriyası","tr":"Katılım serisi"},"Текущая серия":{"ru":"Текущая серия","en":"Current streak","az":"Cari seriya","tr":"Mevcut seri"},"Лучшая серия":{"ru":"Лучшая серия","en":"Best streak","az":"Ən yaxşı seriya","tr":"En iyi seri"},"Побед":{"ru":"Побед","en":"Wins","az":"Qələbələr","tr":"Galibiyet"},"дней":{"ru":"дней","en":"days","az":"gün","tr":"gün"},"Участников":{"ru":"Участников","en":"Players","az":"İştirakçılar","tr":"Katılımcılar"},"Победитель":{"ru":"Победитель","en":"Winner","az":"Qalib","tr":"Kazanan"},"Не завершено":{"ru":"Не завершено","en":"Not finished","az":"Tamamlanmayıb","tr":"Tamamlanmadı"},"Нет результатов":{"ru":"Нет результатов","en":"No results","az":"Nəticə yoxdur","tr":"Sonuç yok"},"Лидер сегодня":{"ru":"Лидер сегодня","en":"Today's leader","az":"Bu günün lideri","tr":"Bugünün lideri"},"Испытание завершено":{"ru":"Испытание завершено","en":"Challenge completed","az":"Sınaq tamamlandı","tr":"Meydan okuma tamamlandı"},"Первое испытание":{"ru":"Первое испытание","en":"First challenge","az":"İlk sınaq","tr":"İlk meydan okuma"},"Принять участие в испытании дня":{"ru":"Принять участие в испытании дня","en":"Take part in a daily challenge","az":"Günün sınağında iştirak et","tr":"Günün meydan okumasına katıl"},"Победитель дня":{"ru":"Победитель дня","en":"Daily winner","az":"Günün qalibi","tr":"Günün kazananı"},"Победить хотя бы в одном локальном испытании":{"ru":"Победить хотя бы в одном локальном испытании","en":"Win at least one local daily challenge","az":"Ən azı bir yerli gündəlik sınaqda qalib gəl","tr":"En az bir yerel günlük meydan okumayı kazan"},"Три дня подряд":{"ru":"Три дня подряд","en":"Three days in a row","az":"Ardıcıl üç gün","tr":"Üç gün üst üste"},"Участвовать 3 дня подряд":{"ru":"Участвовать 3 дня подряд","en":"Participate 3 days in a row","az":"Ardıcıl 3 gün iştirak et","tr":"3 gün üst üste katıl"},"Неделя испытаний":{"ru":"Неделя испытаний","en":"Challenge week","az":"Sınaq həftəsi","tr":"Meydan okuma haftası"},"Участвовать 7 дней подряд":{"ru":"Участвовать 7 дней подряд","en":"Participate 7 days in a row","az":"Ardıcıl 7 gün iştirak et","tr":"7 gün üst üste katıl"},"Две недели испытаний":{"ru":"Две недели испытаний","en":"Two challenge weeks","az":"İki sınaq həftəsi","tr":"İki meydan okuma haftası"},"Участвовать 14 дней подряд":{"ru":"Участвовать 14 дней подряд","en":"Participate 14 days in a row","az":"Ardıcıl 14 gün iştirak et","tr":"14 gün üst üste katıl"},"Месяц испытаний":{"ru":"Месяц испытаний","en":"Challenge month","az":"Sınaq ayı","tr":"Meydan okuma ayı"},"Участвовать 30 дней подряд":{"ru":"Участвовать 30 дней подряд","en":"Participate 30 days in a row","az":"Ardıcıl 30 gün iştirak et","tr":"30 gün üst üste katıl"},"очков":{"ru":"очков","en":"points","az":"xal","tr":"puan"},"ходов":{"ru":"ходов","en":"moves","az":"gediş","tr":"hamle"},"плитка":{"ru":"плитка","en":"tile","az":"daş","tr":"karo"},"Текущий игрок":{"ru":"Текущий игрок","en":"Current player","az":"Cari oyunçu","tr":"Mevcut oyuncu"}});
 
     const localizationTextSources = new WeakMap();
     const localizationAttributeSources = new WeakMap();
@@ -1943,7 +2173,13 @@
       { id: "swipes_1000", icon: "👉", title: "Тысяча свайпов", description: "Сделать 1 000 свайпов", target: 1000, value: () => usage.totalSwipes },
       { id: "swipes_10000", icon: "🖐️", title: "Неутомимый палец", description: "Сделать 10 000 свайпов", target: 10000, value: () => usage.totalSwipes },
       { id: "time_1h", icon: "⏱️", title: "Час в игре", description: "Провести в игре 1 активный час", target: 3600000, format: "time", value: () => usage.activeTimeMs },
-      { id: "time_10h", icon: "⌛", title: "Десять часов", description: "Провести в игре 10 активных часов", target: 36000000, format: "time", value: () => usage.activeTimeMs }
+      { id: "time_10h", icon: "⌛", title: "Десять часов", description: "Провести в игре 10 активных часов", target: 36000000, format: "time", value: () => usage.activeTimeMs },
+      { id: "daily_first", icon: "☀️", title: "Первое испытание", description: "Принять участие в испытании дня", target: 1, value: () => dailyParticipationCount(currentProfileId) },
+      { id: "daily_win", icon: "🥇", title: "Победитель дня", description: "Победить хотя бы в одном локальном испытании", target: 1, value: () => dailyWinsForProfile(currentProfileId) },
+      { id: "daily_streak_3", icon: "🔥", title: "Три дня подряд", description: "Участвовать 3 дня подряд", target: 3, value: () => dailyBestStreak(currentProfileId) },
+      { id: "daily_streak_7", icon: "📅", title: "Неделя испытаний", description: "Участвовать 7 дней подряд", target: 7, value: () => dailyBestStreak(currentProfileId) },
+      { id: "daily_streak_14", icon: "🗓️", title: "Две недели испытаний", description: "Участвовать 14 дней подряд", target: 14, value: () => dailyBestStreak(currentProfileId) },
+      { id: "daily_streak_30", icon: "🏆", title: "Месяц испытаний", description: "Участвовать 30 дней подряд", target: 30, value: () => dailyBestStreak(currentProfileId) }
     ];
 
     const $ = (id) => document.getElementById(id);
@@ -1961,6 +2197,7 @@
 
     const menuScreen = $("menuScreen");
     const mainMenu = $("mainMenu");
+    const dailyMenu = $("dailyMenu");
     const modesMenu = $("modesMenu");
     const achievementsMenu = $("achievementsMenu");
     const statsMenu = $("statsMenu");
@@ -1970,6 +2207,8 @@
     const profilesMenu = $("profilesMenu");
     const continueButton = $("continueButton");
     const continueInfo = $("continueInfo");
+    const dailyButton = $("dailyButton");
+    const dailyInfo = $("dailyInfo");
     const modesButton = $("modesButton");
     const achievementsButton = $("achievementsButton");
     const achievementsInfo = $("achievementsInfo");
@@ -1980,6 +2219,7 @@
     const profileButton = $("profileButton");
     const currentProfileName = $("currentProfileName");
     const menuRecord = $("menuRecord");
+    const dailyContent = $("dailyContent");
     const modeList = $("modeList");
     const achievementsContent = $("achievementsContent");
     const statsList = $("statsList");
@@ -2030,6 +2270,9 @@
     let undosUsed = 0;
     let mergesCount = 0;
     let hasActiveGame = false;
+    let dailyChallengeActive = false;
+    let dailyChallengeDate = "";
+    let dailySpawnIndex = 0;
     let lastNewIndex = -1;
     let lastMergedIndices = [];
     let toastTimer = null;
@@ -2131,6 +2374,7 @@
         key === ACHIEVEMENTS_KEY ||
         key === PERIODS_KEY ||
         key === USAGE_KEY ||
+        key === DAILY_KEY ||
         key.startsWith(ACTIVE_PREFIX);
     }
 
@@ -2538,6 +2782,288 @@
       return translateCore(days > 0 ? days + " дн. " + hours + " ч." : hours + " ч.");
     }
 
+
+    function dailyDateId(date = new Date()) {
+      return date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, "0") + "-" +
+        String(date.getDate()).padStart(2, "0");
+    }
+
+    function parseDailyDate(id) {
+      const parts = String(id).split("-").map(Number);
+      return new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+    }
+
+    function formatDailyDate(id) {
+      try {
+        return parseDailyDate(id).toLocaleDateString(currentLocale(), {
+          day: "2-digit",
+          month: "short"
+        });
+      } catch (_) {
+        return id;
+      }
+    }
+
+    function dailySeedFor(id) {
+      let hash = 2166136261;
+      const source = "mika-2048-daily:" + id;
+      for (let index = 0; index < source.length; index++) {
+        hash ^= source.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function dailyRandom(seed, index) {
+      let value = (seed + Math.imul(index + 1, 0x9e3779b1)) >>> 0;
+      value ^= value >>> 16;
+      value = Math.imul(value, 0x85ebca6b);
+      value ^= value >>> 13;
+      value = Math.imul(value, 0xc2b2ae35);
+      value ^= value >>> 16;
+      return (value >>> 0) / 4294967296;
+    }
+
+    function defaultDailyData() {
+      return { attempts: {} };
+    }
+
+    function loadDailyData(profileId = currentProfileId) {
+      const raw = rawGet(profileStorageKey(DAILY_KEY, profileId));
+      if (!raw) return defaultDailyData();
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          attempts: parsed && parsed.attempts && typeof parsed.attempts === "object"
+            ? parsed.attempts
+            : {}
+        };
+      } catch (_) {
+        return defaultDailyData();
+      }
+    }
+
+    function saveDailyData(data, profileId = currentProfileId) {
+      const attempts = data && data.attempts ? data.attempts : {};
+      const ids = Object.keys(attempts).sort().reverse();
+      const trimmed = {};
+
+      ids.slice(0, 45).forEach((id) => {
+        trimmed[id] = attempts[id];
+      });
+
+      rawSet(profileStorageKey(DAILY_KEY, profileId), JSON.stringify({ attempts: trimmed }));
+    }
+
+    function normalizeDailyAttempt(candidate, id) {
+      if (!candidate || !validGrid(candidate.grid)) return null;
+
+      return {
+        dateId: String(candidate.dateId || id),
+        seed: Number(candidate.seed) >>> 0,
+        grid: copyGrid(candidate.grid),
+        score: Math.max(0, Number(candidate.score) || 0),
+        movesCount: Math.max(0, Number(candidate.movesCount) || 0),
+        mergesCount: Math.max(0, Number(candidate.mergesCount) || 0),
+        spawnIndex: Math.max(0, Number(candidate.spawnIndex) || 0),
+        status: candidate.status === "completed" ? "completed" : "active",
+        startedAt: Math.max(0, Number(candidate.startedAt) || Date.now()),
+        savedAt: Math.max(0, Number(candidate.savedAt) || Date.now()),
+        completedAt: Math.max(0, Number(candidate.completedAt) || 0),
+        maxTile: Math.max(0, Number(candidate.maxTile) || getMaxTile(candidate.grid))
+      };
+    }
+
+    function getDailyAttempt(dateId = dailyDateId(), profileId = currentProfileId) {
+      const data = loadDailyData(profileId);
+      return normalizeDailyAttempt(data.attempts[dateId], dateId);
+    }
+
+    function saveDailyAttempt(status = gameOver ? "completed" : "active") {
+      if (!dailyChallengeActive || !dailyChallengeDate) return;
+
+      const data = loadDailyData();
+      const previous = data.attempts[dailyChallengeDate] || {};
+      data.attempts[dailyChallengeDate] = {
+        dateId: dailyChallengeDate,
+        seed: dailySeedFor(dailyChallengeDate),
+        grid: copyGrid(grid),
+        score,
+        movesCount,
+        mergesCount,
+        spawnIndex: dailySpawnIndex,
+        status,
+        startedAt: Number(previous.startedAt) || Date.now(),
+        savedAt: Date.now(),
+        completedAt: status === "completed"
+          ? (Number(previous.completedAt) || Date.now())
+          : 0,
+        maxTile: getMaxTile()
+      };
+      saveDailyData(data);
+    }
+
+    function addDailyTile() {
+      const positions = emptyPositions();
+      if (!positions.length) return;
+
+      const seed = dailySeedFor(dailyChallengeDate);
+      const positionRandom = dailyRandom(seed, dailySpawnIndex * 2);
+      const valueRandom = dailyRandom(seed, dailySpawnIndex * 2 + 1);
+      const [row, col] = positions[Math.min(
+        positions.length - 1,
+        Math.floor(positionRandom * positions.length)
+      )];
+
+      grid[row][col] = valueRandom < .9 ? 2 : 4;
+      lastNewIndex = row * N + col;
+      dailySpawnIndex += 1;
+    }
+
+    function startDailyChallenge() {
+      const id = dailyDateId();
+      const existing = getDailyAttempt(id);
+
+      saveActive();
+
+      dailyChallengeActive = true;
+      dailyChallengeDate = id;
+      history = [];
+      undosUsed = 0;
+      finishedCounted = false;
+      reached2048Counted = false;
+      hasActiveGame = true;
+
+      if (existing) {
+        grid = copyGrid(existing.grid);
+        score = existing.score;
+        movesCount = existing.movesCount;
+        mergesCount = existing.mergesCount;
+        dailySpawnIndex = existing.spawnIndex;
+        gameOver = existing.status === "completed" || !canMove();
+      } else {
+        grid = emptyGrid();
+        score = 0;
+        movesCount = 0;
+        mergesCount = 0;
+        dailySpawnIndex = 0;
+        gameOver = false;
+        addDailyTile();
+        addDailyTile();
+        saveDailyAttempt("active");
+      }
+
+      hideMenu();
+      closeModal();
+      render();
+      checkAllTimeAchievements();
+    }
+
+    function currentDailyStreak(profileId = currentProfileId) {
+      const attempts = loadDailyData(profileId).attempts;
+      let cursor = parseDailyDate(dailyDateId());
+      let streak = 0;
+
+      while (true) {
+        const id = dailyDateId(cursor);
+        const attempt = attempts[id];
+        if (!attempt) break;
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      return streak;
+    }
+
+    function dailyBestStreak(profileId = currentProfileId) {
+      const ids = Object.keys(loadDailyData(profileId).attempts).sort();
+      let best = 0;
+      let current = 0;
+      let previous = null;
+
+      ids.forEach((id) => {
+        const date = parseDailyDate(id);
+        if (previous) {
+          const difference = Math.round((date - previous) / 86400000);
+          current = difference === 1 ? current + 1 : 1;
+        } else {
+          current = 1;
+        }
+        best = Math.max(best, current);
+        previous = date;
+      });
+
+      return best;
+    }
+
+    function dailyParticipationCount(profileId = currentProfileId) {
+      return Object.keys(loadDailyData(profileId).attempts).length;
+    }
+
+    function dailyResultsForDate(id) {
+      return profiles.map((profile) => {
+        const attempt = getDailyAttempt(id, profile.id);
+        return attempt ? {
+          profileId: profile.id,
+          name: profile.name,
+          current: profile.id === currentProfileId,
+          attempt
+        } : null;
+      }).filter(Boolean).sort((a, b) =>
+        (Number(b.attempt.status === "completed") - Number(a.attempt.status === "completed")) ||
+        (b.attempt.score - a.attempt.score) ||
+        (b.attempt.maxTile - a.attempt.maxTile) ||
+        (b.attempt.movesCount - a.attempt.movesCount)
+      );
+    }
+
+    function dailyWinsForProfile(profileId = currentProfileId) {
+      const allDates = new Set();
+
+      profiles.forEach((profile) => {
+        Object.keys(loadDailyData(profile.id).attempts).forEach((id) => allDates.add(id));
+      });
+
+      let wins = 0;
+      allDates.forEach((id) => {
+        const completed = dailyResultsForDate(id)
+          .filter((item) => item.attempt.status === "completed");
+
+        if (completed.length < 2) return;
+        const bestScore = Math.max(...completed.map((item) => item.attempt.score));
+        if (completed.some((item) =>
+          item.profileId === profileId &&
+          item.attempt.score === bestScore
+        )) wins += 1;
+      });
+
+      return wins;
+    }
+
+    function todayDailyLeaderScore() {
+      const completed = dailyResultsForDate(dailyDateId())
+        .filter((item) => item.attempt.status === "completed");
+      return completed.length
+        ? Math.max(...completed.map((item) => item.attempt.score))
+        : 0;
+    }
+
+    function dailyCountdownText() {
+      const now = new Date();
+      const next = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1
+      );
+      const total = Math.max(0, Math.floor((next - now) / 1000));
+      const hours = String(Math.floor(total / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const seconds = String(total % 60).padStart(2, "0");
+      return hours + ":" + minutes + ":" + seconds;
+    }
+
     function activeKey(modeId) {
       return ACTIVE_PREFIX + modeId;
     }
@@ -2610,6 +3136,10 @@
 
     function saveActive() {
       if (!hasActiveGame) return;
+      if (dailyChallengeActive) {
+        saveDailyAttempt(gameOver ? "completed" : "active");
+        return;
+      }
       updateCurrentStats();
       safeSet(activeKey(mode), JSON.stringify(snapshot()));
       safeSet(LAST_MODE_KEY, mode);
@@ -2627,6 +3157,9 @@
       const normalized = normalizeState(state, state && state.mode ? state.mode : "easy");
       if (!normalized) return false;
 
+      dailyChallengeActive = false;
+      dailyChallengeDate = "";
+      dailySpawnIndex = 0;
       mode = normalized.mode;
       grid = copyGrid(normalized.grid);
       score = normalized.score;
@@ -2802,30 +3335,50 @@
         if (lastMergedIndices.includes(index)) cell.classList.add("pop");
       });
 
-      const bestScore = stats[mode].bestScore;
+      const bestScore = dailyChallengeActive
+        ? todayDailyLeaderScore()
+        : stats[mode].bestScore;
       scoreEl.textContent = String(score);
       bestEl.textContent = String(bestScore);
       scoreEl.dataset.digits = String(score).length;
       bestEl.dataset.digits = String(bestScore).length;
 
-      modeNameEl.textContent = MODES[mode].name;
-      const historyLimit = MODES[mode].historyLimit;
-      undoStatusEl.textContent = historyLimit === 0
-        ? "без возврата"
-        : "доступно: " + history.length + " из " + historyLimit;
-      undoBadge.textContent = String(history.length);
-      undoBadge.hidden = historyLimit === 0;
-      undoBtn.disabled = !hasActiveGame || history.length === 0;
-
-      if (gameOver) {
-        gameStateAction.textContent = "Игра окончена";
-        gameStateAction.classList.add("game-over");
+      if (dailyChallengeActive) {
+        modeNameEl.textContent = "Испытание дня";
+        undoStatusEl.textContent = "без возврата";
+        undoBadge.hidden = true;
+        undoBtn.disabled = true;
+        undoBtn.hidden = true;
+        restartBtn.disabled = true;
+        restartBtn.hidden = true;
+        gameStateAction.textContent = gameOver
+          ? "Испытание завершено"
+          : "Выйти в меню";
+        gameStateAction.classList.toggle("game-over", gameOver);
+        checkpointAction.hidden = true;
       } else {
-        gameStateAction.textContent = "Выйти в меню";
-        gameStateAction.classList.remove("game-over");
-      }
+        modeNameEl.textContent = MODES[mode].name;
+        const historyLimit = MODES[mode].historyLimit;
+        undoStatusEl.textContent = historyLimit === 0
+          ? "без возврата"
+          : "доступно: " + history.length + " из " + historyLimit;
+        undoBadge.textContent = String(history.length);
+        undoBadge.hidden = historyLimit === 0;
+        undoBtn.hidden = false;
+        undoBtn.disabled = !hasActiveGame || history.length === 0;
+        restartBtn.hidden = false;
+        restartBtn.disabled = false;
 
-      checkpointAction.hidden = !hasActiveGame || mode !== "easy" || gameOver;
+        if (gameOver) {
+          gameStateAction.textContent = "Игра окончена";
+          gameStateAction.classList.add("game-over");
+        } else {
+          gameStateAction.textContent = "Выйти в меню";
+          gameStateAction.classList.remove("game-over");
+        }
+
+        checkpointAction.hidden = !hasActiveGame || mode !== "easy" || gameOver;
+      }
 
       lastNewIndex = -1;
       lastMergedIndices = [];
@@ -2842,6 +3395,11 @@
     }
 
     function addTile() {
+      if (dailyChallengeActive) {
+        addDailyTile();
+        return;
+      }
+
       const positions = emptyPositions();
       if (!positions.length) return;
 
@@ -2851,6 +3409,9 @@
     }
 
     function startNewGame(modeId) {
+      dailyChallengeActive = false;
+      dailyChallengeDate = "";
+      dailySpawnIndex = 0;
       mode = modeId;
       grid = emptyGrid();
       score = 0;
@@ -2942,7 +3503,7 @@
 
       if (sameGrid(before, next)) return;
 
-      const historyLimit = MODES[mode].historyLimit;
+      const historyLimit = dailyChallengeActive ? 0 : MODES[mode].historyLimit;
       if (historyLimit > 0) {
         history.push({ grid: before, score: beforeScore });
         if (history.length > historyLimit) history.shift();
@@ -2952,9 +3513,11 @@
       score += gained;
       movesCount += 1;
       mergesCount += mergesMade;
-      stats[mode].totalMoves += 1;
-      stats[mode].totalScore += gained;
-      stats[mode].totalMerges += mergesMade;
+      if (!dailyChallengeActive) {
+        stats[mode].totalMoves += 1;
+        stats[mode].totalScore += gained;
+        stats[mode].totalMerges += mergesMade;
+      }
       lastMergedIndices = mergedCells;
       addTile();
 
@@ -2964,23 +3527,33 @@
       setTimeout(() => board.classList.remove("move-left", "move-right", "move-up", "move-down"), 170);
 
       gameOver = !canMove();
-      updateCurrentStats();
 
-      if (gameOver && !finishedCounted) {
-        stats[mode].gamesFinished += 1;
-        if (undosUsed === 0) {
-          stats[mode].noUndoFinishes += 1;
-          stats[mode].bestNoUndoScore = Math.max(stats[mode].bestNoUndoScore, score);
+      if (dailyChallengeActive) {
+        if (gameOver && !finishedCounted) {
+          finishedCounted = true;
+          saveDailyAttempt("completed");
+          showToast("Результат зафиксирован");
         }
-        finishedCounted = true;
+      } else {
+        updateCurrentStats();
+
+        if (gameOver && !finishedCounted) {
+          stats[mode].gamesFinished += 1;
+          if (undosUsed === 0) {
+            stats[mode].noUndoFinishes += 1;
+            stats[mode].bestNoUndoScore = Math.max(stats[mode].bestNoUndoScore, score);
+          }
+          finishedCounted = true;
+        }
+
+        updatePeriodProgress({
+          moves: 1,
+          score: gained,
+          merges: mergesMade,
+          maxTile: getMaxTile()
+        });
       }
 
-      updatePeriodProgress({
-        moves: 1,
-        score: gained,
-        merges: mergesMade,
-        maxTile: getMaxTile()
-      });
       checkAllTimeAchievements();
       saveActive();
       render();
@@ -3004,7 +3577,7 @@
     }
 
     function undo() {
-      if (!history.length) return;
+      if (dailyChallengeActive || !history.length) return;
 
       const previous = history.pop();
       grid = copyGrid(previous.grid);
@@ -3018,7 +3591,7 @@
     }
 
     function showOnly(section) {
-      [mainMenu, modesMenu, achievementsMenu, statsMenu, leaderboardMenu, rulesMenu, settingsMenu, profilesMenu].forEach((item) => {
+      [mainMenu, dailyMenu, modesMenu, achievementsMenu, statsMenu, leaderboardMenu, rulesMenu, settingsMenu, profilesMenu].forEach((item) => {
         item.hidden = item !== section;
       });
 
@@ -3043,6 +3616,7 @@
       continueInfo.textContent = state
         ? MODES[lastMode].name + " · " + formatNumber(state.score) + " очков · плитка " + state.maxTile
         : "Нет текущей партии";
+      dailyInfo.textContent = dailyButtonStatus();
 
       ensurePeriods();
       const weeklyDone = completedGoalIds(periodData.week.progress, WEEKLY_GOALS).length;
@@ -3067,6 +3641,243 @@
       if (!state || !applyState(state)) return;
       hideMenu();
       render();
+    }
+
+
+    function dailyButtonStatus() {
+      const attempt = getDailyAttempt();
+
+      if (!attempt) return "Ещё не начато";
+      if (attempt.status === "completed") {
+        return formatNumber(attempt.score) + " " + translateCore("очков");
+      }
+      return "Попытка продолжается";
+    }
+
+    function renderDailyChallenge() {
+      dailyContent.innerHTML = "";
+      const today = dailyDateId();
+      const attempt = getDailyAttempt(today);
+      const results = dailyResultsForDate(today);
+      const completed = results.filter((item) => item.attempt.status === "completed");
+
+      const grid = document.createElement("div");
+      grid.className = "daily-grid";
+
+      const hero = document.createElement("section");
+      hero.className = "daily-hero";
+      const heroTitle = document.createElement("h3");
+      heroTitle.textContent = "Одинаковые условия для всех игроков";
+      const heroText = document.createElement("p");
+      heroText.textContent = "Одинаковое стартовое поле и одинаковая последовательность новых плиток для всех профилей.";
+
+      const meta = document.createElement("div");
+      meta.className = "daily-meta";
+
+      const dateBox = document.createElement("div");
+      dateBox.className = "daily-meta-item";
+      const dateLabel = document.createElement("span");
+      dateLabel.textContent = "Сегодня";
+      const dateValue = document.createElement("strong");
+      dateValue.textContent = new Date().toLocaleDateString(currentLocale(), {
+        day: "2-digit",
+        month: "long"
+      });
+      dateBox.append(dateLabel, dateValue);
+
+      const countdownBox = document.createElement("div");
+      countdownBox.className = "daily-meta-item";
+      const countdownLabel = document.createElement("span");
+      countdownLabel.textContent = "До нового испытания";
+      const countdownValue = document.createElement("strong");
+      countdownValue.id = "dailyCountdown";
+      countdownValue.setAttribute("data-no-i18n", "");
+      countdownValue.textContent = dailyCountdownText();
+      countdownBox.append(countdownLabel, countdownValue);
+
+      meta.append(dateBox, countdownBox);
+      hero.append(heroTitle, heroText, meta);
+      grid.appendChild(hero);
+
+      const current = document.createElement("section");
+      current.className = "daily-card daily-current";
+      const currentTitle = document.createElement("h3");
+      currentTitle.textContent = currentProfile().name;
+      const status = document.createElement("div");
+      status.className = "daily-current-status";
+
+      if (!attempt) {
+        status.textContent = "Ещё не начато";
+      } else if (attempt.status === "completed") {
+        status.textContent =
+          translateCore("Попытка завершена") + " · " +
+          formatNumber(attempt.score) + " " + translateCore("очков") +
+          " · " + attempt.maxTile + " " + translateCore("плитка");
+      } else {
+        status.textContent =
+          translateCore("Попытка продолжается") + " · " +
+          formatNumber(attempt.score) + " " + translateCore("очков") +
+          " · " + attempt.movesCount + " " + translateCore("ходов");
+      }
+
+      const action = document.createElement("button");
+      action.className = "menu-button primary";
+      action.disabled = Boolean(attempt && attempt.status === "completed");
+      action.textContent = !attempt
+        ? "Начать испытание"
+        : attempt.status === "active"
+          ? "Продолжить испытание"
+          : "Результат зафиксирован";
+      action.addEventListener("click", startDailyChallenge);
+
+      const rules = document.createElement("div");
+      rules.className = "daily-rules";
+      ["Одна попытка", "Без возвратов", "Без контрольных точек"].forEach((text, index) => {
+        const row = document.createElement("div");
+        row.className = "daily-rule";
+        const icon = document.createElement("b");
+        icon.textContent = ["1×", "↶", "💾"][index];
+        const copy = document.createElement("span");
+        copy.textContent = text;
+        row.append(icon, copy);
+        rules.appendChild(row);
+      });
+
+      current.append(currentTitle, status, action, rules);
+      grid.appendChild(current);
+
+      const streak = document.createElement("section");
+      streak.className = "daily-card";
+      const streakTitle = document.createElement("h3");
+      streakTitle.textContent = "Серия участия";
+      const streakMeta = document.createElement("div");
+      streakMeta.className = "daily-meta";
+
+      [
+        ["Текущая серия", currentDailyStreak()],
+        ["Лучшая серия", dailyBestStreak()],
+        ["Побед", dailyWinsForProfile()]
+      ].forEach(([label, value]) => {
+        const box = document.createElement("div");
+        box.className = "daily-meta-item";
+        const name = document.createElement("span");
+        name.textContent = label;
+        const number = document.createElement("strong");
+        number.textContent = String(value);
+        box.append(name, number);
+        streakMeta.appendChild(box);
+      });
+
+      streak.append(streakTitle, streakMeta);
+      grid.appendChild(streak);
+
+      const todayCard = document.createElement("section");
+      todayCard.className = "daily-card";
+      const todayTitle = document.createElement("h3");
+      todayTitle.textContent = "Сегодняшние результаты";
+      const resultList = document.createElement("div");
+      resultList.className = "daily-results";
+
+      if (!results.length) {
+        const empty = document.createElement("div");
+        empty.className = "daily-empty";
+        empty.textContent = "Нет результатов";
+        resultList.appendChild(empty);
+      } else {
+        results.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "daily-result-row" + (item.current ? " current" : "");
+
+          const rank = document.createElement("div");
+          rank.className = "daily-result-rank";
+          rank.textContent = index === 0 && item.attempt.status === "completed"
+            ? "🥇"
+            : String(index + 1);
+
+          const player = document.createElement("div");
+          player.className = "daily-result-player";
+          const name = document.createElement("strong");
+          name.textContent = item.name;
+          const details = document.createElement("small");
+          details.textContent = item.attempt.status === "completed"
+            ? translateCore("Попытка завершена")
+            : translateCore("Не завершено");
+          player.append(name, details);
+
+          const scoreBox = document.createElement("div");
+          scoreBox.className = "daily-result-score";
+          const scoreValue = document.createElement("strong");
+          scoreValue.textContent = formatNumber(item.attempt.score);
+          const tile = document.createElement("small");
+          tile.textContent =
+            item.attempt.maxTile + " " + translateCore("плитка") +
+            " · " + item.attempt.movesCount + " " + translateCore("ходов");
+          scoreBox.append(scoreValue, tile);
+
+          row.append(rank, player, scoreBox);
+          resultList.appendChild(row);
+        });
+      }
+
+      todayCard.append(todayTitle, resultList);
+      grid.appendChild(todayCard);
+
+      const historyCard = document.createElement("section");
+      historyCard.className = "daily-card";
+      const historyTitle = document.createElement("h3");
+      historyTitle.textContent = "История за 30 дней";
+      const historyList = document.createElement("div");
+      historyList.className = "daily-history";
+      let historyRows = 0;
+
+      for (let offset = 0; offset < 30; offset++) {
+        const date = new Date();
+        date.setDate(date.getDate() - offset);
+        const id = dailyDateId(date);
+        const dateResults = dailyResultsForDate(id);
+        if (!dateResults.length) continue;
+
+        historyRows += 1;
+        const finished = dateResults.filter((item) => item.attempt.status === "completed");
+        const winner = finished.length ? finished[0] : null;
+
+        const row = document.createElement("div");
+        row.className = "daily-history-row";
+
+        const dateText = document.createElement("span");
+        dateText.textContent = formatDailyDate(id);
+
+        const winnerText = document.createElement("strong");
+        winnerText.textContent = winner
+          ? winner.name
+          : translateCore("Не завершено");
+
+        const scoreText = document.createElement("span");
+        scoreText.textContent = winner
+          ? formatNumber(winner.attempt.score)
+          : dateResults.length + " " + translateCore("Участников");
+
+        row.append(dateText, winnerText, scoreText);
+        historyList.appendChild(row);
+      }
+
+      if (!historyRows) {
+        const empty = document.createElement("div");
+        empty.className = "daily-empty";
+        empty.textContent = "Нет результатов";
+        historyList.appendChild(empty);
+      }
+
+      historyCard.append(historyTitle, historyList);
+      grid.appendChild(historyCard);
+
+      dailyContent.appendChild(grid);
+      applyLanguage();
+    }
+
+    function updateDailyCountdown() {
+      const element = document.getElementById("dailyCountdown");
+      if (element) element.textContent = dailyCountdownText();
     }
 
     function renderModes(openEasyPoints = false) {
@@ -4116,7 +4927,7 @@
     }
 
     function requestRestart() {
-      if (!hasActiveGame) return;
+      if (!hasActiveGame || dailyChallengeActive) return;
       if (!settings.confirmNewGame) {
         startNewGame(mode);
         return;
@@ -4172,6 +4983,11 @@
     }
 
     gameStateAction.addEventListener("click", () => {
+      if (dailyChallengeActive) {
+        showMenu();
+        return;
+      }
+
       if (gameOver) {
         requestRestart();
         return;
@@ -4190,6 +5006,12 @@
     continueButton.addEventListener("click", () => {
       const lastMode = lastPlayableMode();
       if (lastMode) continueMode(lastMode);
+    });
+
+    dailyButton.addEventListener("click", () => {
+      checkAllTimeAchievements();
+      renderDailyChallenge();
+      showOnly(dailyMenu);
     });
 
     modesButton.addEventListener("click", () => {
@@ -4345,6 +5167,8 @@
       saveUsage();
       checkAllTimeAchievements();
     }, 10000);
+
+    setInterval(updateDailyCountdown, 1000);
 
     window.addEventListener("pagehide", () => {
       flushActiveTime();

@@ -1,4 +1,4 @@
-const CACHE_NAME = "mika-2048-v12-tutorial-leaderboard";
+const CACHE_NAME = "mika-2048-v13-daily-challenge";
 const APP_FILES = [
   "./",
   "./index.html",
