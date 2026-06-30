@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="2048">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <title>2048 — v13</title>
+  <title>2048 — v14</title>
 
   <style>
     :root {
@@ -1609,6 +1609,319 @@
       }
     }
 
+    .menu {
+      padding-bottom: max(112px, calc(env(safe-area-inset-bottom) + 92px));
+    }
+
+    #mainMenu {
+      padding-top: max(28px, env(safe-area-inset-top));
+    }
+
+    .compact-home {
+      min-height: calc(100dvh - 126px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 12px;
+    }
+
+    .compact-brand {
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .compact-brand .menu-title {
+      margin-bottom: 5px;
+      font-size: clamp(64px, 20vw, 88px);
+      letter-spacing: -6px;
+    }
+
+    .compact-brand .menu-record {
+      margin-bottom: 0;
+      font-size: 14px;
+    }
+
+    .compact-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .compact-actions .menu-button {
+      min-height: 56px;
+      font-size: 20px;
+    }
+
+    .daily-preview {
+      min-height: 58px;
+      margin-top: 10px;
+      padding: 10px 15px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 11px;
+      align-items: center;
+      border-radius: 13px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.24), transparent 42%),
+        linear-gradient(135deg, #d79a46, #f77d5c);
+      color: white;
+      text-align: left;
+      box-shadow: 0 2px 0 rgba(0,0,0,.08);
+    }
+
+    .daily-preview-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: rgba(255,255,255,.18);
+      font-size: 22px;
+    }
+
+    .daily-preview-copy {
+      min-width: 0;
+    }
+
+    .daily-preview-copy strong {
+      display: block;
+      overflow: hidden;
+      font-size: 17px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .daily-preview-copy small {
+      display: block;
+      margin-top: 3px;
+      overflow: hidden;
+      font-size: 12px;
+      opacity: .88;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .daily-preview-arrow {
+      font-size: 24px;
+      opacity: .82;
+    }
+
+    .root-page-header {
+      padding: max(24px, env(safe-area-inset-top)) 2px 16px;
+      text-align: left;
+    }
+
+    .root-page-header h2 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+    }
+
+    .root-page-header p {
+      margin: 6px 0 0;
+      font-size: 14px;
+      line-height: 1.35;
+      opacity: .72;
+    }
+
+    .progress-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .progress-summary-item {
+      min-width: 0;
+      padding: 12px 10px;
+      border-radius: 12px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .progress-summary-item span {
+      display: block;
+      overflow: hidden;
+      font-size: 11px;
+      opacity: .68;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress-summary-item strong {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      font-size: 21px;
+      font-variant-numeric: tabular-nums;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress-links {
+      display: grid;
+      gap: 9px;
+    }
+
+    .progress-link {
+      width: 100%;
+      min-height: 70px;
+      padding: 12px 13px;
+      display: grid;
+      grid-template-columns: 42px minmax(0,1fr) auto;
+      gap: 11px;
+      align-items: center;
+      border-radius: 13px;
+      background: rgba(185,170,156,.30);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .progress-link:active {
+      transform: translateY(1px);
+    }
+
+    .progress-link-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.55);
+      font-size: 22px;
+    }
+
+    .progress-link-copy {
+      min-width: 0;
+    }
+
+    .progress-link-copy strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .progress-link-copy small {
+      display: block;
+      margin-top: 4px;
+      overflow: hidden;
+      font-size: 12px;
+      opacity: .70;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress-link-arrow {
+      font-size: 23px;
+      opacity: .55;
+    }
+
+    .settings-shortcut {
+      margin-bottom: 12px;
+      padding: 14px;
+      border-radius: 13px;
+      background: rgba(185,170,156,.30);
+      text-align: left;
+    }
+
+    .settings-shortcut h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .settings-shortcut .settings-action {
+      width: 100%;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 42;
+      width: min(100%, 520px);
+      padding:
+        8px
+        max(12px, env(safe-area-inset-right))
+        max(8px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px;
+      background:
+        linear-gradient(to top, rgba(247,244,234,1) 72%, rgba(247,244,234,.94));
+      border-top: 1px solid rgba(119,111,102,.12);
+      transform: translateX(-50%);
+      box-shadow: 0 -8px 24px rgba(80,65,50,.06);
+    }
+
+    .bottom-nav-button {
+      min-width: 0;
+      min-height: 54px;
+      padding: 5px 3px 4px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 2px;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text);
+      opacity: .62;
+    }
+
+    .bottom-nav-button.active {
+      background: rgba(247,125,92,.13);
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .bottom-nav-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .bottom-nav-label {
+      max-width: 100%;
+      overflow: hidden;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nested-menu .load-header {
+      margin-bottom: 14px;
+    }
+
+    @media (max-height: 700px) {
+      .compact-home {
+        min-height: auto;
+        justify-content: flex-start;
+      }
+
+      .compact-brand {
+        margin-bottom: 10px;
+      }
+
+      .compact-brand .menu-title {
+        font-size: 60px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .bottom-nav-label {
+        font-size: 9px;
+      }
+
+      .progress-link {
+        grid-template-columns: 38px minmax(0,1fr) auto;
+      }
+
+      .progress-link-icon {
+        width: 38px;
+        height: 38px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1657,48 +1970,101 @@
 
   <section id="menuScreen" class="screen">
     <div id="mainMenu" class="menu">
-      <h2 class="menu-title">2048</h2>
-      <p id="menuRecord" class="menu-record">Лучший результат: 0</p>
+      <div class="compact-home">
+        <div class="compact-brand">
+          <h2 class="menu-title">2048</h2>
+          <p id="menuRecord" class="menu-record">Лучший результат: 0</p>
+        </div>
 
-      <button id="profileButton" class="profile-chip">
-        <strong id="currentProfileName">Mikayil</strong>
-        <small>Сменить игрока</small>
-      </button>
-
-      <div class="menu-buttons">
-        <button id="continueButton" class="menu-button primary">
-          Продолжить
-          <small id="continueInfo"></small>
+        <button id="profileButton" class="profile-chip">
+          <strong id="currentProfileName">Mikayil</strong>
+          <small>Сменить игрока</small>
         </button>
 
-        <button id="dailyButton" class="menu-button daily-button">
-          Испытание дня
-          <small id="dailyInfo"></small>
+        <div class="compact-actions">
+          <button id="continueButton" class="menu-button primary">
+            Продолжить
+            <small id="continueInfo"></small>
+          </button>
+
+          <button id="modesButton" class="menu-button">Новая игра</button>
+        </div>
+
+        <button id="dailyButton" class="daily-preview">
+          <span class="daily-preview-icon">☀️</span>
+          <span class="daily-preview-copy">
+            <strong>Испытание дня</strong>
+            <small id="dailyInfo"></small>
+          </span>
+          <span class="daily-preview-arrow">›</span>
         </button>
-
-        <button id="modesButton" class="menu-button">Выбрать режим</button>
-
-        <button id="achievementsButton" class="menu-button">
-          Достижения
-          <small id="achievementsInfo"></small>
-        </button>
-
-        <button id="statsButton" class="menu-button">Статистика</button>
-        <button id="leaderboardButton" class="menu-button">Таблица лидеров</button>
-        <button id="rulesButton" class="menu-button">Правила и обучение</button>
-        <button id="settingsButton" class="menu-button">Настройки</button>
       </div>
     </div>
 
     <div id="dailyMenu" class="menu" hidden>
-      <div class="load-header">
-        <button class="back-button" data-back-main aria-label="Назад">‹</button>
-        <h2 class="load-title">Испытание дня</h2>
+      <div class="root-page-header">
+        <h2>Испытание дня</h2>
+        <p>Одинаковые условия для всех игроков</p>
       </div>
       <div id="dailyContent"></div>
     </div>
 
-    <div id="modesMenu" class="menu" hidden>
+    <div id="progressMenu" class="menu" hidden>
+      <div class="root-page-header">
+        <h2>Прогресс</h2>
+        <p>Рекорды, достижения и статистика текущего игрока</p>
+      </div>
+
+      <div class="progress-summary">
+        <div class="progress-summary-item">
+          <span>Лучший результат</span>
+          <strong id="progressBest">0</strong>
+        </div>
+        <div class="progress-summary-item">
+          <span>Макс. плитка</span>
+          <strong id="progressTile">0</strong>
+        </div>
+        <div class="progress-summary-item">
+          <span>Достижения</span>
+          <strong id="progressAchievements">0/0</strong>
+        </div>
+        <div class="progress-summary-item">
+          <span>Активное время</span>
+          <strong id="progressTime">0 мин.</strong>
+        </div>
+      </div>
+
+      <div class="progress-links">
+        <button id="achievementsButton" class="progress-link">
+          <span class="progress-link-icon">🏆</span>
+          <span class="progress-link-copy">
+            <strong>Достижения</strong>
+            <small id="achievementsInfo"></small>
+          </span>
+          <span class="progress-link-arrow">›</span>
+        </button>
+
+        <button id="statsButton" class="progress-link">
+          <span class="progress-link-icon">📊</span>
+          <span class="progress-link-copy">
+            <strong>Статистика</strong>
+            <small>Все режимы и игровые показатели</small>
+          </span>
+          <span class="progress-link-arrow">›</span>
+        </button>
+
+        <button id="leaderboardButton" class="progress-link">
+          <span class="progress-link-icon">🥇</span>
+          <span class="progress-link-copy">
+            <strong>Таблица лидеров</strong>
+            <small>Сравнение профилей на этом устройстве</small>
+          </span>
+          <span class="progress-link-arrow">›</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="modesMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Режимы</h2>
@@ -1706,7 +2072,7 @@
       <div id="modeList" class="save-list"></div>
     </div>
 
-    <div id="achievementsMenu" class="menu" hidden>
+    <div id="achievementsMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Достижения</h2>
@@ -1714,7 +2080,7 @@
       <div id="achievementsContent"></div>
     </div>
 
-    <div id="statsMenu" class="menu" hidden>
+    <div id="statsMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Статистика</h2>
@@ -1722,7 +2088,7 @@
       <div id="statsList" class="save-list"></div>
     </div>
 
-    <div id="leaderboardMenu" class="menu" hidden>
+    <div id="leaderboardMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Таблица лидеров</h2>
@@ -1730,7 +2096,7 @@
       <div id="leaderboardContent"></div>
     </div>
 
-    <div id="rulesMenu" class="menu" hidden>
+    <div id="rulesMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button class="back-button" data-back-main aria-label="Назад">‹</button>
         <h2 class="load-title">Правила и обучение</h2>
@@ -1739,20 +2105,45 @@
     </div>
 
     <div id="settingsMenu" class="menu" hidden>
-      <div class="load-header">
-        <button class="back-button" data-back-main aria-label="Назад">‹</button>
-        <h2 class="load-title">Настройки</h2>
+      <div class="root-page-header">
+        <h2>Настройки</h2>
+        <p>Игра, профили, язык и резервная копия</p>
       </div>
+
+      <section class="settings-shortcut">
+        <h3>Помощь</h3>
+        <button id="rulesButton" class="settings-action secondary">Правила и обучение</button>
+      </section>
+
       <div id="settingsContent"></div>
     </div>
 
-    <div id="profilesMenu" class="menu" hidden>
+    <div id="profilesMenu" class="menu nested-menu" hidden>
       <div class="load-header">
         <button id="profilesBackButton" class="back-button" aria-label="Назад">‹</button>
         <h2 class="load-title">Игроки</h2>
       </div>
       <div id="profilesContent"></div>
     </div>
+
+    <nav id="bottomNav" class="bottom-nav" aria-label="Навигация">
+      <button id="navPlayButton" class="bottom-nav-button active" data-tab="play">
+        <span class="bottom-nav-icon">🎮</span>
+        <span class="bottom-nav-label">Играть</span>
+      </button>
+      <button id="navDailyButton" class="bottom-nav-button" data-tab="daily">
+        <span class="bottom-nav-icon">☀️</span>
+        <span class="bottom-nav-label">Испытание</span>
+      </button>
+      <button id="navProgressButton" class="bottom-nav-button" data-tab="progress">
+        <span class="bottom-nav-icon">🏆</span>
+        <span class="bottom-nav-label">Прогресс</span>
+      </button>
+      <button id="settingsButton" class="bottom-nav-button" data-tab="settings">
+        <span class="bottom-nav-icon">⚙️</span>
+        <span class="bottom-nav-label">Настройки</span>
+      </button>
+    </nav>
   </section>
 
   <section id="onboardingLayer" class="onboarding-layer" hidden aria-modal="true">
@@ -1784,8 +2175,8 @@
     "use strict";
 
     const N = 4;
-    const APP_VERSION = "13.0";
-    const APP_UPDATED_AT = "29.06.2026";
+    const APP_VERSION = "14.0";
+    const APP_UPDATED_AT = "30.06.2026";
     const BACKUP_FORMAT = "mika2048-backup";
     const BACKUP_VERSION = 1;
     const ACTIVE_PREFIX = "mika2048-active-v5-";
@@ -1822,6 +2213,8 @@
     Object.assign(PHRASE_TRANSLATIONS, {"Таблица лидеров":{"ru":"Таблица лидеров","en":"Leaderboard","az":"Liderlər cədvəli","tr":"Lider tablosu"},"Правила и обучение":{"ru":"Правила и обучение","en":"Rules and tutorial","az":"Qaydalar və təlim","tr":"Kurallar ve eğitim"},"Локальное соревнование":{"ru":"Локальное соревнование","en":"Local competition","az":"Yerli yarış","tr":"Yerel yarışma"},"Результаты сравниваются только между профилями на этом устройстве.":{"ru":"Результаты сравниваются только между профилями на этом устройстве.","en":"Results are compared only between profiles on this device.","az":"Nəticələr yalnız bu cihazdakı profillər arasında müqayisə olunur.","tr":"Sonuçlar yalnızca bu cihazdaki profiller arasında karşılaştırılır."},"Общий рейтинг":{"ru":"Общий рейтинг","en":"Overall ranking","az":"Ümumi reytinq","tr":"Genel sıralama"},"Рейтинг по режимам":{"ru":"Рейтинг по режимам","en":"Ranking by mode","az":"Rejimlər üzrə reytinq","tr":"Modlara göre sıralama"},"ходов":{"ru":"ходов","en":"moves","az":"gediş","tr":"hamle"},"плитка":{"ru":"плитка","en":"tile","az":"daş","tr":"karo"},"достижений":{"ru":"достижений","en":"achievements","az":"nailiyyət","tr":"başarı"},"Как играть":{"ru":"Как играть","en":"How to play","az":"Necə oynamaq olar","tr":"Nasıl oynanır"},"Свайпай вверх, вниз, влево или вправо. Одинаковые плитки соединяются. После каждого успешного хода появляется новая плитка 2 или 4.":{"ru":"Свайпай вверх, вниз, влево или вправо. Одинаковые плитки соединяются. После каждого успешного хода появляется новая плитка 2 или 4.","en":"Swipe up, down, left, or right. Equal tiles merge. After every successful move, a new 2 or 4 tile appears.","az":"Yuxarı, aşağı, sola və ya sağa sürüşdür. Eyni daşlar birləşir. Hər uğurlu gedişdən sonra yeni 2 və ya 4 daşı yaranır.","tr":"Yukarı, aşağı, sola veya sağa kaydır. Aynı karolar birleşir. Her başarılı hamleden sonra yeni bir 2 veya 4 karosu gelir."},"Как работают возвраты":{"ru":"Как работают возвраты","en":"How undo works","az":"Geri qaytarma necə işləyir","tr":"Geri alma nasıl çalışır"},"Число на кнопке возврата показывает, сколько последних положений хранится в памяти. Возвраты не расходуются навсегда: новые ходы снова заполняют историю.":{"ru":"Число на кнопке возврата показывает, сколько последних положений хранится в памяти. Возвраты не расходуются навсегда: новые ходы снова заполняют историю.","en":"The number on the undo button shows how many previous positions are stored. Undo is not permanently consumed: new moves fill the history again.","az":"Geri qaytarma düyməsindəki rəqəm yaddaşda neçə əvvəlki vəziyyətin saxlandığını göstərir. Geri qaytarma birdəfəlik tükənmir: yeni gedişlər tarixçəni yenidən doldurur.","tr":"Geri alma düğmesindeki sayı, kaç önceki konumun hafızada tutulduğunu gösterir. Geri alma kalıcı olarak tükenmez; yeni hamleler geçmişi yeniden doldurur."},"Контрольные точки":{"ru":"Контрольные точки","en":"Checkpoints","az":"Nəzarət nöqtələri","tr":"Kontrol noktaları"},"В лёгком режиме можно вручную сохранить до трёх важных позиций. Загрузка точки заменяет текущую лёгкую партию, но сама точка остаётся.":{"ru":"В лёгком режиме можно вручную сохранить до трёх важных позиций. Загрузка точки заменяет текущую лёгкую партию, но сама точка остаётся.","en":"In Easy mode you can manually save up to three important positions. Loading one replaces the current Easy game, but the checkpoint remains.","az":"Asan rejimdə üç vacib vəziyyəti əl ilə saxlamaq olar. Nöqtəni yükləmək cari Asan oyunu əvəz edir, lakin nöqtənin özü qalır.","tr":"Kolay modda üç önemli konumu elle kaydedebilirsin. Bir noktayı yüklemek mevcut Kolay oyunu değiştirir, ancak nokta listede kalır."},"Режимы игры":{"ru":"Режимы игры","en":"Game modes","az":"Oyun rejimləri","tr":"Oyun modları"},"Показать обучение":{"ru":"Показать обучение","en":"Show tutorial","az":"Təlimi göstər","tr":"Eğitimi göster"},"Соединяй одинаковые плитки":{"ru":"Соединяй одинаковые плитки","en":"Merge matching tiles","az":"Eyni daşları birləşdir","tr":"Aynı karoları birleştir"},"Свайпай по экрану. Одинаковые плитки объединяются, а после успешного хода появляется новая.":{"ru":"Свайпай по экрану. Одинаковые плитки объединяются, а после успешного хода появляется новая.","en":"Swipe across the screen. Matching tiles merge, and a new tile appears after a successful move.","az":"Ekranda sürüşdür. Eyni daşlar birləşir və uğurlu gedişdən sonra yeni daş yaranır.","tr":"Ekranda kaydır. Aynı karolar birleşir ve başarılı bir hamleden sonra yeni karo gelir."},"Возвраты — это память":{"ru":"Возвраты — это память","en":"Undo is stored history","az":"Geri qaytarma yaddaşdır","tr":"Geri alma hafızadır"},"Лёгкий режим хранит 20 последних положений, средний — 5, сложный — 1, хардкор — ни одного.":{"ru":"Лёгкий режим хранит 20 последних положений, средний — 5, сложный — 1, хардкор — ни одного.","en":"Easy stores the last 20 positions, Medium stores 5, Hard stores 1, and Hardcore stores none.","az":"Asan rejim son 20 vəziyyəti, Orta 5-ni, Çətin 1-ni saxlayır, Hardkor isə heç birini saxlamır.","tr":"Kolay son 20 konumu, Orta 5'i, Zor 1'i saklar; Hardkor hiçbirini saklamaz."},"Играй и соревнуйся":{"ru":"Играй и соревнуйся","en":"Play and compete","az":"Oyna və yarış","tr":"Oyna ve yarış"},"Создавай отдельные профили для семьи. У каждого игрока свои партии, рекорды, достижения и статистика.":{"ru":"Создавай отдельные профили для семьи. У каждого игрока свои партии, рекорды, достижения и статистика.","en":"Create separate profiles for family members. Every player has their own games, records, achievements, and statistics.","az":"Ailə üzvləri üçün ayrıca profillər yarat. Hər oyunçunun öz oyunları, rekordları, nailiyyətləri və statistikası var.","tr":"Aile üyeleri için ayrı profiller oluştur. Her oyuncunun kendi oyunları, rekorları, başarıları ve istatistikleri vardır."},"Пропустить":{"ru":"Пропустить","en":"Skip","az":"Keç","tr":"Atla"},"Далее":{"ru":"Далее","en":"Next","az":"Növbəti","tr":"İleri"},"Готово":{"ru":"Готово","en":"Done","az":"Hazırdır","tr":"Bitti"},"Обучение завершено":{"ru":"Обучение завершено","en":"Tutorial completed","az":"Təlim tamamlandı","tr":"Eğitim tamamlandı"},"Текущий":{"ru":"Текущий","en":"Current","az":"Cari","tr":"Mevcut"},"Нет данных":{"ru":"Нет данных","en":"No data","az":"Məlumat yoxdur","tr":"Veri yok"},"профилей":{"ru":"профилей","en":"profiles","az":"profil","tr":"profil"}});
 
     Object.assign(PHRASE_TRANSLATIONS, {"Испытание дня":{"ru":"Испытание дня","en":"Daily challenge","az":"Günün sınağı","tr":"Günün meydan okuması"},"Одинаковые условия для всех игроков":{"ru":"Одинаковые условия для всех игроков","en":"The same conditions for every player","az":"Bütün oyunçular üçün eyni şərtlər","tr":"Tüm oyuncular için aynı koşullar"},"Одинаковое стартовое поле и одинаковая последовательность новых плиток для всех профилей.":{"ru":"Одинаковое стартовое поле и одинаковая последовательность новых плиток для всех профилей.","en":"Every profile gets the same starting board and the same sequence of new tiles.","az":"Bütün profillər eyni başlanğıc sahəsini və eyni yeni daş ardıcıllığını alır.","tr":"Tüm profiller aynı başlangıç tahtasını ve aynı yeni karo sırasını alır."},"До нового испытания":{"ru":"До нового испытания","en":"Until the next challenge","az":"Yeni sınağa qədər","tr":"Yeni meydan okumaya kalan"},"Сегодня":{"ru":"Сегодня","en":"Today","az":"Bu gün","tr":"Bugün"},"Одна попытка":{"ru":"Одна попытка","en":"One attempt","az":"Bir cəhd","tr":"Tek deneme"},"Без возвратов":{"ru":"Без возвратов","en":"No undo","az":"Geri qaytarma yoxdur","tr":"Geri alma yok"},"Без контрольных точек":{"ru":"Без контрольных точек","en":"No checkpoints","az":"Nəzarət nöqtəsi yoxdur","tr":"Kontrol noktası yok"},"Ещё не начато":{"ru":"Ещё не начато","en":"Not started yet","az":"Hələ başlanmayıb","tr":"Henüz başlanmadı"},"Попытка продолжается":{"ru":"Попытка продолжается","en":"Attempt in progress","az":"Cəhd davam edir","tr":"Deneme devam ediyor"},"Попытка завершена":{"ru":"Попытка завершена","en":"Attempt completed","az":"Cəhd tamamlandı","tr":"Deneme tamamlandı"},"Начать испытание":{"ru":"Начать испытание","en":"Start challenge","az":"Sınağa başla","tr":"Meydan okumayı başlat"},"Продолжить испытание":{"ru":"Продолжить испытание","en":"Continue challenge","az":"Sınağa davam et","tr":"Meydan okumaya devam et"},"Результат зафиксирован":{"ru":"Результат зафиксирован","en":"Result recorded","az":"Nəticə qeydə alındı","tr":"Sonuç kaydedildi"},"Сегодняшние результаты":{"ru":"Сегодняшние результаты","en":"Today's results","az":"Bugünkü nəticələr","tr":"Bugünün sonuçları"},"История за 30 дней":{"ru":"История за 30 дней","en":"30-day history","az":"30 günlük tarixçə","tr":"30 günlük geçmiş"},"Серия участия":{"ru":"Серия участия","en":"Participation streak","az":"İştirak seriyası","tr":"Katılım serisi"},"Текущая серия":{"ru":"Текущая серия","en":"Current streak","az":"Cari seriya","tr":"Mevcut seri"},"Лучшая серия":{"ru":"Лучшая серия","en":"Best streak","az":"Ən yaxşı seriya","tr":"En iyi seri"},"Побед":{"ru":"Побед","en":"Wins","az":"Qələbələr","tr":"Galibiyet"},"дней":{"ru":"дней","en":"days","az":"gün","tr":"gün"},"Участников":{"ru":"Участников","en":"Players","az":"İştirakçılar","tr":"Katılımcılar"},"Победитель":{"ru":"Победитель","en":"Winner","az":"Qalib","tr":"Kazanan"},"Не завершено":{"ru":"Не завершено","en":"Not finished","az":"Tamamlanmayıb","tr":"Tamamlanmadı"},"Нет результатов":{"ru":"Нет результатов","en":"No results","az":"Nəticə yoxdur","tr":"Sonuç yok"},"Лидер сегодня":{"ru":"Лидер сегодня","en":"Today's leader","az":"Bu günün lideri","tr":"Bugünün lideri"},"Испытание завершено":{"ru":"Испытание завершено","en":"Challenge completed","az":"Sınaq tamamlandı","tr":"Meydan okuma tamamlandı"},"Первое испытание":{"ru":"Первое испытание","en":"First challenge","az":"İlk sınaq","tr":"İlk meydan okuma"},"Принять участие в испытании дня":{"ru":"Принять участие в испытании дня","en":"Take part in a daily challenge","az":"Günün sınağında iştirak et","tr":"Günün meydan okumasına katıl"},"Победитель дня":{"ru":"Победитель дня","en":"Daily winner","az":"Günün qalibi","tr":"Günün kazananı"},"Победить хотя бы в одном локальном испытании":{"ru":"Победить хотя бы в одном локальном испытании","en":"Win at least one local daily challenge","az":"Ən azı bir yerli gündəlik sınaqda qalib gəl","tr":"En az bir yerel günlük meydan okumayı kazan"},"Три дня подряд":{"ru":"Три дня подряд","en":"Three days in a row","az":"Ardıcıl üç gün","tr":"Üç gün üst üste"},"Участвовать 3 дня подряд":{"ru":"Участвовать 3 дня подряд","en":"Participate 3 days in a row","az":"Ardıcıl 3 gün iştirak et","tr":"3 gün üst üste katıl"},"Неделя испытаний":{"ru":"Неделя испытаний","en":"Challenge week","az":"Sınaq həftəsi","tr":"Meydan okuma haftası"},"Участвовать 7 дней подряд":{"ru":"Участвовать 7 дней подряд","en":"Participate 7 days in a row","az":"Ardıcıl 7 gün iştirak et","tr":"7 gün üst üste katıl"},"Две недели испытаний":{"ru":"Две недели испытаний","en":"Two challenge weeks","az":"İki sınaq həftəsi","tr":"İki meydan okuma haftası"},"Участвовать 14 дней подряд":{"ru":"Участвовать 14 дней подряд","en":"Participate 14 days in a row","az":"Ardıcıl 14 gün iştirak et","tr":"14 gün üst üste katıl"},"Месяц испытаний":{"ru":"Месяц испытаний","en":"Challenge month","az":"Sınaq ayı","tr":"Meydan okuma ayı"},"Участвовать 30 дней подряд":{"ru":"Участвовать 30 дней подряд","en":"Participate 30 days in a row","az":"Ardıcıl 30 gün iştirak et","tr":"30 gün üst üste katıl"},"очков":{"ru":"очков","en":"points","az":"xal","tr":"puan"},"ходов":{"ru":"ходов","en":"moves","az":"gediş","tr":"hamle"},"плитка":{"ru":"плитка","en":"tile","az":"daş","tr":"karo"},"Текущий игрок":{"ru":"Текущий игрок","en":"Current player","az":"Cari oyunçu","tr":"Mevcut oyuncu"}});
+
+    Object.assign(PHRASE_TRANSLATIONS, {"Играть":{"ru":"Играть","en":"Play","az":"Oyna","tr":"Oyna"},"Испытание":{"ru":"Испытание","en":"Challenge","az":"Sınaq","tr":"Meydan okuma"},"Прогресс":{"ru":"Прогресс","en":"Progress","az":"İrəliləyiş","tr":"İlerleme"},"Рекорды, достижения и статистика текущего игрока":{"ru":"Рекорды, достижения и статистика текущего игрока","en":"Records, achievements, and statistics for the current player","az":"Cari oyunçunun rekordları, nailiyyətləri və statistikası","tr":"Mevcut oyuncunun rekorları, başarıları ve istatistikleri"},"Все режимы и игровые показатели":{"ru":"Все режимы и игровые показатели","en":"All modes and gameplay metrics","az":"Bütün rejimlər və oyun göstəriciləri","tr":"Tüm modlar ve oyun istatistikleri"},"Сравнение профилей на этом устройстве":{"ru":"Сравнение профилей на этом устройстве","en":"Compare profiles on this device","az":"Bu cihazdakı profilləri müqayisə et","tr":"Bu cihazdaki profilleri karşılaştır"},"Игра, профили, язык и резервная копия":{"ru":"Игра, профили, язык и резервная копия","en":"Game, profiles, language, and backup","az":"Oyun, profillər, dil və ehtiyat nüsxə","tr":"Oyun, profiller, dil ve yedek"},"Помощь":{"ru":"Помощь","en":"Help","az":"Kömək","tr":"Yardım"},"Навигация":{"ru":"Навигация","en":"Navigation","az":"Naviqasiya","tr":"Gezinme"}});
 
     const localizationTextSources = new WeakMap();
     const localizationAttributeSources = new WeakMap();
@@ -2198,6 +2591,7 @@
     const menuScreen = $("menuScreen");
     const mainMenu = $("mainMenu");
     const dailyMenu = $("dailyMenu");
+    const progressMenu = $("progressMenu");
     const modesMenu = $("modesMenu");
     const achievementsMenu = $("achievementsMenu");
     const statsMenu = $("statsMenu");
@@ -2209,6 +2603,10 @@
     const continueInfo = $("continueInfo");
     const dailyButton = $("dailyButton");
     const dailyInfo = $("dailyInfo");
+    const navPlayButton = $("navPlayButton");
+    const navDailyButton = $("navDailyButton");
+    const navProgressButton = $("navProgressButton");
+    const bottomNav = $("bottomNav");
     const modesButton = $("modesButton");
     const achievementsButton = $("achievementsButton");
     const achievementsInfo = $("achievementsInfo");
@@ -2226,6 +2624,10 @@
     const leaderboardContent = $("leaderboardContent");
     const rulesContent = $("rulesContent");
     const settingsContent = $("settingsContent");
+    const progressBest = $("progressBest");
+    const progressTile = $("progressTile");
+    const progressAchievements = $("progressAchievements");
+    const progressTime = $("progressTime");
     const profilesContent = $("profilesContent");
     const profilesBackButton = $("profilesBackButton");
 
@@ -3590,10 +3992,59 @@
       render();
     }
 
+
+    let profilesReturnSection = mainMenu;
+
+    function renderProgressHome() {
+      flushActiveTime();
+      saveUsage();
+      ensurePeriods();
+      checkAllTimeAchievements(true);
+
+      const total = overallStats();
+      const unlocked = Object.keys(achievementData.unlocked).length;
+
+      progressBest.textContent = formatNumber(total.bestScore);
+      progressTile.textContent = String(total.maxTile);
+      progressAchievements.textContent = unlocked + "/" + ALL_TIME_ACHIEVEMENTS.length;
+      progressTime.textContent = formatDuration(usage.activeTimeMs);
+
+      const weeklyDone = completedGoalIds(periodData.week.progress, WEEKLY_GOALS).length;
+      const monthlyDone = completedGoalIds(periodData.month.progress, MONTHLY_GOALS).length;
+      achievementsInfo.textContent =
+        "Неделя " + weeklyDone + "/" + WEEKLY_GOALS.length +
+        " · месяц " + monthlyDone + "/" + MONTHLY_GOALS.length;
+
+      applyLanguage();
+    }
+
+    function rootTabForSection(section) {
+      if (section === dailyMenu) return "daily";
+      if (
+        section === progressMenu ||
+        section === achievementsMenu ||
+        section === statsMenu ||
+        section === leaderboardMenu
+      ) return "progress";
+      if (
+        section === settingsMenu ||
+        section === rulesMenu ||
+        section === profilesMenu
+      ) return "settings";
+      return "play";
+    }
+
+    function setBottomNavActive(tab) {
+      document.querySelectorAll(".bottom-nav-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tab);
+      });
+    }
+
     function showOnly(section) {
-      [mainMenu, dailyMenu, modesMenu, achievementsMenu, statsMenu, leaderboardMenu, rulesMenu, settingsMenu, profilesMenu].forEach((item) => {
+      [mainMenu, dailyMenu, progressMenu, modesMenu, achievementsMenu, statsMenu, leaderboardMenu, rulesMenu, settingsMenu, profilesMenu].forEach((item) => {
         item.hidden = item !== section;
       });
+      setBottomNavActive(rootTabForSection(section));
 
       requestAnimationFrame(() => {
         menuScreen.scrollTop = 0;
@@ -3623,6 +4074,8 @@
       const monthlyDone = completedGoalIds(periodData.month.progress, MONTHLY_GOALS).length;
       achievementsInfo.textContent = "Неделя " + weeklyDone + "/" + WEEKLY_GOALS.length +
         " · месяц " + monthlyDone + "/" + MONTHLY_GOALS.length;
+
+      if (!progressMenu.hidden) renderProgressHome();
     }
 
     function showMenu() {
@@ -4643,6 +5096,7 @@
       playerButton.className = "menu-button";
       playerButton.innerHTML = "Управление игроками<small>Сейчас: " + currentProfile().name + "</small>";
       playerButton.addEventListener("click", () => {
+        profilesReturnSection = settingsMenu;
         renderProfiles();
         showOnly(profilesMenu);
       });
@@ -5008,10 +5462,23 @@
       if (lastMode) continueMode(lastMode);
     });
 
-    dailyButton.addEventListener("click", () => {
+    function openDailyTab() {
       checkAllTimeAchievements();
       renderDailyChallenge();
       showOnly(dailyMenu);
+    }
+
+    dailyButton.addEventListener("click", openDailyTab);
+    navDailyButton.addEventListener("click", openDailyTab);
+
+    navPlayButton.addEventListener("click", () => {
+      updateMainMenu();
+      showOnly(mainMenu);
+    });
+
+    navProgressButton.addEventListener("click", () => {
+      renderProgressHome();
+      showOnly(progressMenu);
     });
 
     modesButton.addEventListener("click", () => {
@@ -5048,6 +5515,7 @@
     });
 
     profileButton.addEventListener("click", () => {
+      profilesReturnSection = mainMenu;
       renderProfiles();
       showOnly(profilesMenu);
     });
@@ -5064,12 +5532,31 @@
 
     profilesBackButton.addEventListener("click", () => {
       updateMainMenu();
-      showOnly(mainMenu);
+      if (profilesReturnSection === settingsMenu) renderSettings();
+      showOnly(profilesReturnSection || mainMenu);
     });
 
     document.querySelectorAll("[data-back-main]").forEach((button) => {
       button.addEventListener("click", () => {
+        const section = button.closest(".menu");
         updateMainMenu();
+
+        if (
+          section === achievementsMenu ||
+          section === statsMenu ||
+          section === leaderboardMenu
+        ) {
+          renderProgressHome();
+          showOnly(progressMenu);
+          return;
+        }
+
+        if (section === rulesMenu) {
+          renderSettings();
+          showOnly(settingsMenu);
+          return;
+        }
+
         showOnly(mainMenu);
       });
     });
